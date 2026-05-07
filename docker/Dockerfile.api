@@ -2,13 +2,14 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Установка системных зависимостей для работы с PDF, EPUB, FB2
+# Установка системных зависимостей
 RUN apt-get update && apt-get install -y \
     gcc \
     libxml2-dev \
     libxslt-dev \
     libjpeg-dev \
     zlib1g-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Копируем requirements и устанавливаем зависимости
@@ -17,7 +18,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем весь код приложения
 COPY app/ ./app/
-COPY .env .
+
+# Копируем .env если существует (не критично, если нет)
+COPY .env* ./
 
 # Открываем порт
 EXPOSE 8000

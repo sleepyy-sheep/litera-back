@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from sqlalchemy import text
@@ -7,8 +8,9 @@ from app.db import get_db, engine
 from app.models import Base
 from app.core.storage import storage
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
+# Устанавливаем политику цикла событий только для Windows
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,9 +22,7 @@ async def lifespan(app: FastAPI):
     # Shutdown
     await engine.dispose()
 
-
 app = FastAPI(title="Litera Backend", lifespan=lifespan)
-
 
 @app.get("/health")
 async def health_check(db=Depends(get_db)):
@@ -32,21 +32,18 @@ async def health_check(db=Depends(get_db)):
         "db_connected": bool(result.scalar())
     }
 
-
 from app.auth.router import router as auth_router
-
 app.include_router(auth_router)
 
 from app.books.router import router as books_router
-
 app.include_router(books_router)
 
 from fastapi.middleware.cors import CORSMiddleware
 
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],                    # Пока все адреса
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],                    # Разрешает GET, POST, DELETE и т.д.
-    allow_headers=["*"],)
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
