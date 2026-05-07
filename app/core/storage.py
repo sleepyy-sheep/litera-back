@@ -11,8 +11,8 @@ from app.core.config import settings
 class StorageService:
     def __init__(self):
         # Отключаем прокси через переменные окружения
-        os.environ['NO_PROXY'] = 'localhost,127.0.0.1'
-        os.environ['no_proxy'] = 'localhost,127.0.0.1'
+        os.environ['NO_PROXY'] = 'localhost,127.0.0.1,minio'
+        os.environ['no_proxy'] = 'localhost,127.0.0.1,minio'
         
         # Создаем клиент с явным указанием не использовать прокси
         self.s3_client = boto3.client(
@@ -52,7 +52,7 @@ class StorageService:
         s3_key = f"users/{user_id}/{uuid4()}.{extension}"
 
         try:
-            # Загружаем напрямую из UploadFile (очень эффективно)
+            # Загружаем напрямую из UploadFile
             await asyncio.to_thread(
                 self.s3_client.upload_fileobj,
                 file.file,
@@ -65,7 +65,7 @@ class StorageService:
             raise HTTPException(500, f"Ошибка загрузки в хранилище: {str(e)}")
 
     async def get_presigned_url(self, s3_key: str) -> str:
-        """Генерирует временную ссылку для скачивания/чтения (1 час)"""
+        """Генерирует временную ссылку для скачивания/чтения"""
         try:
             url = await asyncio.to_thread(
                 self.s3_client.generate_presigned_url,
@@ -76,6 +76,19 @@ class StorageService:
             return url
         except Exception:
             raise HTTPException(500, "Не удалось сгенерировать ссылку на книгу")
+
+    async def delete_file(self, s3_key: str) -> bool:
+        """Удаляет файл из MinIO"""
+        try:
+            await asyncio.to_thread(
+                self.s3_client.delete_object,
+                Bucket=self.bucket,
+                Key=s3_key
+            )
+            return True
+        except Exception as e:
+            print(f"Ошибка удаления файла из MinIO: {e}")
+            return False
 
 
 storage = StorageService()

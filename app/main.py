@@ -43,12 +43,10 @@ app.include_router(books_router)
 
 from fastapi.middleware.cors import CORSMiddleware
 
-# ... (твой lifespan и app = FastAPI(...))
 
-# === Добавь это ===
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],                    # Для разработки — разрешает всё. На продакшене замени на конкретные адреса!
+    allow_origins=["*"],                    # Пока все адреса
     allow_credentials=True,
     allow_methods=["*"],                    # Разрешает GET, POST, DELETE и т.д.
     allow_headers=["*"],)
