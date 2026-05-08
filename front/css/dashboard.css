@@ -1,0 +1,211 @@
+@font-face {
+    font-family: "Inter";
+    src: url("../fonts/Inter-VariableFont_opsz,wght.ttf");
+}
+
+@font-face {
+    font-family: "Lora";
+    src: url("../fonts/Lora.ttf");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body.dashboard-body {
+    background: #2C211B;
+    color: #E7D9D0;
+    font-family: "Inter", system-ui, sans-serif;
+    min-height: 100vh;
+}
+
+/* HEADER */
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1F1815;
+    padding: 18px 5%;
+    position: relative;
+    z-index: 10;
+}
+
+.logo img { height: 46px; }
+
+.main-nav a {
+    color: #E7D9D0;
+    text-decoration: none;
+    margin: 0 22px;
+    font-weight: 500;
+}
+
+.main-nav a.active {
+    color: white;
+    position: relative;
+}
+
+.main-nav a.active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #E7D9D0;
+}
+
+/* Центральная кнопка "+" */
+.add-book-wrapper {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    margin-top: -32px;           /* Налезает на header */
+}
+
+.add-book-btn-big {
+    width: 78px;
+    height: 78px;
+    background: #E7D9D0;
+    color: #2C211B;
+    border: none;
+    border-radius: 50%;
+    font-size: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.add-book-btn-big:hover {
+    transform: scale(1.08);
+}
+
+/* Основной контент */
+.main-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 20px 5% 20px;
+}
+
+.add-text {
+    font-size: 1.1rem;
+    color: #C4B8B0;
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+/* ==================== SEARCH INPUT ==================== */
+.search-container {
+    max-width: 600px;
+    margin: 30px 0 40px;
+    display: flex;
+
+}
+
+.search-bar {
+    background: #F5F0E9;           /* светлый бежевый фон */
+    border-radius: 10px;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.search-bar:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.search-bar input {
+    background: transparent;
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 1.08rem;
+    color: #6B5C4D;                /* тёмный текст */
+    padding-left: 10px;
+    font-family: "Inter", sans-serif;
+}
+
+.search-bar input::placeholder {
+    color: #A38F7E;
+}
+
+/* Иконка лупы */
+.search-icon {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    color: #6B5C4D;
+    cursor: pointer;
+    padding: 4px;
+}
+/* Иконка поиска */
+.search-icon {
+    background: none;
+    border: none;
+    font-size: 1.45rem;
+    color: #6B5C4D;
+    cursor: pointer;
+    padding: 6px;
+    margin-right: 8px;
+}
+
+/* Иконка фильтров */
+.filter-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: 0.3s;
+    position: relative;
+    right: 5rem;
+}
+
+.filter-icon:hover {
+    background: rgba(107, 92, 77, 0.15);
+}
+
+.filter-icon img {
+    width: 50px;
+    height: 50px;
+}
+/* Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 40px;
+}
+
+.book-card {
+    display: flex;
+    background: rgba(255,255,255,0.085);
+    border-radius: 16px;
+    padding: 18px;
+}
+
+.book-cover { width: 78px; height: 110px; object-fit: cover; border-radius: 8px; margin-right: 20px; }
+
+/* Sidebar */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.stat-card, .quote-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 28px 20px;
+    text-align: center;
+}
+
+/* Адаптив */
+@media (max-width: 992px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+}
