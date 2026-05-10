@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: litera2_postgres
+    environment:
+      POSTGRES_USER: litera_user
+      POSTGRES_PASSWORD: litera_pass
+      POSTGRES_DB: litera_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    container_name: litera2_minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: litera2_api
+    environment:
+      DATABASE_URL: postgresql+asyncpg://litera_user:litera_pass@postgres:5432/litera_db
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin123
+      MINIO_BUCKET: books
+      MINIO_SECURE: "false"
+      PRESIGNED_URL_EXPIRE_MINUTES: "60"
+      # ВАЖНО: замените на случайную строку перед деплоем в продакшн
+      SECRET_KEY: your-super-secret-key-change-in-production-2026
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app
+    depends_on:
+      - postgres
+      - minio
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  minio_data:

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация • ЛитЭра</title>
+    <link rel="stylesheet" href="css/register.css">
+</head>
+<body>
+
+<div class="header_container">
+    <div class="logo"><img src="log_img/Logo.svg" alt="ЛитЭра"></div>
+    <div class="nav">
+        <a href="#" class="tooltip-trigger" data-tooltip="about">О проекте</a>
+        <a href="#" class="tooltip-trigger" data-tooltip="contact">Контакты</a>
+    </div>
+</div>
+<hr>
+
+<div class="autorization">
+    <div class="left-part">
+        <div class="left-text">
+            <div class="your_ygolok">Создаем уютный уголок для чтения</div>
+            <div class="sub_your_ygolok">Откройте мир любимых историй в самой теплой атмосфере.</div>
+        </div>
+    </div>
+
+    <div class="right-part">
+        <div class="welcome">
+            <a href="log.html"><img src="log_img/back_button.svg" alt="Назад"></a>
+            Создание аккаунта
+        </div>
+        <div class="account">Начните чтение ваших любимых книг с нами</div>
+
+        <div class="email_password">Введите имя</div>
+        <div class="input-wrapper">
+            <img src="log_img/user_icon.svg" class="input-icon" alt="">
+            <input type="text" id="name" placeholder="Иван Иванов" required>
+        </div>
+
+        <div class="email_password">Email</div>
+        <div class="input-wrapper">
+            <img src="log_img/email_icon.svg" class="input-icon" alt="">
+            <input type="email" id="email" placeholder="your@email.com" required>
+        </div>
+
+        <div class="email_password">Придумайте пароль</div>
+        <div class="input-wrapper">
+            <img src="log_img/lock_icon.svg" class="input-icon" alt="">
+            <input type="password" id="password" placeholder="••••••••" required>
+            <img src="log_img/opened_eye_icon.svg" id="togglePassword" class="toggle-password" alt="">
+        </div>
+
+        <div class="email_password">Подтвердите пароль</div>
+        <div class="input-wrapper">
+            <img src="log_img/lock_icon.svg" class="input-icon" alt="">
+            <input type="password" id="confirmPassword" placeholder="••••••••" required>
+            <img src="log_img/opened_eye_icon.svg" id="toggleConfirmPassword" class="toggle-password" alt="">
+        </div>
+
+        <button id="registerBtn">Создать аккаунт</button>
+    </div>
+</div>
+
+<!-- TOOLTIP О ПРОЕКТЕ -->
+<div class="tooltip" id="tooltip-about">
+    <div class="tooltip-content">
+        <p>«LitEra» - удобная платформа для чтения книг со встроенным трекером прогресса.</p>
+        <p>Наша задача - сделать чтение книг не только комфортным, но и мотивирующим, позволяющую отслеживать чтение, ставить цели и анализировать привычки.</p>
+    </div>
+</div>
+
+<!-- TOOLTIP КОНТАКТЫ -->
+<div class="tooltip" id="tooltip-contact">
+    <div class="tooltip-content">
+        <p><strong>Есть вопросы или предложения?</strong></p>
+        <div class="email-container">
+            <span id="email-text">litera@gmail.com</span>
+            <button class="copy-btn" id="copy-email-btn">📋</button>
+        </div>
+        <p>Мы всегда рады помочь Вам и услышать Ваши идеи для развития «LitEra», а также открыты к диалогу и сотрудничеству.</p>
+    </div>
+</div>
+
+<script src="js/register.js"></script>
+<script src="js/api.js"></script>
+<script src="js/api-integration.js"></script>
+</body>
+</html>

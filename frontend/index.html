@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои книги • ЛитЭра</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- HEADER -->
+    <header class="dashboard-header">
+        <div class="logo"><img src="log_img/Logo.svg" alt="ЛитЭра"></div>
+
+        <nav class="main-nav">
+            <a href="#" class="active">Мои книги</a>
+            <a href="#">Моя полка</a>
+            <a href="#">Статистика</a>
+            <a href="#">Настройки</a>
+        </nav>
+    </header>
+
+    <!-- Центральная кнопка Добавить книгу -->
+    <div class="add-book-wrapper">
+        <button class="add-book-btn-big">+</button>
+        <p class="add-text">ДОБАВЬТЕ КНИГУ</p>
+    </div>
+
+    <div class="main-content">
+        <!-- Поиск -->
+        <div class="search-container">
+            <button class="filter-icon">
+                <img src="log_img/filter_icon.svg" alt="Фильтры">
+            </button>
+            <div class="search-bar">
+                <input type="text" placeholder="Найти книгу...">
+                <img src="log_img/search_icon.svg" class="search-icon-img" alt="Поиск">
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Список книг -->
+            <div class="books-section">
+                <div class="book-card">
+                    <img src="log_img/book1.jpg" class="book-cover" alt="">
+                    <div class="book-info">
+                        <h3>Потерянные девушки Рима</h3>
+                        <p class="author">Донато Карризи</p>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 80%"></div>
+                        </div>
+                        <p class="progress-text">80% • Последнее открытие: 26.02.2026</p>
+                    </div>
+                    <button class="play-btn">▶</button>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="stat-card">
+                    <div class="circle">70%</div>
+                    <p>Прогресс за день</p>
+                </div>
+                <div class="stat-card flame">
+                    <div class="flame-icon">🔥</div>
+                    <div class="number">105</div>
+                </div>
+                <div class="quote-card">
+                    <p>"Книги — это самолёт, и поезд, и дорога..."</p>
+                    <p class="quote-author">— Анна Квиндлен</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
