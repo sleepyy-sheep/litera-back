@@ -1,0 +1,132 @@
+/* ============================================================
+   sort-drawer.css — единая мобильная панель сортировки
+   ============================================================ */
+
+.sort-drawer-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 350;
+  background: rgba(20, 12, 8, .55);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease;
+}
+
+.sort-drawer-backdrop--open {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Кнопка открытия (десктоп — узкая колонка-якорь) */
+.sort-toggle-wrap {
+  grid-area: sidebar;
+  position: sticky;
+  top: 80px;
+  align-self: start;
+  z-index: 20;
+}
+
+.sort-toggle-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--card-border);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 3px 14px rgba(0, 0, 0, .32);
+  transition: background .2s, border-color .2s, transform .1s;
+}
+
+.sort-toggle-btn:hover {
+  background: var(--surface-mid);
+  border-color: var(--accent);
+}
+
+.sort-toggle-btn__icon {
+  width: 28px;
+  height: 26px;
+  object-fit: contain;
+}
+
+/* На десктопе панель всегда видна в колонке */
+@media (min-width: 601px) {
+  .sort-toggle-wrap {
+    display: none;
+  }
+
+  .sort-panel {
+    display: block !important;
+    transform: none !important;
+    position: sticky;
+  }
+}
+
+/* Мобильный drawer */
+@media (max-width: 600px) {
+  .sort-toggle-wrap {
+    display: none;
+  }
+
+  .dashboard > .sort-panel,
+  .shelves-layout > .sort-panel {
+    display: block !important;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: min(292px, 88vw);
+    z-index: 400;
+    margin: 0;
+    transform: translateX(-105%);
+    transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0 var(--r-lg) var(--r-lg) 0;
+    box-shadow: 8px 0 40px rgba(0, 0, 0, .45);
+  }
+
+  .sort-panel--open {
+    transform: translateX(0);
+  }
+
+  .sort-panel__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .12);
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .mobile-subnav__sort {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .mobile-subnav__sort-icon {
+    width: 22px;
+    height: 20px;
+    object-fit: contain;
+  }
+}
+
+@media (min-width: 601px) {
+  .sort-panel__close {
+    display: none;
+  }
+}

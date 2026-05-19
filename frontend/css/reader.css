@@ -1,0 +1,340 @@
+/* ============================================================
+   reader.css — страница чтения ЛитЭра
+   ============================================================ */
+
+.reader-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f3ebe3;
+  color: #2a1a14;
+}
+
+/* ── Шапка чтения ─────────────────────────────────────────── */
+.reader-header {
+  flex-shrink: 0;
+  background: var(--surface);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .4);
+  z-index: 100;
+}
+
+.reader-header__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px 18px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.reader-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.reader-header__logo {
+  height: 34px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.reader-header__progress-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.reader-header__progress-label {
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-family: system-ui, sans-serif;
+}
+
+.reader-header__progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reader-header__progress-bar {
+  width: 100px;
+  height: 5px;
+  background: rgba(255, 255, 255, .2);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+
+.reader-header__progress-fill {
+  height: 100%;
+  background: var(--text);
+  border-radius: var(--r-pill);
+  transition: width .3s ease;
+}
+
+.reader-header__progress-pct {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  min-width: 32px;
+}
+
+.reader-header__title {
+  text-align: center;
+  font-size: 17px;
+  font-weight: bold;
+  color: var(--text);
+  line-height: 1.25;
+  padding: 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reader-header__tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.reader-tool-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .1);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  transition: background .2s, border-color .2s;
+}
+
+.reader-tool-btn:hover {
+  background: rgba(255, 255, 255, .2);
+  border-color: rgba(255, 255, 255, .35);
+}
+
+.reader-tool-btn img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+/* ── Область текста ───────────────────────────────────────── */
+.reader-main {
+  flex: 1;
+  position: relative;
+  overflow-y: auto;
+  background: #f3ebe3;
+}
+
+.reader-back {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform .15s;
+}
+
+.reader-back:hover {
+  transform: scale(1.05);
+}
+
+.reader-back img {
+  width: 48px;
+  height: 48px;
+  display: block;
+}
+
+.reader-content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 72px 48px 48px;
+}
+
+.reader-chapter {
+  font-size: 32px;
+  font-weight: bold;
+  text-align: center;
+  color: #2a1a14;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.reader-chapter__rule {
+  width: 120px;
+  height: 2px;
+  background: rgba(42, 26, 20, .25);
+  margin: 0 auto 36px;
+  border: none;
+}
+
+.reader-text {
+  font-size: 18px;
+  line-height: 1.75;
+  color: #2a1a14;
+  text-align: left;
+}
+
+.reader-text p {
+  margin-bottom: 1.1em;
+  text-indent: 1.5em;
+}
+
+.reader-text p:first-child {
+  text-indent: 0;
+}
+
+/* ── Подвал ───────────────────────────────────────────────── */
+.reader-footer {
+  flex-shrink: 0;
+  background: var(--surface);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, .35);
+}
+
+.reader-footer__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.reader-nav-btn {
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 8px 4px;
+  transition: color .2s, opacity .2s;
+  white-space: nowrap;
+}
+
+.reader-nav-btn:hover {
+  color: var(--accent);
+}
+
+.reader-nav-btn:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.reader-footer__meta {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: system-ui, sans-serif;
+  line-height: 1.45;
+}
+
+.reader-footer__meta strong {
+  color: var(--text);
+  font-weight: bold;
+}
+
+/* ── Адаптив ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .reader-header__inner {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .reader-header__brand {
+    grid-row: 1;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .reader-header__title {
+    grid-row: 2;
+    grid-column: 1;
+    font-size: 15px;
+    white-space: normal;
+    text-align: left;
+    padding: 0;
+  }
+
+  .reader-header__tools {
+    grid-row: 1;
+    gap: 6px;
+  }
+
+  .reader-tool-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 11px;
+  }
+
+  .reader-content {
+    padding: 64px 24px 32px;
+  }
+
+  .reader-chapter {
+    font-size: 26px;
+  }
+
+  .reader-text {
+    font-size: 17px;
+    line-height: 1.7;
+  }
+
+  .reader-footer__inner {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .reader-footer__meta {
+    order: -1;
+    width: 100%;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .reader-header__progress-bar {
+    width: 72px;
+  }
+
+  .reader-back {
+    top: 12px;
+    left: 12px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .reader-back img {
+    width: 42px;
+    height: 42px;
+  }
+}

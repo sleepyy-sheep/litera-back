@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЛитЭра — Полки</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/shelves.css">
+  <link rel="stylesheet" href="css/sort-drawer.css">
+</head>
+<body class="page-shelves">
+
+<!-- ===== ФОНОВЫЕ СПРАЙТЫ ===== -->
+<div class="bg-sprites" aria-hidden="true">
+  <img src="log_img/book.svg"  class="sprite sprite--1" alt="">
+  <img src="log_img/book2.svg" class="sprite sprite--2" alt="">
+  <img src="log_img/book3.svg" class="sprite sprite--3" alt="">
+  <img src="log_img/book4.svg" class="sprite sprite--4" alt="">
+  <img src="log_img/book.svg"  class="sprite sprite--5" alt="">
+  <img src="log_img/book2.svg" class="sprite sprite--6" alt="">
+  <img src="log_img/book3.svg" class="sprite sprite--7" alt="">
+  <img src="log_img/book4.svg" class="sprite sprite--8" alt="">
+</div>
+
+<!-- ===== ШАПКА ===== -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo" aria-label="ЛитЭра — на главную">
+      <img src="log_img/Logo.svg" alt="ЛитЭра" class="logo__img">
+    </a>
+    <span class="header-title">Полки</span>
+    <form class="search-form" role="search" onsubmit="return false">
+      <label for="search-input" class="visually-hidden">Найти книгу</label>
+      <input id="search-input" class="search-form__input" type="search"
+             placeholder="Найти книгу..." autocomplete="off">
+      <button class="search-form__btn" type="submit" aria-label="Поиск">
+        <img src="log_img/search_icon.svg" alt="" aria-hidden="true">
+      </button>
+    </form>
+    <nav class="main-nav" aria-label="Основная навигация">
+      <a href="index.html" class="main-nav__link">Книги</a>
+      <span class="main-nav__sep">|</span>
+      <a href="shelves.html" class="main-nav__link main-nav__link--active">Полки</a>
+    </nav>
+    <div class="header-actions">
+      <div class="hdr-dropdown-wrap" id="wrap-profile">
+        <button class="icon-btn" id="btn-profile" aria-label="Профиль" aria-expanded="false" aria-haspopup="true">
+          <img src="log_img/user_icon.svg" alt="" aria-hidden="true">
+        </button>
+        <div class="hdr-dropdown hdr-dropdown--profile" id="dd-profile" role="dialog" aria-label="Цель для просмотра">
+          <p class="hdr-dropdown__title">Выберите цель для просмотра</p>
+          <div class="goal-grid">
+            <div class="goal-card">
+              <button class="goal-card__edit" aria-label="Редактировать">✏</button>
+              <p class="goal-card__label">Страниц за день</p>
+              <p class="goal-card__value">452</p>
+              <div class="goal-card__bar"><div class="goal-card__bar-fill" style="width:75%"></div></div>
+            </div>
+            <div class="goal-card">
+              <button class="goal-card__edit" aria-label="Редактировать">✏</button>
+              <p class="goal-card__label">Время чтения</p>
+              <p class="goal-card__value">40 м</p>
+              <div class="goal-card__bar"><div class="goal-card__bar-fill" style="width:55%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hdr-dropdown-wrap" id="wrap-theme">
+        <button class="icon-btn" id="btn-theme" aria-label="Выбор темы" aria-expanded="false" aria-haspopup="true">
+          <img src="log_img/theam_icon.png" alt="" aria-hidden="true">
+        </button>
+        <div class="hdr-dropdown hdr-dropdown--theme" id="dd-theme" role="dialog" aria-label="Выбор темы">
+          <p class="hdr-dropdown__title">Выбор темы</p>
+          <div class="theme-grid">
+            <button class="theme-card" data-theme="dark" aria-label="Тёмная тема">
+              <div class="theme-card__preview theme-card__preview--dark">
+                <img src="log_img/book2.svg" alt="" aria-hidden="true">
+                <span class="theme-card__name">ЛитЭра</span>
+              </div>
+            </button>
+            <button class="theme-card theme-card--active" data-theme="brown" aria-label="Коричневая тема">
+              <div class="theme-card__preview theme-card__preview--brown">
+                <img src="log_img/book2.svg" alt="" aria-hidden="true">
+                <span class="theme-card__name">ЛитЭра</span>
+              </div>
+              <span class="theme-card__check" aria-hidden="true">✓</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="hdr-dropdown-wrap" id="wrap-stats">
+        <button class="icon-btn" id="btn-stats" aria-label="Статистика" aria-expanded="false" aria-haspopup="true">
+          <img src="log_img/statics_icon.svg" alt="" aria-hidden="true">
+        </button>
+        <div class="hdr-dropdown hdr-dropdown--stats" id="dd-stats" role="dialog" aria-label="Активность">
+          <div class="stats-header">
+            <span class="stats-header__label">Активность</span>
+            <span class="stats-header__value">452 стр <span class="stats-header__badge">+12%</span></span>
+            <div class="stats-tabs" role="group">
+              <button class="stats-tab stats-tab--active">7 дней</button>
+              <button class="stats-tab">Месяц</button>
+              <button class="stats-tab">Год</button>
+            </div>
+          </div>
+          <div class="stats-chart" aria-label="График активности">
+            <svg viewBox="0 0 480 140" class="stats-chart__svg" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(246,237,231,0.25)"/>
+                  <stop offset="100%" stop-color="rgba(246,237,231,0)"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,120 C34,120 51,17 86,26 C120,34 137,95 171,86 C206,77 223,26 257,34 C292,43 309,95 343,86 C378,77 394,43 429,34 C454,27 467,17 480,9 L480,140 L0,140 Z" fill="url(#chartGrad)"/>
+              <path d="M0,120 C34,120 51,17 86,26 C120,34 137,95 171,86 C206,77 223,26 257,34 C292,43 309,95 343,86 C378,77 394,43 429,34 C454,27 467,17 480,9" fill="none" stroke="#f6ede7" stroke-width="2.5"/>
+            </svg>
+            <div class="stats-chart__labels" aria-hidden="true">
+              <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== МОБИЛЬНАЯ СУБ-НАВИГАЦИЯ ===== -->
+<div class="mobile-top-area mobile-top-area--shelves">
+  <div class="mobile-subnav-wrap">
+    <div class="mobile-subnav">
+      <button class="mobile-subnav__sort" type="button" data-sort-trigger aria-label="Сортировка полок" aria-expanded="false">
+        <img src="log_img/filter_icon.svg" alt="" class="mobile-subnav__sort-icon" aria-hidden="true">
+      </button>
+      <div class="mobile-subnav__tabs">
+        <a href="index.html" class="mobile-subnav__tab">Книги</a>
+        <a href="shelves.html" class="mobile-subnav__tab mobile-subnav__tab--active">Полки</a>
+      </div>
+      <button class="mobile-subnav__more mobile-subnav__more--add" id="mobile-add-shelf-btn" aria-label="Добавить полку">+</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
+<main class="shelves-layout">
+
+  <!-- ПАНЕЛЬ СОРТИРОВКИ (как на «Книги») -->
+  <aside class="sort-panel" id="sort-panel" aria-label="Сортировка полок">
+    <div class="sort-panel__header">
+      <svg class="sort-panel__header-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <line x1="3" y1="6"  x2="21" y2="6"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="18" x2="9"  y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <polyline points="18 9 21 6 18 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span class="sort-panel__header-text">Сортировать</span>
+    </div>
+    <div class="sort-group">
+      <p class="sort-group__label">По алфавиту</p>
+      <div class="sort-group__btns">
+        <button class="sort-pair-btn sort-pair-btn--active" type="button" data-sort="alpha" data-dir="asc">А → Я</button>
+        <button class="sort-pair-btn" type="button" data-sort="alpha" data-dir="desc">Я → А</button>
+      </div>
+    </div>
+    <div class="sort-group">
+      <p class="sort-group__label">По дате</p>
+      <div class="sort-group__btns">
+        <button class="sort-pair-btn" type="button" data-sort="date" data-dir="desc">Сначала новые</button>
+        <button class="sort-pair-btn" type="button" data-sort="date" data-dir="asc">Сначала старые</button>
+      </div>
+    </div>
+    <div class="sort-group">
+      <p class="sort-group__label">По количеству книг</p>
+      <div class="sort-group__btns">
+        <button class="sort-pair-btn" type="button" data-sort="count" data-dir="desc">Больше → Меньше</button>
+        <button class="sort-pair-btn" type="button" data-sort="count" data-dir="asc">Меньше → Больше</button>
+      </div>
+    </div>
+    <div class="sort-panel__deco" aria-hidden="true">
+      <img src="log_img/book.svg" alt="">
+    </div>
+  </aside>
+
+  <!-- СПИСОК ПОЛОК -->
+  <section class="shelves-list" id="shelves-list" aria-label="Мои полки">
+
+    <!-- Полка: Прочитанные -->
+    <article class="shelf-card shelf-card--smart" data-shelf="read" data-count="57" data-date="2026-02-26">
+      <div class="shelf-card__head">
+        <div class="shelf-card__head-text">
+          <h2 class="shelf-card__title">Прочитанные</h2>
+          <p class="shelf-card__authors">Донато Карризи, Агата Кристи...</p>
+        </div>
+        <div class="shelf-card__more-wrap">
+          <button class="shelf-more-btn" aria-label="Действия с полкой" aria-haspopup="true">•••</button>
+          <div class="shelf-ctx-menu" role="menu">
+            <button class="shelf-ctx-menu__item" role="menuitem"><span class="shelf-ctx-menu__icon">✏</span> Переименовать</button>
+            <div class="shelf-ctx-menu__sep"></div>
+            <button class="shelf-ctx-menu__item" role="menuitem"><span class="shelf-ctx-menu__icon">📤</span> Поделиться</button>
+            <div class="shelf-ctx-menu__sep"></div>
+            <button class="shelf-ctx-menu__item shelf-ctx-menu__item--danger" role="menuitem"><span class="shelf-ctx-menu__icon">🗑</span> Удалить полку</button>
+          </div>
+        </div>
+      </div>
+      <div class="shelf-card__covers-wrap">
+        <div class="shelf-card__covers" tabindex="0" aria-label="Обложки на полке, всего 57 книг">
+          <img src="log_img/cover-ya-bez.svg" alt="" class="shelf-cover">
+          <img src="log_img/cover-dom.svg" alt="" class="shelf-cover">
+          <img src="log_img/cover-dom-ogni.svg" alt="" class="shelf-cover">
+          <img src="log_img/cover-karr.svg" alt="" class="shelf-cover shelf-cover--fade">
+          <div class="shelf-cover shelf-cover--more" aria-hidden="true"><span>+53</span></div>
+        </div>
+      </div>
+      <p class="shelf-card__last">
+        Последняя добавленная книга:
+        <span class="shelf-card__last-title">«Потерянные девушки Рима»</span>
+      </p>
+    </article>
+
+    <!-- Полка: Избранные -->
+    <article class="shelf-card shelf-card--smart" data-shelf="fav" data-count="57" data-date="2026-01-15">
+      <div class="shelf-card__head">
+        <div class="shelf-card__head-text">
+          <h2 class="shelf-card__title">Избранные</h2>
+          <p class="shelf-card__authors">Донато Карризи, Агата Кристи...</p>
+        </div>
+        <div class="shelf-card__more-wrap">
+          <button class="shelf-more-btn" aria-label="Действия с полкой" aria-haspopup="true">•••</button>
+          <div class="shelf-ctx-menu" role="menu">
+            <button class="shelf-ctx-menu__item" role="menuitem"><span class="shelf-ctx-menu__icon">✏</span> Переименовать</button>
+            <div class="shelf-ctx-menu__sep"></div>
+            <button class="shelf-ctx-menu__item" role="menuitem"><span class="shelf-ctx-menu__icon">📤</span> Поделиться</button>
+            <div class="shelf-ctx-menu__sep"></div>
+            <button class="shelf-ctx-menu__item shelf-ctx-menu__item--danger" role="menuitem"><span class="shelf-ctx-menu__icon">🗑</span> Удалить полку</button>
+          </div>
+        </div>
+      </div>
+      <div class="shelf-card__covers-wrap">
+        <div class="shelf-card__covers" tabindex="0" aria-label="Обложки на полке, всего 57 книг">
+          <img src="log_img/cover-dom.svg" alt="" class="shelf-cover">
+          <img src="log_img/cover-karr.svg" alt="" class="shelf-cover">
+          <img src="log_img/cover-ya-bez.svg" alt="" class="shelf-cover">
+          <img src="log_img/cover-dom-ogni.svg" alt="" class="shelf-cover shelf-cover--fade">
+          <div class="shelf-cover shelf-cover--more" aria-hidden="true"><span>+53</span></div>
+        </div>
+      </div>
+      <p class="shelf-card__last">
+        Последняя добавленная книга:
+        <span class="shelf-card__last-title">«Потерянные девушки Рима»</span>
+      </p>
+    </article>
+
+  </section>
+
+  <!-- ПРАВАЯ ПАНЕЛЬ -->
+  <aside class="shelves-right" aria-label="Виджеты полок">
+    <div class="shelves-widgets-top">
+    <div class="book-of-week">
+      <p class="book-of-week__label">Книга недели</p>
+      <div class="book-of-week__cover-wrap">
+        <img src="log_img/cover-kanashiburi.svg"
+             alt="КАНАШИБУРИ — книга недели" class="book-of-week__cover">
+      </div>
+    </div>
+
+    <button class="add-shelf-btn" id="btn-add-shelf" aria-label="Добавить новую полку">
+      <div class="add-shelf-btn__inner">
+        <div class="add-shelf-btn__icon-wrap" aria-hidden="true">
+          <img src="log_img/add_book_button.png" alt="" class="add-shelf-btn__icon">
+          <span class="add-shelf-btn__plus">+</span>
+        </div>
+        <span class="add-shelf-btn__label">Добавить<br>полку</span>
+      </div>
+    </button>
+    </div>
+
+    <blockquote class="quote-card quote-card--shelves">
+      <span class="quote-card__mark" aria-hidden="true">99</span>
+      <p class="quote-card__text">
+        "Книги — это самолёт, и поезд, и дорога. Они — и пункт назначения, и путь к нему. Они — дом."
+      </p>
+      <footer class="quote-card__footer">
+        <cite class="quote-card__author">— Анна Куиндлен</cite>
+        <img src="log_img/book2.svg" alt="" class="quote-card__deco" aria-hidden="true">
+      </footer>
+    </blockquote>
+
+  </aside>
+
+  <!-- МОБИЛЬНЫЕ ВИДЖЕТЫ (компактная правая колонка) -->
+  <aside class="shelves-mobile-widgets" aria-label="Виджеты">
+    <div class="shelves-mobile-widgets__row">
+      <div class="book-of-week book-of-week--compact">
+        <p class="book-of-week__label">Книга недели</p>
+        <img src="log_img/cover-kanashiburi.svg" alt="КАНАШИБУРИ" class="book-of-week__cover">
+      </div>
+      <button class="add-shelf-btn add-shelf-btn--compact" type="button" aria-label="Добавить полку">
+        <div class="add-shelf-btn__icon-wrap" aria-hidden="true">
+          <img src="log_img/add_book_button.png" alt="" class="add-shelf-btn__icon">
+          <span class="add-shelf-btn__plus">+</span>
+        </div>
+        <span class="add-shelf-btn__label">Добавить полку</span>
+      </button>
+    </div>
+    <blockquote class="quote-card quote-card--compact">
+      <span class="quote-card__mark" aria-hidden="true">99</span>
+      <p class="quote-card__text">
+        "Книги — это самолёт, и поезд, и дорога. Они — и пункт назначения, и путь к нему. Они — дом."
+      </p>
+      <footer class="quote-card__footer">
+        <cite class="quote-card__author">— Анна Куиндлен</cite>
+      </footer>
+    </blockquote>
+  </aside>
+
+</main>
+
+<div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ===== МОДАЛ: Создать полку ===== -->
+<div class="modal-overlay" id="modal-add-shelf" role="dialog" aria-modal="true" aria-labelledby="modal-shelf-title">
+  <div class="modal modal--add-shelf">
+    <button class="modal__close modal__close--outside" data-close="modal-add-shelf" aria-label="Закрыть">✕</button>
+    <h2 class="modal__shelf-title" id="modal-shelf-title">Новая полка</h2>
+    <p class="modal__shelf-sub">Создайте свою коллекцию или выберите умную полку</p>
+
+    <div class="modal__shelf-field">
+      <label for="shelf-name-input" class="modal__shelf-label">Название полки</label>
+      <input id="shelf-name-input" class="modal__shelf-input" type="text"
+             placeholder="Например: Летнее чтение..." maxlength="40">
+    </div>
+
+    <div class="modal__shelf-field">
+      <p class="modal__shelf-label">Умные полки</p>
+      <div class="modal__shelf-presets">
+        <button class="shelf-preset-btn" data-name="Прочитанные" data-smart="true">📚 Прочитанные</button>
+        <button class="shelf-preset-btn" data-name="Избранные" data-smart="true">⭐ Избранные</button>
+        <button class="shelf-preset-btn" data-name="Хочу прочитать" data-smart="true">🔖 Хочу прочитать</button>
+        <button class="shelf-preset-btn" data-name="Читаю сейчас" data-smart="true">📖 Читаю сейчас</button>
+        <button class="shelf-preset-btn" data-name="Подарить">🎁 Подарить</button>
+        <button class="shelf-preset-btn" data-name="Классика">🏛 Классика</button>
+      </div>
+    </div>
+
+    <div class="modal__shelf-footer">
+      <button class="modal__shelf-cancel" type="button" data-close="modal-add-shelf">Отмена</button>
+      <button class="modal__shelf-submit" type="button" id="shelf-submit-btn">Создать полку</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav" aria-label="Навигация">
+  <a href="index.html" class="bottom-nav__item" aria-label="Мои книги">
+    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="3" width="7" height="9" rx="1" stroke="currentColor" stroke-width="2"/>
+      <rect x="14" y="3" width="7" height="9" rx="1" stroke="currentColor" stroke-width="2"/>
+      <rect x="3" y="15" width="7" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+      <rect x="14" y="15" width="7" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <span>Мои книги</span>
+  </a>
+  <a href="shelves.html" class="bottom-nav__item bottom-nav__item--active" aria-label="Полки">
+    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="2" y="18" width="20" height="3" rx="1" stroke="currentColor" stroke-width="2"/>
+      <rect x="4" y="10" width="16" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+      <rect x="6" y="4"  width="12" height="5" rx="1" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <span>Полки</span>
+  </a>
+  <button class="bottom-nav__item" id="bottom-add-shelf-btn" type="button" aria-label="Добавить полку">
+    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+      <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="8"  y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>Добавить</span>
+  </button>
+  <button class="bottom-nav__item" type="button" aria-label="Настройки">
+    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>Настройки</span>
+  </button>
+</nav>
+
+<script>
+const ddWraps = document.querySelectorAll('.hdr-dropdown-wrap');
+function openDD(w) { ddWraps.forEach(x => { if (x !== w) closeDD(x); }); w.classList.add('hdr-dropdown-wrap--open'); w.querySelector('.icon-btn')?.setAttribute('aria-expanded', 'true'); }
+function closeDD(w) { w.classList.remove('hdr-dropdown-wrap--open'); w.querySelector('.icon-btn')?.setAttribute('aria-expanded', 'false'); }
+function toggleDD(w) { w.classList.contains('hdr-dropdown-wrap--open') ? closeDD(w) : openDD(w); }
+ddWraps.forEach(w => {
+  w.querySelector('.icon-btn')?.addEventListener('click', e => { e.stopPropagation(); toggleDD(w); });
+  w.addEventListener('mouseenter', () => openDD(w));
+  w.addEventListener('mouseleave', () => closeDD(w));
+});
+document.addEventListener('click', () => ddWraps.forEach(closeDD));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') ddWraps.forEach(closeDD); });
+
+document.querySelectorAll('.stats-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    t.closest('.stats-tabs').querySelectorAll('.stats-tab').forEach(x => x.classList.remove('stats-tab--active'));
+    t.classList.add('stats-tab--active');
+  });
+});
+
+document.querySelectorAll('.theme-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.theme-card').forEach(c => { c.classList.remove('theme-card--active'); c.querySelector('.theme-card__check')?.remove(); });
+    card.classList.add('theme-card--active');
+    const chk = document.createElement('span'); chk.className = 'theme-card__check'; chk.setAttribute('aria-hidden', 'true'); chk.textContent = '✓'; card.appendChild(chk);
+  });
+});
+
+function closeAllShelfMenus() { document.querySelectorAll('.shelf-ctx-menu--open').forEach(m => m.classList.remove('shelf-ctx-menu--open')); }
+document.querySelectorAll('.shelf-more-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const menu = btn.closest('.shelf-card__more-wrap').querySelector('.shelf-ctx-menu');
+    const isOpen = menu.classList.contains('shelf-ctx-menu--open');
+    closeAllShelfMenus();
+    if (!isOpen) menu.classList.add('shelf-ctx-menu--open');
+  });
+});
+document.addEventListener('click', closeAllShelfMenus);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllShelfMenus(); });
+
+document.querySelectorAll('.shelf-ctx-menu__item--danger').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const card = btn.closest('.shelf-card');
+    if (!card || card.classList.contains('shelf-card--smart')) {
+      showToast('Умные полки нельзя удалить');
+      closeAllShelfMenus();
+      return;
+    }
+    card.classList.add('shelf-card--removing');
+    setTimeout(() => card.remove(), 320);
+    closeAllShelfMenus();
+  });
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('toast--visible');
+  setTimeout(() => t.classList.remove('toast--visible'), 2800);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('modal-overlay--visible'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('modal-overlay--visible'); document.body.style.overflow = ''; }
+document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => closeModal(btn.dataset.close)));
+document.querySelectorAll('.modal-overlay').forEach(ov => ov.addEventListener('click', e => { if (e.target === ov) closeModal(ov.id); }));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay--visible').forEach(m => closeModal(m.id)); });
+
+function openAddShelfModal() { openModal('modal-add-shelf'); }
+['btn-add-shelf', 'bottom-add-shelf-btn', 'mobile-add-shelf-btn'].forEach(id => {
+  document.getElementById(id)?.addEventListener('click', openAddShelfModal);
+});
+document.querySelector('.add-shelf-btn--compact')?.addEventListener('click', openAddShelfModal);
+
+document.querySelectorAll('.shelf-preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.shelf-preset-btn').forEach(b => b.classList.remove('shelf-preset-btn--active'));
+    btn.classList.add('shelf-preset-btn--active');
+    const input = document.getElementById('shelf-name-input');
+    if (input) input.value = btn.dataset.name;
+  });
+});
+
+document.getElementById('shelf-submit-btn')?.addEventListener('click', () => {
+  const name = document.getElementById('shelf-name-input')?.value.trim();
+  if (!name) { document.getElementById('shelf-name-input')?.focus(); return; }
+  const preset = document.querySelector('.shelf-preset-btn--active');
+  const isSmart = preset?.dataset.smart === 'true';
+  addShelfCard(name, isSmart);
+  closeModal('modal-add-shelf');
+  document.getElementById('shelf-name-input').value = '';
+  document.querySelectorAll('.shelf-preset-btn').forEach(b => b.classList.remove('shelf-preset-btn--active'));
+  showToast(`Полка «${name}» создана`);
+});
+
+const COVER_IMGS = [
+  'log_img/cover-ya-bez.svg',
+  'log_img/cover-dom.svg',
+  'log_img/cover-dom-ogni.svg',
+  'log_img/cover-karr.svg'
+];
+
+function shelfCoversHtml() {
+  return COVER_IMGS.map((src, i) =>
+    `<img src="${src}" alt="" class="shelf-cover${i === 3 ? ' shelf-cover--fade' : ''}">`
+  ).join('') + '<div class="shelf-cover shelf-cover--more" aria-hidden="true"><span>+0</span></div>';
+}
+
+function addShelfCard(name, isSmart) {
+  const list = document.getElementById('shelves-list');
+  const card = document.createElement('article');
+  card.className = 'shelf-card shelf-card--new' + (isSmart ? ' shelf-card--smart' : '');
+  card.dataset.count = '0';
+  const covers = isSmart
+    ? shelfCoversHtml()
+    : '<div class="shelf-cover shelf-cover--placeholder" aria-hidden="true">📚</div><p class="shelf-empty-hint">Добавьте первую книгу</p>';
+
+  card.innerHTML = `
+    <div class="shelf-card__head">
+      <div class="shelf-card__head-text">
+        <div class="shelf-card__title-row">
+          <h2 class="shelf-card__title">${name}</h2>
+          ${badge}
+        </div>
+        <p class="shelf-card__authors">${isSmart ? 'Донато Карризи, Агата Кристи...' : 'Пока пусто'}</p>
+      </div>
+      <div class="shelf-card__more-wrap">
+        <button class="shelf-more-btn" aria-label="Действия с полкой" aria-haspopup="true">•••</button>
+        <div class="shelf-ctx-menu" role="menu">
+          <button class="shelf-ctx-menu__item" role="menuitem"><span class="shelf-ctx-menu__icon">✏</span> Переименовать</button>
+          <div class="shelf-ctx-menu__sep"></div>
+          <button class="shelf-ctx-menu__item shelf-ctx-menu__item--danger" role="menuitem"><span class="shelf-ctx-menu__icon">🗑</span> Удалить полку</button>
+        </div>
+      </div>
+    </div>
+    <div class="shelf-card__covers-wrap">
+      <div class="shelf-card__covers${isSmart ? '' : ' shelf-card__covers--empty'}">${covers}</div>
+    </div>
+    <p class="shelf-card__last">${isSmart ? 'Последняя добавленная книга: <span class="shelf-card__last-title">—</span>' : 'Добавьте первую книгу на полку'}</p>`;
+
+  list.appendChild(card);
+  card.querySelector('.shelf-more-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    const menu = card.querySelector('.shelf-ctx-menu');
+    const isOpen = menu.classList.contains('shelf-ctx-menu--open');
+    closeAllShelfMenus();
+    if (!isOpen) menu.classList.add('shelf-ctx-menu--open');
+  });
+  card.querySelector('.shelf-ctx-menu__item--danger')?.addEventListener('click', e => {
+    e.stopPropagation();
+    if (card.classList.contains('shelf-card--smart')) { showToast('Умные полки нельзя удалить'); closeAllShelfMenus(); return; }
+    card.classList.add('shelf-card--removing');
+    setTimeout(() => card.remove(), 320);
+    closeAllShelfMenus();
+  });
+  requestAnimationFrame(() => card.classList.add('shelf-card--visible'));
+}
+</script>
+<script src="js/sort-drawer.js"></script>
+<script src="js/shelves-sort.js"></script>
+</body>
+</html>

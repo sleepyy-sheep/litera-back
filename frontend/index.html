@@ -1,77 +1,959 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мои книги • ЛитЭра</title>
-    <link rel="stylesheet" href="css/dashboard.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЛитЭра — Книжный трекер</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/sort-drawer.css">
 </head>
-<body class="dashboard-body">
+<body>
 
-    <!-- HEADER -->
-    <header class="dashboard-header">
-        <div class="logo"><img src="log_img/Logo.svg" alt="ЛитЭра"></div>
+<!-- ===== ФОНОВЫЕ СПРАЙТЫ ===== -->
+<div class="bg-sprites" aria-hidden="true">
+  <img src="log_img/book.svg"  class="sprite sprite--1" alt="">
+  <img src="log_img/book2.svg" class="sprite sprite--2" alt="">
+  <img src="log_img/book3.svg" class="sprite sprite--3" alt="">
+  <img src="log_img/book4.svg" class="sprite sprite--4" alt="">
+  <img src="log_img/book.svg"  class="sprite sprite--5" alt="">
+  <img src="log_img/book2.svg" class="sprite sprite--6" alt="">
+  <img src="log_img/book3.svg" class="sprite sprite--7" alt="">
+  <img src="log_img/book4.svg" class="sprite sprite--8" alt="">
+</div>
 
-        <nav class="main-nav">
-            <a href="#" class="active">Мои книги</a>
-            <a href="#">Моя полка</a>
-            <a href="#">Статистика</a>
-            <a href="#">Настройки</a>
-        </nav>
-    </header>
+<!-- ===== ШАПКА ===== -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#" class="logo" aria-label="ЛитЭра — на главную">
+      <img src="log_img/Logo.svg" alt="ЛитЭра" class="logo__img">
+    </a>
+    <span class="header-title">Мои книги</span>
+    <form class="search-form" role="search" onsubmit="return false">
+      <label for="search-input" class="visually-hidden">Найти книгу</label>
+      <input id="search-input" class="search-form__input" type="search"
+             placeholder="Найти книгу..." autocomplete="off">
+      <button class="search-form__btn" type="submit" aria-label="Поиск">
+        <img src="log_img/search_icon.svg" alt="" aria-hidden="true">
+      </button>
+    </form>
+    <nav class="main-nav" aria-label="Основная навигация">
+      <a href="index.html" class="main-nav__link main-nav__link--active">Книги</a>
+      <span class="main-nav__sep">|</span>
+      <a href="shelves.html" class="main-nav__link">Полки</a>
+    </nav>
+    <!-- Иконки шапки с выпадающими панелями -->
+    <div class="header-actions">
 
-    <!-- Центральная кнопка Добавить книгу -->
-    <div class="add-book-wrapper">
-        <button class="add-book-btn-big">+</button>
-        <p class="add-text">ДОБАВЬТЕ КНИГУ</p>
-    </div>
+      <!-- Профиль -->
+      <div class="hdr-dropdown-wrap" id="wrap-profile">
+        <button class="icon-btn" id="btn-profile" aria-label="Профиль" aria-expanded="false" aria-haspopup="true">
+          <img src="log_img/user_icon.svg" alt="" aria-hidden="true">
+        </button>
+        <div class="hdr-dropdown hdr-dropdown--profile" id="dd-profile" role="dialog" aria-label="Цель для просмотра">
+          <p class="hdr-dropdown__title">Выберите цель для просмотра</p>
+          <div class="goal-grid">
+            <div class="goal-card">
+              <button class="goal-card__edit" aria-label="Редактировать страниц за день">✏</button>
+              <p class="goal-card__label">Страниц за день</p>
+              <p class="goal-card__value">452</p>
+              <div class="goal-card__bar"><div class="goal-card__bar-fill" style="width:75%"></div></div>
+            </div>
+            <div class="goal-card">
+              <button class="goal-card__edit" aria-label="Редактировать время чтения">✏</button>
+              <p class="goal-card__label">Время чтения</p>
+              <p class="goal-card__value">40 м</p>
+              <div class="goal-card__bar"><div class="goal-card__bar-fill" style="width:55%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div class="main-content">
-        <!-- Поиск -->
-        <div class="search-container">
-            <button class="filter-icon">
-                <img src="log_img/filter_icon.svg" alt="Фильтры">
+      <!-- Тема -->
+      <div class="hdr-dropdown-wrap" id="wrap-theme">
+        <button class="icon-btn" id="btn-theme" aria-label="Выбор темы" aria-expanded="false" aria-haspopup="true">
+          <img src="log_img/theam_icon.png" alt="" aria-hidden="true">
+        </button>
+        <div class="hdr-dropdown hdr-dropdown--theme" id="dd-theme" role="dialog" aria-label="Выбор темы">
+          <p class="hdr-dropdown__title">Выбор темы</p>
+          <div class="theme-grid">
+            <button class="theme-card" data-theme="dark" aria-label="Тёмная тема">
+              <div class="theme-card__preview theme-card__preview--dark">
+                <img src="log_img/book2.svg" alt="" aria-hidden="true">
+                <span class="theme-card__name">ЛитЭра</span>
+              </div>
             </button>
-            <div class="search-bar">
-                <input type="text" placeholder="Найти книгу...">
-                <img src="log_img/search_icon.svg" class="search-icon-img" alt="Поиск">
-            </div>
+            <button class="theme-card theme-card--active" data-theme="brown" aria-label="Коричневая тема (выбрана)">
+              <div class="theme-card__preview theme-card__preview--brown">
+                <img src="log_img/book2.svg" alt="" aria-hidden="true">
+                <span class="theme-card__name">ЛитЭра</span>
+              </div>
+              <span class="theme-card__check" aria-hidden="true">✓</span>
+            </button>
+          </div>
         </div>
+      </div>
 
-        <div class="dashboard-grid">
-            <!-- Список книг -->
-            <div class="books-section">
-                <div class="book-card">
-                    <img src="log_img/book1.jpg" class="book-cover" alt="">
-                    <div class="book-info">
-                        <h3>Потерянные девушки Рима</h3>
-                        <p class="author">Донато Карризи</p>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 80%"></div>
-                        </div>
-                        <p class="progress-text">80% • Последнее открытие: 26.02.2026</p>
-                    </div>
-                    <button class="play-btn">▶</button>
-                </div>
+      <!-- Статистика -->
+      <div class="hdr-dropdown-wrap" id="wrap-stats">
+        <button class="icon-btn" id="btn-stats" aria-label="Статистика" aria-expanded="false" aria-haspopup="true">
+          <img src="log_img/statics_icon.svg" alt="" aria-hidden="true">
+        </button>
+        <div class="hdr-dropdown hdr-dropdown--stats" id="dd-stats" role="dialog" aria-label="Активность">
+          <div class="stats-header">
+            <span class="stats-header__label">Активность</span>
+            <span class="stats-header__value">452 стр
+              <span class="stats-header__badge">+12%</span>
+            </span>
+            <div class="stats-tabs" role="group" aria-label="Период">
+              <button class="stats-tab stats-tab--active">7 дней</button>
+              <button class="stats-tab">Месяц</button>
+              <button class="stats-tab">Год</button>
             </div>
-
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div class="stat-card">
-                    <div class="circle">70%</div>
-                    <p>Прогресс за день</p>
-                </div>
-                <div class="stat-card flame">
-                    <div class="flame-icon">🔥</div>
-                    <div class="number">105</div>
-                </div>
-                <div class="quote-card">
-                    <p>"Книги — это самолёт, и поезд, и дорога..."</p>
-                    <p class="quote-author">— Анна Квиндлен</p>
-                </div>
+          </div>
+          <div class="stats-chart" aria-label="График активности">
+            <svg viewBox="0 0 480 140" class="stats-chart__svg" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(246,237,231,0.25)"/>
+                  <stop offset="100%" stop-color="rgba(246,237,231,0)"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,120 C34,120 51,17 86,26 C120,34 137,95 171,86 C206,77 223,26 257,34 C292,43 309,95 343,86 C378,77 394,43 429,34 C454,27 467,17 480,9 L480,140 L0,140 Z" fill="url(#chartGrad)"/>
+              <path d="M0,120 C34,120 51,17 86,26 C120,34 137,95 171,86 C206,77 223,26 257,34 C292,43 309,95 343,86 C378,77 394,43 429,34 C454,27 467,17 480,9" fill="none" stroke="#f6ede7" stroke-width="2.5" stroke-linejoin="round"/>
+            </svg>
+            <div class="stats-chart__labels" aria-hidden="true">
+              <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span>
+              <span>Пт</span><span>Сб</span><span>Вс</span>
             </div>
+          </div>
         </div>
+      </div>
+
+    </div><!-- /header-actions -->
+  </div><!-- /header-inner -->
+</header>
+
+<!-- ===== МОБИЛЬНЫЙ БЛОК: Продолжите чтение + суб-навигация ===== -->
+<div class="mobile-top-area">
+
+  <div class="mobile-continue" aria-label="Продолжите чтение">
+    <div class="mobile-continue__text">
+      <h2 class="mobile-continue__title">Продолжите чтение</h2>
+      <p class="mobile-continue__book">Потерянные девушки Рима</p>
+      <div class="mobile-continue__progress">
+        <div class="mobile-continue__bar">
+          <div class="mobile-continue__fill" style="width:80%"></div>
+        </div>
+        <span class="mobile-continue__pct">80%</span>
+      </div>
+    </div>
+    <div class="mobile-continue__cover-wrap">
+      <span class="mobile-continue__star" aria-hidden="true">⭐</span>
+      <img src="log_img/background_left_part.png" alt="Обложка" class="mobile-continue__cover">
+    </div>
+  </div>
+
+  <div class="mobile-subnav-wrap">
+    <div class="mobile-subnav">
+      <button class="mobile-subnav__sort" type="button" data-sort-trigger aria-label="Сортировка" aria-expanded="false">
+        <img src="log_img/filter_icon.svg" alt="" class="mobile-subnav__sort-icon" aria-hidden="true">
+      </button>
+      <div class="mobile-subnav__tabs">
+        <a href="index.html" class="mobile-subnav__tab mobile-subnav__tab--active">Книги</a>
+        <a href="shelves.html" class="mobile-subnav__tab">Полки</a>
+      </div>
+      <button class="mobile-subnav__more" id="mobile-more-btn" aria-label="Ещё">•••</button>
+    </div>
+    <div class="mobile-ctx-menu" id="mobile-ctx-menu" role="menu">
+      <button class="mobile-ctx-menu__item" id="mobile-ctx-shelf" role="menuitem"><span>✓</span> На полку</button>
+      <button class="mobile-ctx-menu__item mobile-ctx-menu__item--danger" id="mobile-ctx-delete" role="menuitem"><span>🗑</span> Удалить</button>
+      <button class="mobile-ctx-menu__item" id="mobile-ctx-cancel" role="menuitem"><span>✕</span> Отменить</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
+<main class="dashboard">
+
+  <!-- ПАНЕЛЬ СОРТИРОВКИ -->
+  <aside class="sort-panel" id="sort-panel" aria-label="Сортировка книг">
+
+    <div class="sort-panel__header">
+      <svg class="sort-panel__header-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <line x1="3" y1="6"  x2="21" y2="6"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="18" x2="9"  y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <polyline points="18 9 21 6 18 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span class="sort-panel__header-text">Сортировать</span>
     </div>
 
+    <!-- Алфавит -->
+    <div class="sort-group">
+      <p class="sort-group__label">По алфавиту</p>
+      <div class="sort-group__btns">
+        <button class="sort-pair-btn sort-pair-btn--active" data-sort="alpha" data-dir="asc">А → Я</button>
+        <button class="sort-pair-btn" data-sort="alpha" data-dir="desc">Я → А</button>
+      </div>
+    </div>
+
+    <!-- Прогресс -->
+    <div class="sort-group">
+      <p class="sort-group__label">По прогрессу</p>
+      <div class="sort-group__btns">
+        <button class="sort-pair-btn" data-sort="progress" data-dir="asc">0% → 100%</button>
+        <button class="sort-pair-btn" data-sort="progress" data-dir="desc">100% → 0%</button>
+      </div>
+    </div>
+
+    <!-- Дата -->
+    <div class="sort-group">
+      <p class="sort-group__label">По дате</p>
+      <div class="sort-group__btns">
+        <button class="sort-pair-btn" data-sort="date" data-dir="desc">Сначала новые</button>
+        <button class="sort-pair-btn" data-sort="date" data-dir="asc">Сначала старые</button>
+      </div>
+    </div>
+
+    <!-- Жанр -->
+    <div class="sort-group sort-group--genre">
+      <p class="sort-group__label">По жанру</p>
+      <div class="sort-genre__input-wrap">
+        <input
+          type="text"
+          id="genre-search"
+          class="sort-genre__input"
+          placeholder="Введите жанр..."
+          autocomplete="off"
+          aria-label="Фильтр по жанру"
+        >
+        <svg class="sort-genre__input-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/>
+          <line x1="13.5" y1="13.5" x2="17" y2="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="sort-genre__hint">или выберите из популярных</p>
+      <div class="sort-genre__chips" id="genre-chips">
+        <button class="genre-chip genre-chip--active" data-genre-filter="all">Все</button>
+        <button class="genre-chip" data-genre-filter="Детектив">Детектив</button>
+        <button class="genre-chip" data-genre-filter="Роман">Роман</button>
+        <button class="genre-chip" data-genre-filter="Фантастика">Фантастика</button>
+        <button class="genre-chip" data-genre-filter="Сказка">Сказка</button>
+      </div>
+    </div>
+
+    <!-- Декоративная иконка книги внизу -->
+    <div class="sort-panel__deco" aria-hidden="true">
+      <img src="log_img/book.svg" alt="">
+    </div>
+
+  </aside>
+
+  <!-- СПИСОК КНИГ -->
+  <section class="book-list" id="book-list" aria-label="Текущие книги">
+
+    <!-- Карточка 1 -->
+    <article class="book-card"
+      data-title="Потерянные девушки Рима"
+      data-author="Донато Карризи"
+      data-genre="Детектив"
+      data-progress="80"
+      data-date="2026-02-26"
+      data-page="400"
+      data-total="1567"
+      data-minutes="20">
+      <div class="book-card__check-circle" aria-hidden="true"><span>✓</span></div>
+      <img src="log_img/background_left_part.png" alt="Обложка «Потерянные девушки Рима»" class="book-card__cover">
+      <div class="book-card__info">
+        <h2 class="book-card__title">Потерянные девушки Рима</h2>
+        <p class="book-card__author">Донато Карризи</p>
+        <p class="book-card__genre">Детектив</p>
+        <div class="reading-progress" aria-label="Прогресс 80%">
+          <div class="reading-progress__bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+            <div class="reading-progress__fill" style="width:80%"></div>
+          </div>
+          <span class="reading-progress__label">80%</span>
+        </div>
+        <p class="book-card__date">Последнее открытие: 26.02.2026</p>
+        <a href="#" class="book-card__note-link">Добавьте заметку</a>
+      </div>
+      <div class="book-card__actions">
+        <div class="more-wrap">
+          <button class="more-btn" aria-label="Дополнительные действия" aria-haspopup="true">•••</button>
+          <div class="ctx-menu" role="menu" aria-label="Действия с книгой">
+            <button class="ctx-menu__item ctx-action-edit" role="menuitem"><span class="ctx-menu__icon">✏</span> Изменить</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-action-shelf" role="menuitem"><span class="ctx-menu__icon">✓</span> На полку</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-menu__item--danger ctx-action-delete" role="menuitem"><span class="ctx-menu__icon">🗑</span> Удалить</button>
+          </div>
+        </div>
+        <button class="play-btn" aria-label="Продолжить чтение">
+          <img src="log_img/play-svgrepo-com.svg" alt="" aria-hidden="true">
+        </button>
+      </div>
+    </article>
+
+    <!-- Карточка 2 -->
+    <article class="book-card"
+      data-title="Алиса в стране чудес"
+      data-author="Льюис Кэрролл"
+      data-genre="Сказка"
+      data-progress="45"
+      data-date="2025-12-21">
+      <div class="book-card__check-circle" aria-hidden="true"><span>✓</span></div>
+      <img src="log_img/autorization_mask.png" alt="Обложка «Алиса в стране чудес»" class="book-card__cover">
+      <div class="book-card__info">
+        <h2 class="book-card__title">Алиса в стране чудес</h2>
+        <p class="book-card__author">Льюис Кэрролл</p>
+        <p class="book-card__genre">Сказка</p>
+        <div class="reading-progress" aria-label="Прогресс 45%">
+          <div class="reading-progress__bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">
+            <div class="reading-progress__fill" style="width:45%"></div>
+          </div>
+          <span class="reading-progress__label">45%</span>
+        </div>
+        <p class="book-card__date">Последнее открытие: 21.12.2025</p>
+        <a href="#" class="book-card__note-link">Добавьте заметку</a>
+      </div>
+      <div class="book-card__actions">
+        <div class="more-wrap">
+          <button class="more-btn" aria-label="Дополнительные действия" aria-haspopup="true">•••</button>
+          <div class="ctx-menu" role="menu" aria-label="Действия с книгой">
+            <button class="ctx-menu__item ctx-action-edit" role="menuitem"><span class="ctx-menu__icon">✏</span> Изменить</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-action-shelf" role="menuitem"><span class="ctx-menu__icon">✓</span> На полку</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-menu__item--danger ctx-action-delete" role="menuitem"><span class="ctx-menu__icon">🗑</span> Удалить</button>
+          </div>
+        </div>
+        <button class="play-btn" aria-label="Продолжить чтение">
+          <img src="log_img/play-svgrepo-com.svg" alt="" aria-hidden="true">
+        </button>
+      </div>
+    </article>
+
+    <!-- Карточка 3 -->
+    <article class="book-card"
+      data-title="Мастер и Маргарита"
+      data-author="Михаил Булгаков"
+      data-genre="Роман"
+      data-progress="62"
+      data-date="2026-01-15">
+      <div class="book-card__check-circle" aria-hidden="true"><span>✓</span></div>
+      <img src="log_img/mykhaylo-kopyt-VGAQ5Vy35hk-unsplash.png" alt="Обложка «Мастер и Маргарита»" class="book-card__cover">
+      <div class="book-card__info">
+        <h2 class="book-card__title">Мастер и Маргарита</h2>
+        <p class="book-card__author">Михаил Булгаков</p>
+        <p class="book-card__genre">Роман</p>
+        <div class="reading-progress" aria-label="Прогресс 62%">
+          <div class="reading-progress__bar" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100">
+            <div class="reading-progress__fill" style="width:62%"></div>
+          </div>
+          <span class="reading-progress__label">62%</span>
+        </div>
+        <p class="book-card__date">Последнее открытие: 15.01.2026</p>
+        <a href="#" class="book-card__note-link">Добавьте заметку</a>
+      </div>
+      <div class="book-card__actions">
+        <div class="more-wrap">
+          <button class="more-btn" aria-label="Дополнительные действия" aria-haspopup="true">•••</button>
+          <div class="ctx-menu" role="menu" aria-label="Действия с книгой">
+            <button class="ctx-menu__item ctx-action-edit" role="menuitem"><span class="ctx-menu__icon">✏</span> Изменить</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-action-shelf" role="menuitem"><span class="ctx-menu__icon">✓</span> На полку</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-menu__item--danger ctx-action-delete" role="menuitem"><span class="ctx-menu__icon">🗑</span> Удалить</button>
+          </div>
+        </div>
+        <button class="play-btn" aria-label="Продолжить чтение">
+          <img src="log_img/play-svgrepo-com.svg" alt="" aria-hidden="true">
+        </button>
+      </div>
+    </article>
+
+    <!-- Карточка 4 -->
+    <article class="book-card"
+      data-title="1984"
+      data-author="Джордж Оруэлл"
+      data-genre="Фантастика"
+      data-progress="100"
+      data-date="2025-11-03">
+      <div class="book-card__check-circle" aria-hidden="true"><span>✓</span></div>
+      <img src="log_img/background_left_part.png" alt="Обложка «1984»" class="book-card__cover">
+      <div class="book-card__info">
+        <h2 class="book-card__title">1984</h2>
+        <p class="book-card__author">Джордж Оруэлл</p>
+        <p class="book-card__genre">Фантастика</p>
+        <div class="reading-progress" aria-label="Прогресс 100%">
+          <div class="reading-progress__bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+            <div class="reading-progress__fill" style="width:100%"></div>
+          </div>
+          <span class="reading-progress__label">100%</span>
+        </div>
+        <p class="book-card__date">Последнее открытие: 03.11.2025</p>
+        <a href="#" class="book-card__note-link">Добавьте заметку</a>
+      </div>
+      <div class="book-card__actions">
+        <div class="more-wrap">
+          <button class="more-btn" aria-label="Дополнительные действия" aria-haspopup="true">•••</button>
+          <div class="ctx-menu" role="menu" aria-label="Действия с книгой">
+            <button class="ctx-menu__item ctx-action-edit" role="menuitem"><span class="ctx-menu__icon">✏</span> Изменить</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-action-shelf" role="menuitem"><span class="ctx-menu__icon">✓</span> На полку</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-menu__item--danger ctx-action-delete" role="menuitem"><span class="ctx-menu__icon">🗑</span> Удалить</button>
+          </div>
+        </div>
+        <button class="play-btn" aria-label="Продолжить чтение">
+          <img src="log_img/play-svgrepo-com.svg" alt="" aria-hidden="true">
+        </button>
+      </div>
+    </article>
+
+    <!-- Карточка 5 -->
+    <article class="book-card"
+      data-title="Преступление и наказание"
+      data-author="Фёдор Достоевский"
+      data-genre="Роман"
+      data-progress="28"
+      data-date="2026-03-10">
+      <div class="book-card__check-circle" aria-hidden="true"><span>✓</span></div>
+      <img src="log_img/autorization_mask.png" alt="Обложка «Преступление и наказание»" class="book-card__cover">
+      <div class="book-card__info">
+        <h2 class="book-card__title">Преступление и наказание</h2>
+        <p class="book-card__author">Фёдор Достоевский</p>
+        <p class="book-card__genre">Роман</p>
+        <div class="reading-progress" aria-label="Прогресс 28%">
+          <div class="reading-progress__bar" role="progressbar" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100">
+            <div class="reading-progress__fill" style="width:28%"></div>
+          </div>
+          <span class="reading-progress__label">28%</span>
+        </div>
+        <p class="book-card__date">Последнее открытие: 10.03.2026</p>
+        <a href="#" class="book-card__note-link">Добавьте заметку</a>
+      </div>
+      <div class="book-card__actions">
+        <div class="more-wrap">
+          <button class="more-btn" aria-label="Дополнительные действия" aria-haspopup="true">•••</button>
+          <div class="ctx-menu" role="menu" aria-label="Действия с книгой">
+            <button class="ctx-menu__item ctx-action-edit" role="menuitem"><span class="ctx-menu__icon">✏</span> Изменить</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-action-shelf" role="menuitem"><span class="ctx-menu__icon">✓</span> На полку</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-menu__item--danger ctx-action-delete" role="menuitem"><span class="ctx-menu__icon">🗑</span> Удалить</button>
+          </div>
+        </div>
+        <button class="play-btn" aria-label="Продолжить чтение">
+          <img src="log_img/play-svgrepo-com.svg" alt="" aria-hidden="true">
+        </button>
+      </div>
+    </article>
+
+    <!-- Карточка 6 -->
+    <article class="book-card"
+      data-title="Дюна"
+      data-author="Фрэнк Герберт"
+      data-genre="Фантастика"
+      data-progress="91"
+      data-date="2025-10-18">
+      <div class="book-card__check-circle" aria-hidden="true"><span>✓</span></div>
+      <img src="log_img/mykhaylo-kopyt-VGAQ5Vy35hk-unsplash.png" alt="Обложка «Дюна»" class="book-card__cover">
+      <div class="book-card__info">
+        <h2 class="book-card__title">Дюна</h2>
+        <p class="book-card__author">Фрэнк Герберт</p>
+        <p class="book-card__genre">Фантастика</p>
+        <div class="reading-progress" aria-label="Прогресс 91%">
+          <div class="reading-progress__bar" role="progressbar" aria-valuenow="91" aria-valuemin="0" aria-valuemax="100">
+            <div class="reading-progress__fill" style="width:91%"></div>
+          </div>
+          <span class="reading-progress__label">91%</span>
+        </div>
+        <p class="book-card__date">Последнее открытие: 18.10.2025</p>
+        <a href="#" class="book-card__note-link">Добавьте заметку</a>
+      </div>
+      <div class="book-card__actions">
+        <div class="more-wrap">
+          <button class="more-btn" aria-label="Дополнительные действия" aria-haspopup="true">•••</button>
+          <div class="ctx-menu" role="menu" aria-label="Действия с книгой">
+            <button class="ctx-menu__item ctx-action-edit" role="menuitem"><span class="ctx-menu__icon">✏</span> Изменить</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-action-shelf" role="menuitem"><span class="ctx-menu__icon">✓</span> На полку</button>
+            <div class="ctx-menu__sep"></div>
+            <button class="ctx-menu__item ctx-menu__item--danger ctx-action-delete" role="menuitem"><span class="ctx-menu__icon">🗑</span> Удалить</button>
+          </div>
+        </div>
+        <button class="play-btn" aria-label="Продолжить чтение">
+          <img src="log_img/play-svgrepo-com.svg" alt="" aria-hidden="true">
+        </button>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ПРАВАЯ ПАНЕЛЬ -->
+  <aside class="right-panel" aria-label="Виджеты">
+    <div class="widgets-row">
+
+      <!-- Прогресс за день -->
+      <div class="widget widget--progress" aria-label="Прогресс чтения за день">
+        <div class="day-progress__ring">
+          <svg viewBox="0 0 80 80" class="day-progress__svg" aria-hidden="true">
+            <circle class="day-progress__track" cx="40" cy="40" r="32"/>
+            <circle class="day-progress__fill-ring" cx="40" cy="40" r="32"
+              stroke-dasharray="201" stroke-dashoffset="60"/>
+          </svg>
+          <span class="day-progress__value">70%</span>
+        </div>
+        <p class="widget__label">Прогресс<br>за день</p>
+      </div>
+
+      <!-- Добавить книгу -->
+      <button class="widget widget--add-book" id="btn-add-book" aria-label="Добавить книгу в библиотеку">
+        <div class="widget--add-book__inner">
+          <img src="log_img/add_book_button.png" alt="" aria-hidden="true" class="widget--add-book__img">
+          <span class="widget__label">Добавить<br>книгу</span>
+        </div>
+      </button>
+
+    </div>
+
+    <!-- Цитата -->
+    <blockquote class="quote-card">
+      <span class="quote-card__mark" aria-hidden="true">99</span>
+      <p class="quote-card__text">
+        "Книги — это самолёт, и поезд, и дорога. Они — и пункт назначения, и путь к нему. Они — дом."
+      </p>
+      <footer class="quote-card__footer">
+        <cite class="quote-card__author">— Анна Куиндлен</cite>
+        <img src="log_img/book2.svg" alt="" class="quote-card__deco" aria-hidden="true">
+      </footer>
+    </blockquote>
+  </aside>
+
+</main>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ============================================================
+     МОДАЛЬНОЕ ОКНО: Добавить книгу
+     ============================================================ -->
+<div class="modal-overlay" id="modal-add-book" role="dialog" aria-modal="true"
+     aria-labelledby="modal-add-book-title">
+  <div class="modal modal--add-book">
+    <button class="modal__close modal__close--outside" data-close="modal-add-book" aria-label="Закрыть">✕</button>
+    <div class="add-book__top">
+      <div class="add-book__file-zone" id="add-book-drop" role="button" tabindex="0"
+           aria-label="Выбрать файл книги">
+        <input type="file" id="add-book-file" accept=".fb2,.epub,.pdf"
+               class="visually-hidden" aria-label="Файл книги">
+        <svg class="add-book__file-icon" viewBox="0 0 90 110" fill="none"
+             xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M10 10 H60 L80 30 V100 Q80 105 75 105 H15 Q10 105 10 100 Z"
+                stroke="white" stroke-width="4" fill="none"/>
+          <path d="M60 10 L60 30 L80 30" stroke="white" stroke-width="4" fill="none"/>
+          <line x1="45" y1="55" x2="45" y2="85" stroke="white" stroke-width="5" stroke-linecap="round"/>
+          <line x1="30" y1="70" x2="60" y2="70" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="add-book__fields">
+        <h2 class="add-book__heading" id="modal-add-book-title">Выберите файл с книгой</h2>
+        <p class="add-book__formats">доступные форматы: fb2, epub, pdf</p>
+        <h3 class="add-book__subheading">Добавьте заметки к книге</h3>
+        <textarea class="add-book__textarea" placeholder="Введите текст..."
+                  rows="3" aria-label="Заметки к книге"></textarea>
+      </div>
+    </div>
+    <div class="add-book__genres">
+      <p class="add-book__genres-label">Выберите жанр:</p>
+      <div class="add-book__genres-grid" role="group" aria-label="Жанры">
+        <button class="genre-tag" data-genre="Детектив">Детектив</button>
+        <button class="genre-tag" data-genre="Триллер">Триллер</button>
+        <button class="genre-tag" data-genre="Приключения">Приключения</button>
+        <button class="genre-tag" data-genre="Биография">Биография</button>
+        <button class="genre-tag" data-genre="Поэзия">Поэзия</button>
+        <button class="genre-tag" data-genre="Роман">Роман</button>
+        <button class="genre-tag" data-genre="Фэнтези">Фэнтези</button>
+        <button class="genre-tag" data-genre="Классика">Классика</button>
+        <button class="genre-tag" data-genre="История">История</button>
+        <button class="genre-tag" data-genre="Наука">Наука</button>
+        <button class="genre-tag" data-genre="Сказка">Сказка</button>
+        <button class="genre-tag" data-genre="Фантастика">Фантастика</button>
+        <button class="genre-tag" data-genre="Психология">Психология</button>
+        <button class="genre-tag" data-genre="Саморазвитие">Саморазвитие</button>
+        <button class="genre-tag" data-genre="Другой">Другой</button>
+      </div>
+    </div>
+    <div class="add-book__footer">
+      <button class="add-book__submit" type="button">Добавить книгу</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ============================================================
+   HEADER DROPDOWNS
+   ============================================================ */
+const ddWraps = document.querySelectorAll('.hdr-dropdown-wrap');
+
+function openDropdown(wrap) {
+  ddWraps.forEach(w => { if (w !== wrap) closeDropdown(w); });
+  wrap.classList.add('hdr-dropdown-wrap--open');
+  const btn = wrap.querySelector('.icon-btn');
+  if (btn) btn.setAttribute('aria-expanded', 'true');
+}
+function closeDropdown(wrap) {
+  wrap.classList.remove('hdr-dropdown-wrap--open');
+  const btn = wrap.querySelector('.icon-btn');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+function toggleDropdown(wrap) {
+  wrap.classList.contains('hdr-dropdown-wrap--open') ? closeDropdown(wrap) : openDropdown(wrap);
+}
+
+ddWraps.forEach(wrap => {
+  const btn = wrap.querySelector('.icon-btn');
+  btn.addEventListener('click', e => { e.stopPropagation(); toggleDropdown(wrap); });
+
+  // hover open
+  wrap.addEventListener('mouseenter', () => openDropdown(wrap));
+  wrap.addEventListener('mouseleave', () => closeDropdown(wrap));
+});
+
+document.addEventListener('click', () => ddWraps.forEach(closeDropdown));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') ddWraps.forEach(closeDropdown);
+});
+
+/* ============================================================
+   STATS TABS (inside dropdown)
+   ============================================================ */
+document.querySelectorAll('.stats-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    tab.closest('.stats-tabs').querySelectorAll('.stats-tab')
+       .forEach(t => t.classList.remove('stats-tab--active'));
+    tab.classList.add('stats-tab--active');
+  });
+});
+
+/* ============================================================
+   THEME CARDS (inside dropdown)
+   ============================================================ */
+document.querySelectorAll('.theme-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.theme-card').forEach(c => {
+      c.classList.remove('theme-card--active');
+      const chk = c.querySelector('.theme-card__check');
+      if (chk) chk.remove();
+    });
+    card.classList.add('theme-card--active');
+    if (!card.querySelector('.theme-card__check')) {
+      const chk = document.createElement('span');
+      chk.className = 'theme-card__check';
+      chk.setAttribute('aria-hidden', 'true');
+      chk.textContent = '✓';
+      card.appendChild(chk);
+    }
+  });
+});
+
+/* ============================================================
+   SORT PANEL — новая логика
+   ============================================================ */
+function getCards() {
+  return Array.from(document.querySelectorAll('#book-list .book-card:not([style*="display: none"])'));
+}
+function getAllCards() {
+  return Array.from(document.querySelectorAll('#book-list .book-card'));
+}
+function reorderCards(sorted) {
+  const list = document.getElementById('book-list');
+  sorted.forEach(card => list.appendChild(card));
+}
+
+// Парные кнопки сортировки
+document.querySelectorAll('.sort-pair-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const type = btn.dataset.sort;
+    const dir  = btn.dataset.dir;
+
+    // Снять активность со всех кнопок того же типа
+    document.querySelectorAll(`.sort-pair-btn[data-sort="${type}"]`)
+      .forEach(b => b.classList.remove('sort-pair-btn--active'));
+    btn.classList.add('sort-pair-btn--active');
+
+    // Показать все карточки (сброс фильтра жанра)
+    getAllCards().forEach(c => c.style.display = '');
+
+    const cards = getAllCards();
+    let sorted;
+    if (type === 'alpha') {
+      sorted = cards.sort((a, b) => {
+        const ta = a.dataset.title.toLowerCase();
+        const tb = b.dataset.title.toLowerCase();
+        return dir === 'asc' ? ta.localeCompare(tb, 'ru') : tb.localeCompare(ta, 'ru');
+      });
+    } else if (type === 'progress') {
+      sorted = cards.sort((a, b) => {
+        const pa = parseInt(a.dataset.progress, 10);
+        const pb = parseInt(b.dataset.progress, 10);
+        return dir === 'asc' ? pa - pb : pb - pa;
+      });
+    } else if (type === 'date') {
+      sorted = cards.sort((a, b) => {
+        const da = new Date(a.dataset.date);
+        const db = new Date(b.dataset.date);
+        return dir === 'asc' ? da - db : db - da;
+      });
+    }
+    if (sorted) reorderCards(sorted);
+  });
+});
+
+// Жанр — поле ввода
+const genreSearchInput = document.getElementById('genre-search');
+if (genreSearchInput) {
+  genreSearchInput.addEventListener('input', () => {
+    const val = genreSearchInput.value.trim().toLowerCase();
+    // Снять активность с чипов
+    document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('genre-chip--active'));
+    getAllCards().forEach(card => {
+      if (!val || card.dataset.genre.toLowerCase().includes(val)) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+}
+
+// Жанр — чипы
+document.querySelectorAll('.genre-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('genre-chip--active'));
+    chip.classList.add('genre-chip--active');
+    const filter = chip.dataset.genreFilter;
+    if (genreSearchInput) genreSearchInput.value = '';
+    getAllCards().forEach(card => {
+      card.style.display = (filter === 'all' || card.dataset.genre === filter) ? '' : 'none';
+    });
+  });
+});
+
+/* ============================================================
+   CONTEXT MENU (•••) — позиционирование относительно карточки
+   ============================================================ */
+function closeAllCtxMenus() {
+  document.querySelectorAll('.ctx-menu--open').forEach(m => m.classList.remove('ctx-menu--open'));
+}
+
+document.querySelectorAll('.more-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const menu = btn.closest('.more-wrap').querySelector('.ctx-menu');
+    const isOpen = menu.classList.contains('ctx-menu--open');
+    closeAllCtxMenus();
+    if (!isOpen) menu.classList.add('ctx-menu--open');
+  });
+});
+
+document.addEventListener('click', closeAllCtxMenus);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllCtxMenus(); });
+
+// Делегирование событий для кнопок меню
+document.getElementById('book-list').addEventListener('click', e => {
+  const editBtn   = e.target.closest('.ctx-action-edit');
+  const shelfBtn  = e.target.closest('.ctx-action-shelf');
+  const deleteBtn = e.target.closest('.ctx-action-delete');
+
+  if (editBtn) {
+    e.stopPropagation();
+    closeAllCtxMenus();
+    // заглушка
+  }
+  if (shelfBtn) {
+    e.stopPropagation();
+    showToast('Книга добавлена на полку');
+    closeAllCtxMenus();
+  }
+  if (deleteBtn) {
+    e.stopPropagation();
+    const card = deleteBtn.closest('.book-card');
+    if (card) {
+      card.classList.add('book-card--removing');
+      card.addEventListener('transitionend', () => card.remove(), { once: true });
+    }
+    closeAllCtxMenus();
+  }
+});
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('toast--visible');
+  setTimeout(() => toast.classList.remove('toast--visible'), 2800);
+}
+
+/* ============================================================
+   MODAL: Добавить книгу
+   ============================================================ */
+function openModal(id) {
+  document.getElementById(id).classList.add('modal-overlay--visible');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('modal-overlay--visible');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('btn-add-book').addEventListener('click', () => openModal('modal-add-book'));
+
+document.querySelectorAll('[data-close]').forEach(btn => {
+  btn.addEventListener('click', () => closeModal(btn.dataset.close));
+});
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay--visible').forEach(m => closeModal(m.id));
+  }
+});
+
+// Жанры в модале
+document.querySelectorAll('.genre-tag').forEach(tag => {
+  tag.addEventListener('click', () => {
+    document.querySelectorAll('.genre-tag').forEach(t => t.classList.remove('genre-tag--active'));
+    tag.classList.add('genre-tag--active');
+  });
+});
+
+// Drag-and-drop зона файла
+const dropZone = document.getElementById('add-book-drop');
+const fileInput = document.getElementById('add-book-file');
+if (dropZone && fileInput) {
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('add-book__file-zone--drag'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('add-book__file-zone--drag'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('add-book__file-zone--drag');
+    const file = e.dataTransfer.files[0];
+    if (file) showFileName(file.name);
+  });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) showFileName(fileInput.files[0].name); });
+  function showFileName(name) {
+    let label = dropZone.querySelector('.add-book__file-name');
+    if (!label) { label = document.createElement('p'); label.className = 'add-book__file-name'; dropZone.appendChild(label); }
+    label.textContent = name;
+  }
+}
+
+const submitBtn = document.querySelector('.add-book__submit');
+if (submitBtn) {
+  submitBtn.addEventListener('click', () => {
+    const genre = document.querySelector('.genre-tag--active')?.dataset.genre || '';
+    const note  = document.querySelector('.add-book__textarea')?.value || '';
+    const file  = fileInput?.files[0]?.name || '';
+    if (!file) { alert('Пожалуйста, выберите файл книги'); return; }
+    alert(`Книга добавлена!\nФайл: ${file}\nЖанр: ${genre || 'не выбран'}\nЗаметка: ${note || 'нет'}`);
+    closeModal('modal-add-book');
+  });
+}
+
+/* ── MOBILE BOTTOM NAV ── */
+const bottomAddBtn = document.getElementById('bottom-add-btn');
+if (bottomAddBtn) {
+  bottomAddBtn.addEventListener('click', () => openModal('modal-add-book'));
+}
+
+document.querySelectorAll('.bottom-nav__item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.bottom-nav__item').forEach(i => i.classList.remove('bottom-nav__item--active'));
+    item.classList.add('bottom-nav__item--active');
+  });
+});
+
+/* ── MOBILE CONTEXT MENU (•••) ── */
+const mobilMoreBtn = document.getElementById('mobile-more-btn');
+const mobileCtxMenu = document.getElementById('mobile-ctx-menu');
+
+if (mobilMoreBtn && mobileCtxMenu) {
+  mobilMoreBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    mobileCtxMenu.classList.toggle('mobile-ctx-menu--open');
+  });
+  document.addEventListener('click', () => mobileCtxMenu?.classList.remove('mobile-ctx-menu--open'));
+  mobileCtxMenu.addEventListener('click', e => e.stopPropagation());
+
+  document.getElementById('mobile-ctx-shelf')?.addEventListener('click', () => {
+    showToast('Книга добавлена на полку');
+    mobileCtxMenu.classList.remove('mobile-ctx-menu--open');
+  });
+  document.getElementById('mobile-ctx-delete')?.addEventListener('click', () => {
+    const firstCard = document.querySelector('#book-list .book-card');
+    if (firstCard) {
+      firstCard.classList.add('book-card--removing');
+      firstCard.addEventListener('transitionend', () => firstCard.remove(), { once: true });
+    }
+    mobileCtxMenu.classList.remove('mobile-ctx-menu--open');
+  });
+  document.getElementById('mobile-ctx-cancel')?.addEventListener('click', () => {
+    mobileCtxMenu.classList.remove('mobile-ctx-menu--open');
+  });
+}
+
+/* ── MOBILE SUBNAV TABS ── */
+document.querySelectorAll('.mobile-subnav__tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.mobile-subnav__tab').forEach(t => t.classList.remove('mobile-subnav__tab--active'));
+    tab.classList.add('mobile-subnav__tab--active');
+  });
+});
+</script>
+<script src="js/sort-drawer.js"></script>
+<script src="js/book-navigation.js"></script>
+
+<!-- BOTTOM NAVIGATION -->
+<nav class="bottom-nav" aria-label="Навигация">
+  <button class="bottom-nav__item bottom-nav__item--active" aria-label="Мои книги">
+    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="3" width="7" height="9" rx="1" stroke="currentColor" stroke-width="2"/>
+      <rect x="14" y="3" width="7" height="9" rx="1" stroke="currentColor" stroke-width="2"/>
+      <rect x="3" y="15" width="7" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+      <rect x="14" y="15" width="7" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <span>Мои книги</span>
+  </button>
+  <button class="bottom-nav__item" id="bottom-add-btn" aria-label="Добавить">
+    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+      <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>Добавить</span>
+  </button>
+  <button class="bottom-nav__item" aria-label="Статистика">
+    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none">
+      <polyline points="3,17 8,12 13,15 21,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="17,7 21,7 21,11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Статистика</span>
+  </button>
+  <button class="bottom-nav__item" aria-label="Настройки">
+    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>Настройки</span>
+  </button>
+</nav>
 </body>
 </html>

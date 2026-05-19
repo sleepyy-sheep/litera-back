@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЛитЭра — Чтение</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/reader.css">
+</head>
+<body class="reader-page">
+
+<header class="reader-header">
+  <div class="reader-header__inner">
+    <div class="reader-header__brand">
+      <a href="index.html" class="reader-header__logo-link" aria-label="На главную">
+        <img src="log_img/Logo.svg" alt="ЛитЭра" class="reader-header__logo">
+      </a>
+      <div class="reader-header__progress-block">
+        <span class="reader-header__progress-label">Прогресс чтения</span>
+        <div class="reader-header__progress-row">
+          <div class="reader-header__progress-bar" role="progressbar" id="reader-progress-bar"
+               aria-valuemin="0" aria-valuemax="100">
+            <div class="reader-header__progress-fill" id="reader-progress-fill" style="width:35%"></div>
+          </div>
+          <span class="reader-header__progress-pct" id="reader-progress-pct">35%</span>
+        </div>
+      </div>
+    </div>
+    <h1 class="reader-header__title" id="reader-book-title">Потерянные девушки Рима</h1>
+    <div class="reader-header__tools">
+      <button class="reader-tool-btn" type="button" aria-label="Закладки и заметки" title="Заметки">
+        <img src="log_img/book2.svg" alt="">
+      </button>
+      <button class="reader-tool-btn" type="button" aria-label="Персонажи" title="Персонажи">
+        <img src="log_img/user_icon.svg" alt="">
+      </button>
+      <button class="reader-tool-btn" type="button" aria-label="Шрифт" title="Шрифт">tT</button>
+      <button class="reader-tool-btn" type="button" aria-label="Тема" title="Тема">
+        <img src="log_img/theam_icon.png" alt="">
+      </button>
+      <button class="reader-tool-btn" type="button" aria-label="Настройки" title="Настройки">⚙</button>
+    </div>
+  </div>
+</header>
+
+<main class="reader-main">
+  <a href="index.html" class="reader-back" aria-label="Назад к книгам">
+    <img src="log_img/back_button.svg" alt="">
+  </a>
+  <article class="reader-content">
+    <h2 class="reader-chapter" id="reader-chapter">Возвращение домой</h2>
+    <hr class="reader-chapter__rule" aria-hidden="true">
+    <div class="reader-text">
+      <p>Солнце медленно опускалось за горизонт, окрашивая небо в тёплые оттенки оранжевого и розового. Марк остановился у старой калитки, вглядываясь в знакомый силуэт дома, который стоял на холме уже больше ста лет.</p>
+      <p>Он не был здесь пятнадцать лет. Пятнадцать лет, полных воспоминаний, которые то и дело всплывали в памяти — смех сестры в саду, запах жасмина у крыльца, скрип деревянных ступеней под ногами отца.</p>
+      <p>Теперь всё это ждало его впереди. Дом, который он когда-то покинул, спеша уехать в большой город, чтобы стать детективом. Дом, к которому его привели обстоятельства, о которых он и не подозревал.</p>
+      <p>Марк глубоко вздохнул и толкнул калитку. Ржавые петли издали протяжный скрип — звук, который он помнил с детства. Дорожка к дому была заросла, но всё ещё узнаваема. Где-то вдалеке, за деревьями, уже мерцали первые огни.</p>
+    </div>
+  </article>
+</main>
+
+<footer class="reader-footer">
+  <div class="reader-footer__inner">
+    <button type="button" class="reader-nav-btn" id="reader-prev" disabled>← Назад</button>
+    <p class="reader-footer__meta" id="reader-meta">
+      <strong>Стр. 400</strong> из 1567 · Время чтения: 20 мин.
+    </p>
+    <button type="button" class="reader-nav-btn" id="reader-next">Далее →</button>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const title = params.get('title') || 'Потерянные девушки Рима';
+  const progress = Math.min(100, Math.max(0, parseInt(params.get('progress') || '35', 10)));
+  const page = params.get('page') || '400';
+  const total = params.get('total') || '1567';
+  const minutes = params.get('minutes') || '20';
+
+  document.title = `ЛитЭра — ${title}`;
+  document.getElementById('reader-book-title').textContent = title;
+  document.getElementById('reader-progress-fill').style.width = progress + '%';
+  document.getElementById('reader-progress-pct').textContent = progress + '%';
+  const bar = document.getElementById('reader-progress-bar');
+  if (bar) {
+    bar.setAttribute('aria-valuenow', String(progress));
+    bar.setAttribute('aria-label', `Прогресс чтения ${progress}%`);
+  }
+  document.getElementById('reader-meta').innerHTML =
+    `<strong>Стр. ${page}</strong> из ${total} · Время чтения: ${minutes} мин.`;
+
+  document.getElementById('reader-next')?.addEventListener('click', () => {
+  });
+})();
+</script>
+</body>
+</html>
