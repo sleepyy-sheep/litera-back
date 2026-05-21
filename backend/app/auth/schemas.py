@@ -21,6 +21,7 @@ StrongPassword = Annotated[
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
 
 
@@ -44,3 +45,14 @@ class UserCreate(BaseModel):
     username: ShortUsername
     email: EmailStr
     password: StrongPassword
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+class UserUpdate(BaseModel):
+    username: ShortUsername | None = None
+    email: EmailStr | None = None
+    current_password: str | None = None
+    new_password: StrongPassword | None = None

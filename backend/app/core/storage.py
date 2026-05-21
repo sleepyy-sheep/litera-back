@@ -1,4 +1,5 @@
 import asyncio
+import io
 from uuid import uuid4
 from botocore.exceptions import ClientError
 import boto3
@@ -82,6 +83,22 @@ class StorageService:
             return url
         except Exception:
             raise HTTPException(500, "Не удалось сгенерировать ссылку на книгу")
+
+    async def upload_cover(self, file_content: bytes, user_id: int, book_id: int) -> str:
+        """Загружает обложку книги в MinIO и возвращает cover_key."""
+        cover_key = f"covers/{user_id}/{book_id}.jpg"
+
+        try:
+            await asyncio.to_thread(
+                self.s3_client.upload_fileobj,
+                io.BytesIO(file_content),
+                self.bucket,
+                cover_key,
+                ExtraArgs={"ContentType": "image/jpeg"},
+            )
+            return cover_key
+        except Exception as e:
+            raise HTTPException(500, f"Ошибка загрузки обложки в хранилище: {str(e)}")
 
     async def delete_file(self, s3_key: str) -> bool:
         """Удаляет файл из MinIO."""

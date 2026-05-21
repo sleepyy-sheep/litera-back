@@ -10,10 +10,14 @@ class Settings(BaseSettings):
     MINIO_SECURE: bool = False
     PRESIGNED_URL_EXPIRE_MINUTES: int = 60
 
+    # ================== CORS ==================
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5500,http://127.0.0.1:5500"
+
     # ================== JWT ==================
     SECRET_KEY: str = "your-very-long-random-secret-key-min-50-symbols-change-me-2026"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     model_config = SettingsConfigDict(
         env_file=".env",
