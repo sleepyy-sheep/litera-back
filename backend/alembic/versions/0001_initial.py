@@ -41,10 +41,7 @@ def upgrade() -> None:
     # ------------------------------------------------------------------
     # Table: books
     # ------------------------------------------------------------------
-    # Create the BookFormat enum type first
-    bookformat_enum = sa.Enum("epub", "fb2", "pdf", "other", name="bookformat")
-    bookformat_enum.create(op.get_bind(), checkfirst=True)
-
+    # BookFormat enum type is created manually before migrations
     op.create_table(
         "books",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -54,7 +51,7 @@ def upgrade() -> None:
         sa.Column("description", sa.String(length=2000), nullable=True),
         sa.Column(
             "format",
-            sa.Enum("epub", "fb2", "pdf", "other", name="bookformat"),
+            sa.Enum("epub", "fb2", "pdf", "other", name="bookformat", create_type=False),
             nullable=False,
         ),
         sa.Column("storage_key", sa.String(length=512), nullable=False),
@@ -75,12 +72,7 @@ def upgrade() -> None:
     # ------------------------------------------------------------------
     # Table: reading_progress
     # ------------------------------------------------------------------
-    # Create the ReadingStatus enum type first
-    readingstatus_enum = sa.Enum(
-        "new", "reading", "finished", "abandoned", name="readingstatus"
-    )
-    readingstatus_enum.create(op.get_bind(), checkfirst=True)
-
+    # ReadingStatus enum type is created manually before migrations
     op.create_table(
         "reading_progress",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -90,7 +82,7 @@ def upgrade() -> None:
         sa.Column("percent", sa.Float(), nullable=False, server_default=sa.text("0.0")),
         sa.Column(
             "status",
-            sa.Enum("new", "reading", "finished", "abandoned", name="readingstatus"),
+            sa.Enum("new", "reading", "finished", "abandoned", name="readingstatus", create_type=False),
             nullable=False,
             server_default=sa.text("'new'"),
         ),

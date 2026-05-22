@@ -1,6 +1,11 @@
 -- Создание расширения для UUID
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Создание ENUM типов для приложения
+CREATE TYPE IF NOT EXISTS bookformat AS ENUM ('epub', 'fb2', 'pdf', 'other');
+CREATE TYPE IF NOT EXISTS readingstatus AS ENUM ('new', 'reading', 'finished', 'abandoned');
+CREATE TYPE IF NOT EXISTS goaltype AS ENUM ('pages_per_day', 'minutes_per_day');
+
 -- Создание пользователя если не существует (для совместимости)
 DO
 $do$

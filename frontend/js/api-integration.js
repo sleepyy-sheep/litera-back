@@ -43,6 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const originalText = this.textContent;
             this.textContent = 'Регистрация...';
 
+            if (!(await apiCheckHealth())) {
+                showApiError('Сервер недоступен. Запустите start.bat в корне проекта (Docker).');
+                this.disabled = false;
+                this.textContent = originalText;
+                return;
+            }
+
             const result = await apiRegister(name, email, password);
 
             if (result.success) {
@@ -96,6 +103,13 @@ document.addEventListener('DOMContentLoaded', () => {
             this.disabled = true;
             const originalText = this.textContent;
             this.textContent = 'Вход...';
+
+            if (!(await apiCheckHealth())) {
+                showApiError('Сервер недоступен. Запустите start.bat в корне проекта (Docker).');
+                this.disabled = false;
+                this.textContent = originalText;
+                return;
+            }
 
             const result = await apiLogin(email, password);
 

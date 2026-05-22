@@ -71,6 +71,14 @@ class StorageService:
         except Exception as e:
             raise HTTPException(500, f"Ошибка загрузки в хранилище: {str(e)}")
 
+    def _public_url(self, url: str) -> str:
+        """Подменяет внутренний host MinIO (minio:9000) на адрес, доступный из браузера."""
+        internal = settings.MINIO_ENDPOINT.rstrip("/")
+        public = settings.MINIO_PUBLIC_ENDPOINT.rstrip("/")
+        if internal and public and internal != public and internal in url:
+            return url.replace(internal, public, 1)
+        return url
+
     async def get_presigned_url(self, s3_key: str) -> str:
         """Генерирует временную ссылку для скачивания/чтения."""
         try:
@@ -80,7 +88,7 @@ class StorageService:
                 Params={"Bucket": self.bucket, "Key": s3_key},
                 ExpiresIn=settings.PRESIGNED_URL_EXPIRE_MINUTES * 60,
             )
-            return url
+            return self._public_url(url)
         except Exception:
             raise HTTPException(500, "Не удалось сгенерировать ссылку на книгу")
 

@@ -182,73 +182,7 @@
   <!-- СПИСОК ПОЛОК -->
   <section class="shelves-list" id="shelves-list" aria-label="Мои полки">
 
-    <!-- Полка: Прочитанные -->
-    <article class="shelf-card shelf-card--smart" data-shelf="read" data-count="57" data-date="2026-02-26">
-      <div class="shelf-card__head">
-        <div class="shelf-card__head-text">
-          <h2 class="shelf-card__title">Прочитанные</h2>
-          <p class="shelf-card__authors">Донато Карризи, Агата Кристи...</p>
-        </div>
-        <div class="shelf-card__more-wrap">
-          <button class="shelf-more-btn" aria-label="Действия с полкой" aria-haspopup="true">•••</button>
-          <div class="shelf-ctx-menu" role="menu">
-            <button class="shelf-ctx-menu__item" role="menuitem"><span class="shelf-ctx-menu__icon">✏</span> Переименовать</button>
-            <div class="shelf-ctx-menu__sep"></div>
-            <button class="shelf-ctx-menu__item" role="menuitem"><span class="shelf-ctx-menu__icon">📤</span> Поделиться</button>
-            <div class="shelf-ctx-menu__sep"></div>
-            <button class="shelf-ctx-menu__item shelf-ctx-menu__item--danger" role="menuitem"><span class="shelf-ctx-menu__icon">🗑</span> Удалить полку</button>
-          </div>
-        </div>
-      </div>
-      <div class="shelf-card__covers-wrap">
-        <div class="shelf-card__covers" tabindex="0" aria-label="Обложки на полке, всего 57 книг">
-          <img src="log_img/cover-ya-bez.svg" alt="" class="shelf-cover">
-          <img src="log_img/cover-dom.svg" alt="" class="shelf-cover">
-          <img src="log_img/cover-dom-ogni.svg" alt="" class="shelf-cover">
-          <img src="log_img/cover-karr.svg" alt="" class="shelf-cover shelf-cover--fade">
-          <div class="shelf-cover shelf-cover--more" aria-hidden="true"><span>+53</span></div>
-        </div>
-      </div>
-      <p class="shelf-card__last">
-        Последняя добавленная книга:
-        <span class="shelf-card__last-title">«Потерянные девушки Рима»</span>
-      </p>
-    </article>
-
-    <!-- Полка: Избранные -->
-    <article class="shelf-card shelf-card--smart" data-shelf="fav" data-count="57" data-date="2026-01-15">
-      <div class="shelf-card__head">
-        <div class="shelf-card__head-text">
-          <h2 class="shelf-card__title">Избранные</h2>
-          <p class="shelf-card__authors">Донато Карризи, Агата Кристи...</p>
-        </div>
-        <div class="shelf-card__more-wrap">
-          <button class="shelf-more-btn" aria-label="Действия с полкой" aria-haspopup="true">•••</button>
-          <div class="shelf-ctx-menu" role="menu">
-            <button class="shelf-ctx-menu__item" role="menuitem"><span class="shelf-ctx-menu__icon">✏</span> Переименовать</button>
-            <div class="shelf-ctx-menu__sep"></div>
-            <button class="shelf-ctx-menu__item" role="menuitem"><span class="shelf-ctx-menu__icon">📤</span> Поделиться</button>
-            <div class="shelf-ctx-menu__sep"></div>
-            <button class="shelf-ctx-menu__item shelf-ctx-menu__item--danger" role="menuitem"><span class="shelf-ctx-menu__icon">🗑</span> Удалить полку</button>
-          </div>
-        </div>
-      </div>
-      <div class="shelf-card__covers-wrap">
-        <div class="shelf-card__covers" tabindex="0" aria-label="Обложки на полке, всего 57 книг">
-          <img src="log_img/cover-dom.svg" alt="" class="shelf-cover">
-          <img src="log_img/cover-karr.svg" alt="" class="shelf-cover">
-          <img src="log_img/cover-ya-bez.svg" alt="" class="shelf-cover">
-          <img src="log_img/cover-dom-ogni.svg" alt="" class="shelf-cover shelf-cover--fade">
-          <div class="shelf-cover shelf-cover--more" aria-hidden="true"><span>+53</span></div>
-        </div>
-      </div>
-      <p class="shelf-card__last">
-        Последняя добавленная книга:
-        <span class="shelf-card__last-title">«Потерянные девушки Рима»</span>
-      </p>
-    </article>
-
-  </section>
+  
 
   <!-- ПРАВАЯ ПАНЕЛЬ -->
   <aside class="shelves-right" aria-label="Виджеты полок">
@@ -384,16 +318,65 @@
 
 <script>
 const ddWraps = document.querySelectorAll('.hdr-dropdown-wrap');
-function openDD(w) { ddWraps.forEach(x => { if (x !== w) closeDD(x); }); w.classList.add('hdr-dropdown-wrap--open'); w.querySelector('.icon-btn')?.setAttribute('aria-expanded', 'true'); }
-function closeDD(w) { w.classList.remove('hdr-dropdown-wrap--open'); w.querySelector('.icon-btn')?.setAttribute('aria-expanded', 'false'); }
-function toggleDD(w) { w.classList.contains('hdr-dropdown-wrap--open') ? closeDD(w) : openDD(w); }
+let pinnedDropdown = null;
+
+function openDD(w) { 
+  ddWraps.forEach(x => { if (x !== w) closeDD(x); }); 
+  w.classList.add('hdr-dropdown-wrap--open'); 
+  w.querySelector('.icon-btn')?.setAttribute('aria-expanded', 'true'); 
+}
+
+function closeDD(w) { 
+  w.classList.remove('hdr-dropdown-wrap--open'); 
+  w.querySelector('.icon-btn')?.setAttribute('aria-expanded', 'false'); 
+  if (pinnedDropdown === w) {
+    pinnedDropdown = null;
+  }
+}
+
+function toggleDD(w) { 
+  if (w.classList.contains('hdr-dropdown-wrap--open')) {
+    closeDD(w);
+    pinnedDropdown = null;
+  } else {
+    openDD(w);
+    pinnedDropdown = w;
+  }
+}
+
 ddWraps.forEach(w => {
-  w.querySelector('.icon-btn')?.addEventListener('click', e => { e.stopPropagation(); toggleDD(w); });
-  w.addEventListener('mouseenter', () => openDD(w));
-  w.addEventListener('mouseleave', () => closeDD(w));
+  w.querySelector('.icon-btn')?.addEventListener('click', e => { 
+    e.stopPropagation(); 
+    toggleDD(w); 
+  });
+  
+  w.addEventListener('mouseenter', () => {
+    if (!pinnedDropdown) {
+      openDD(w);
+    }
+  });
+  
+  w.addEventListener('mouseleave', () => {
+    if (pinnedDropdown !== w) {
+      closeDD(w);
+    }
+  });
 });
-document.addEventListener('click', () => ddWraps.forEach(closeDD));
-document.addEventListener('keydown', e => { if (e.key === 'Escape') ddWraps.forEach(closeDD); });
+
+document.addEventListener('click', (e) => {
+  const clickedInside = Array.from(ddWraps).some(wrap => wrap.contains(e.target));
+  if (!clickedInside) {
+    ddWraps.forEach(closeDD);
+    pinnedDropdown = null;
+  }
+});
+
+document.addEventListener('keydown', e => { 
+  if (e.key === 'Escape') {
+    ddWraps.forEach(closeDD); 
+    pinnedDropdown = null;
+  }
+});
 
 document.querySelectorAll('.stats-tab').forEach(t => {
   t.addEventListener('click', () => {
@@ -423,20 +406,7 @@ document.querySelectorAll('.shelf-more-btn').forEach(btn => {
 document.addEventListener('click', closeAllShelfMenus);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllShelfMenus(); });
 
-document.querySelectorAll('.shelf-ctx-menu__item--danger').forEach(btn => {
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    const card = btn.closest('.shelf-card');
-    if (!card || card.classList.contains('shelf-card--smart')) {
-      showToast('Умные полки нельзя удалить');
-      closeAllShelfMenus();
-      return;
-    }
-    card.classList.add('shelf-card--removing');
-    setTimeout(() => card.remove(), 320);
-    closeAllShelfMenus();
-  });
-});
+// Удаление полок обрабатывается в shelves.js (onclick)
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -466,81 +436,12 @@ document.querySelectorAll('.shelf-preset-btn').forEach(btn => {
   });
 });
 
-document.getElementById('shelf-submit-btn')?.addEventListener('click', () => {
-  const name = document.getElementById('shelf-name-input')?.value.trim();
-  if (!name) { document.getElementById('shelf-name-input')?.focus(); return; }
-  const preset = document.querySelector('.shelf-preset-btn--active');
-  const isSmart = preset?.dataset.smart === 'true';
-  addShelfCard(name, isSmart);
-  closeModal('modal-add-shelf');
-  document.getElementById('shelf-name-input').value = '';
-  document.querySelectorAll('.shelf-preset-btn').forEach(b => b.classList.remove('shelf-preset-btn--active'));
-  showToast(`Полка «${name}» создана`);
-});
-
-const COVER_IMGS = [
-  'log_img/cover-ya-bez.svg',
-  'log_img/cover-dom.svg',
-  'log_img/cover-dom-ogni.svg',
-  'log_img/cover-karr.svg'
-];
-
-function shelfCoversHtml() {
-  return COVER_IMGS.map((src, i) =>
-    `<img src="${src}" alt="" class="shelf-cover${i === 3 ? ' shelf-cover--fade' : ''}">`
-  ).join('') + '<div class="shelf-cover shelf-cover--more" aria-hidden="true"><span>+0</span></div>';
-}
-
-function addShelfCard(name, isSmart) {
-  const list = document.getElementById('shelves-list');
-  const card = document.createElement('article');
-  card.className = 'shelf-card shelf-card--new' + (isSmart ? ' shelf-card--smart' : '');
-  card.dataset.count = '0';
-  const covers = isSmart
-    ? shelfCoversHtml()
-    : '<div class="shelf-cover shelf-cover--placeholder" aria-hidden="true">📚</div><p class="shelf-empty-hint">Добавьте первую книгу</p>';
-
-  card.innerHTML = `
-    <div class="shelf-card__head">
-      <div class="shelf-card__head-text">
-        <div class="shelf-card__title-row">
-          <h2 class="shelf-card__title">${name}</h2>
-          ${badge}
-        </div>
-        <p class="shelf-card__authors">${isSmart ? 'Донато Карризи, Агата Кристи...' : 'Пока пусто'}</p>
-      </div>
-      <div class="shelf-card__more-wrap">
-        <button class="shelf-more-btn" aria-label="Действия с полкой" aria-haspopup="true">•••</button>
-        <div class="shelf-ctx-menu" role="menu">
-          <button class="shelf-ctx-menu__item" role="menuitem"><span class="shelf-ctx-menu__icon">✏</span> Переименовать</button>
-          <div class="shelf-ctx-menu__sep"></div>
-          <button class="shelf-ctx-menu__item shelf-ctx-menu__item--danger" role="menuitem"><span class="shelf-ctx-menu__icon">🗑</span> Удалить полку</button>
-        </div>
-      </div>
-    </div>
-    <div class="shelf-card__covers-wrap">
-      <div class="shelf-card__covers${isSmart ? '' : ' shelf-card__covers--empty'}">${covers}</div>
-    </div>
-    <p class="shelf-card__last">${isSmart ? 'Последняя добавленная книга: <span class="shelf-card__last-title">—</span>' : 'Добавьте первую книгу на полку'}</p>`;
-
-  list.appendChild(card);
-  card.querySelector('.shelf-more-btn').addEventListener('click', e => {
-    e.stopPropagation();
-    const menu = card.querySelector('.shelf-ctx-menu');
-    const isOpen = menu.classList.contains('shelf-ctx-menu--open');
-    closeAllShelfMenus();
-    if (!isOpen) menu.classList.add('shelf-ctx-menu--open');
-  });
-  card.querySelector('.shelf-ctx-menu__item--danger')?.addEventListener('click', e => {
-    e.stopPropagation();
-    if (card.classList.contains('shelf-card--smart')) { showToast('Умные полки нельзя удалить'); closeAllShelfMenus(); return; }
-    card.classList.add('shelf-card--removing');
-    setTimeout(() => card.remove(), 320);
-    closeAllShelfMenus();
-  });
-  requestAnimationFrame(() => card.classList.add('shelf-card--visible'));
-}
+// Создание полки — в shelves.js
 </script>
+<!-- API и интеграция с бэкендом -->
+<script src="js/api.js"></script>
+<script src="js/shelves.js"></script>
+<!-- Дополнительные скрипты -->
 <script src="js/sort-drawer.js"></script>
 <script src="js/shelves-sort.js"></script>
 </body>

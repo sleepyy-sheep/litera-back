@@ -13,7 +13,8 @@ from .schemas import AddBookToShelf, ShelfCreate, ShelfDetailOut, ShelfOut, Shel
 router = APIRouter(prefix="/shelves", tags=["shelves"])
 
 
-@router.post("/", response_model=ShelfOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ShelfOut, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=ShelfOut, status_code=status.HTTP_201_CREATED, include_in_schema=False)
 async def create_shelf(
     shelf_data: ShelfCreate,
     current_user: User = Depends(get_current_user),
@@ -37,7 +38,8 @@ async def create_shelf(
     )
 
 
-@router.get("/", response_model=List[ShelfOut])
+@router.get("", response_model=List[ShelfOut])
+@router.get("/", response_model=List[ShelfOut], include_in_schema=False)
 async def list_shelves(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

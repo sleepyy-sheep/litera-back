@@ -16,7 +16,8 @@ router = APIRouter(prefix="/stats", tags=["stats"])
 @router.get("/reading", response_model=ReadingStatsOut)
 async def get_reading_stats(
     period: Literal["week", "month", "year"] = Query(
-        ..., description="Период: week (7 дней), month (30 дней), year (365 дней)"
+        "week",
+        description="Период: week (7 дней), month (30 дней), year (365 дней)",
     ),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

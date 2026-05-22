@@ -1,44 +1,46 @@
 /**
- * Переход на страницу чтения по клику на карточку книги
+ * Переход на страницу чтения по клику на карточку книги (делегирование событий)
  */
 (function () {
+  const list = document.getElementById('book-list');
+  if (!list) return;
+
   function readerUrl(card) {
-    const params = new URLSearchParams({
-      title: card.dataset.title || '',
-      author: card.dataset.author || '',
-      progress: card.dataset.progress || '0',
-      page: card.dataset.page || '400',
-      total: card.dataset.total || '1567',
-      minutes: card.dataset.minutes || '20'
-    });
-    return `reader.html?${params.toString()}`;
+    const bookId = card.dataset.bookId;
+    if (bookId) {
+      return `reader.html?id=${bookId}`;
+    }
+    return 'reader.html';
   }
+
+  list.addEventListener('click', e => {
+    const card = e.target.closest('.book-card');
+    if (!card) return;
+    if (e.target.closest('.more-btn, .more-wrap, .ctx-menu, .play-btn, .book-card__note-link')) {
+      return;
+    }
+    window.location.href = readerUrl(card);
+  });
+
+  list.addEventListener('keydown', e => {
+    const card = e.target.closest('.book-card');
+    if (!card) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      window.location.href = readerUrl(card);
+    }
+  });
 
   document.querySelectorAll('#book-list .book-card').forEach(card => {
     card.classList.add('book-card--clickable');
     card.setAttribute('tabindex', '0');
     card.setAttribute('role', 'link');
-    card.setAttribute('aria-label', `Читать «${card.dataset.title || 'книгу'}»`);
-
-    const go = () => { window.location.href = readerUrl(card); };
-
-    card.addEventListener('click', e => {
-      if (e.target.closest('.more-btn, .more-wrap, .ctx-menu, .play-btn, .book-card__note-link')) return;
-      go();
-    });
-
-    card.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        go();
-      }
-    });
 
     const playBtn = card.querySelector('.play-btn');
-    if (playBtn) {
+    if (playBtn && !playBtn.getAttribute('onclick')) {
       playBtn.addEventListener('click', e => {
         e.stopPropagation();
-        go();
+        window.location.href = readerUrl(card);
       });
     }
   });

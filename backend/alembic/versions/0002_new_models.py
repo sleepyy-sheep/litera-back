@@ -131,15 +131,14 @@ def upgrade() -> None:
     # ------------------------------------------------------------------
     # 7. GoalType enum + Table: reading_goals
     # ------------------------------------------------------------------
-    # create_type=False prevents SQLAlchemy from issuing a second CREATE TYPE
-    # inside create_table — we rely on PostgreSQL's implicit enum creation.
+    # GoalType enum is created manually before migrations
     op.create_table(
         "reading_goals",
         sa.Column("id", sa.BigInteger(), nullable=False),
         sa.Column("user_id", sa.BigInteger(), nullable=False),
         sa.Column(
             "goal_type",
-            sa.Enum("pages_per_day", "minutes_per_day", name="goaltype", create_type=True),
+            sa.Enum("pages_per_day", "minutes_per_day", name="goaltype", create_type=False),
             nullable=False,
         ),
         sa.Column("target_value", sa.Integer(), nullable=False),

@@ -85,7 +85,7 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 
-app = FastAPI(title="Litera Backend", lifespan=lifespan)
+app = FastAPI(title="Litera Backend", lifespan=lifespan, redirect_slashes=False)
 
 # Attach limiter to app state so SlowAPIMiddleware can find it
 app.state.limiter = limiter
@@ -100,6 +100,7 @@ app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS.split(","),
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

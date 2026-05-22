@@ -22,7 +22,17 @@ from app.core.storage import storage, MAX_FILE_SIZE_BYTES
 from app.core.config import settings
 from app.db import get_db
 from app.models import Book, User, BookFormat, ReadingProgress, ReadingStatus, ReadingSession
-from .schemas import BookOut, BooksPage, ReadingProgressCreate, ReadingProgressOut, ReadingSessionCreate, ReadingSessionOut
+from .schemas import (
+    BookOut,
+    BookUpdate,
+    BooksPage,
+    ReadingProgressBrief,
+    ReadingProgressCreate,
+    ReadingProgressOut,
+    ReadingSessionCreate,
+    ReadingSessionOut,
+    book_orm_to_out,
+)
 
 router = APIRouter(prefix="/books", tags=["books"])
 
@@ -119,7 +129,8 @@ def validate_file_magic(content: bytes, declared_format: BookFormat) -> None:
 
 # ====================== ДОБАВЛЕНИЕ КНИГИ ======================
 
-@router.post("/", response_model=BookOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=BookOut, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=BookOut, status_code=status.HTTP_201_CREATED, include_in_schema=False)
 async def add_book(
     title: str = Form(..., min_length=1, max_length=500),
     author: Optional[str] = Form(None, max_length=255),
@@ -197,18 +208,11 @@ async def add_book(
     # 5. Генерация cover_url из cover_key
     cover_url = await get_cover_url(new_book.cover_key)
 
-    return BookOut(
-        id=new_book.id,
-        user_id=new_book.user_id,
-        title=new_book.title,
-        author=new_book.author,
-        description=new_book.description,
-        genre=new_book.genre,
-        format=new_book.format,
-        uploaded_at=new_book.uploaded_at,
-        total_pages=new_book.total_pages,
+    return book_orm_to_out(
+        new_book,
         presigned_url=presigned_url,
         cover_url=cover_url,
+        progress=ReadingProgressBrief(),
     )
 
 
@@ -263,16 +267,42 @@ async def get_my_books(
     )
     books = result.scalars().all()
 
+    # Прогресс чтения для всех книг на странице одним запросом
+    progress_map: dict[int, ReadingProgress] = {}
+    if books:
+        book_ids = [b.id for b in books]
+        progress_result = await db.execute(
+            select(ReadingProgress).where(
+                ReadingProgress.user_id == current_user.id,
+                ReadingProgress.book_id.in_(book_ids),
+            )
+        )
+        progress_map = {p.book_id: p for p in progress_result.scalars().all()}
+
     # Вспомогательная корутина для параллельного обогащения одной книги
     async def enrich_book(book: Book) -> BookOut:
-        book_out = BookOut.model_validate(book)
+        prog = progress_map.get(book.id)
+        progress_brief = (
+            ReadingProgressBrief(
+                current_page=prog.current_page,
+                percent=prog.percent,
+                status=prog.status,
+            )
+            if prog
+            else ReadingProgressBrief()
+        )
         try:
-            book_out.presigned_url = await storage.get_presigned_url(book.storage_key)
+            presigned_url = await storage.get_presigned_url(book.storage_key)
         except Exception as e:
             print(f"Не удалось сгенерировать URL для книги {book.id}: {e}")
-            book_out.presigned_url = None
-        book_out.cover_url = await get_cover_url(book.cover_key)
-        return book_out
+            presigned_url = None
+        cover_url = await get_cover_url(book.cover_key)
+        return book_orm_to_out(
+            book,
+            progress=progress_brief,
+            presigned_url=presigned_url,
+            cover_url=cover_url,
+        )
 
     # Обогащаем все книги параллельно (R16.1, R16.2)
     enriched_books = list(await asyncio.gather(*[enrich_book(b) for b in books]))
@@ -319,16 +349,79 @@ async def search_books(
     # Обогащаем книги presigned URL и cover_url
     enriched_books = []
     for book in books:
-        book_out = BookOut.model_validate(book)
         try:
-            book_out.presigned_url = await storage.get_presigned_url(book.storage_key)
+            presigned_url = await storage.get_presigned_url(book.storage_key)
         except Exception as e:
             print(f"Не удалось сгенерировать URL для книги {book.id}: {e}")
-            book_out.presigned_url = None
-        book_out.cover_url = await get_cover_url(book.cover_key)
-        enriched_books.append(book_out)
+            presigned_url = None
+        cover_url = await get_cover_url(book.cover_key)
+        enriched_books.append(
+            book_orm_to_out(book, presigned_url=presigned_url, cover_url=cover_url)
+        )
 
     return BooksPage(items=enriched_books, total=total, page=page, page_size=page_size)
+
+
+# ====================== ОБНОВЛЕНИЕ МЕТАДАННЫХ КНИГИ ======================
+
+@router.patch("/{book_id}", response_model=BookOut)
+async def update_book(
+    book_id: int,
+    updates: BookUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Частичное обновление названия, автора, жанра и описания книги."""
+    result = await db.execute(select(Book).where(Book.id == book_id))
+    book = result.scalar_one_or_none()
+
+    if not book:
+        raise HTTPException(status_code=404, detail="Книга не найдена")
+    if book.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Это не ваша книга")
+
+    update_data = updates.model_dump(exclude_unset=True)
+    if not update_data:
+        raise HTTPException(status_code=400, detail="Нет данных для обновления")
+
+    for field, value in update_data.items():
+        setattr(book, field, value)
+
+    try:
+        await db.commit()
+        await db.refresh(book)
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Ошибка обновления книги: {str(e)}")
+
+    progress_result = await db.execute(
+        select(ReadingProgress).where(
+            ReadingProgress.user_id == current_user.id,
+            ReadingProgress.book_id == book_id,
+        )
+    )
+    prog = progress_result.scalar_one_or_none()
+    progress_brief = (
+        ReadingProgressBrief(
+            current_page=prog.current_page,
+            percent=prog.percent,
+            status=prog.status,
+        )
+        if prog
+        else ReadingProgressBrief()
+    )
+    try:
+        presigned_url = await storage.get_presigned_url(book.storage_key)
+    except Exception:
+        presigned_url = None
+    cover_url = await get_cover_url(book.cover_key)
+
+    return book_orm_to_out(
+        book,
+        progress=progress_brief,
+        presigned_url=presigned_url,
+        cover_url=cover_url,
+    )
 
 
 # ====================== ДЕТАЛЬНАЯ КАРТОЧКА КНИГИ ======================
@@ -348,15 +441,35 @@ async def get_book_detail(
     if book.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Это не ваша книга")
 
-    book_out = BookOut.model_validate(book)
+    progress_result = await db.execute(
+        select(ReadingProgress).where(
+            ReadingProgress.user_id == current_user.id,
+            ReadingProgress.book_id == book_id,
+        )
+    )
+    prog = progress_result.scalar_one_or_none()
+    progress_brief = (
+        ReadingProgressBrief(
+            current_page=prog.current_page,
+            percent=prog.percent,
+            status=prog.status,
+        )
+        if prog
+        else ReadingProgressBrief()
+    )
     try:
-        book_out.presigned_url = await storage.get_presigned_url(book.storage_key)
+        presigned_url = await storage.get_presigned_url(book.storage_key)
     except Exception as e:
         print(f"Не удалось сгенерировать URL для книги {book.id}: {e}")
-        book_out.presigned_url = None
-    book_out.cover_url = await get_cover_url(book.cover_key)
+        presigned_url = None
+    cover_url = await get_cover_url(book.cover_key)
 
-    return book_out
+    return book_orm_to_out(
+        book,
+        progress=progress_brief,
+        presigned_url=presigned_url,
+        cover_url=cover_url,
+    )
 
 
 # ====================== ПОЛУЧЕНИЕ ССЫЛКИ ДЛЯ ЧТЕНИЯ ======================

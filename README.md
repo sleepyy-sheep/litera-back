@@ -1,18 +1,69 @@
-# LitEra
+# ЛитЭра - Книжный трекер
 
-Платформа для чтения книг с трекером прогресса, полками, заметками, статистикой и целями чтения.
+Веб-приложение для отслеживания прогресса чтения книг с поддержкой загрузки файлов, заметок и статистики.
 
-## Стек
+## Архитектура проекта
 
-| Слой | Технологии |
-|---|---|
-| Backend | FastAPI, SQLAlchemy 2 (async), asyncpg |
-| База данных | PostgreSQL |
-| Хранилище файлов | MinIO (S3-совместимое) |
-| Миграции | Alembic |
-| Аутентификация | JWT (access 30 мин) + Refresh-токены (30 дней, rotation) |
-| Rate limiting | slowapi |
-| Frontend | Vanilla JS, HTML/CSS (статика) |
+- **Backend**: FastAPI + PostgreSQL + MinIO (S3-совместимое хранилище)
+- **Frontend**: Vanilla JavaScript + HTML + CSS
+- **Инфраструктура**: Docker Compose
+
+## Быстрый старт
+
+### Предварительные требования
+
+- Docker Desktop для Windows (должен быть запущен)
+- Python 3.x (для запуска фронтенда)
+- Git
+
+### 1. Запуск бэкенда
+
+**Простой способ** - дважды кликните на `start.bat` в корне проекта
+
+**Или через командную строку:**
+
+```cmd
+cd backend
+docker-compose up -d
+```
+
+Эта команда запустит:
+- PostgreSQL (порт 5432) - база данных
+- MinIO (порт 9000 - API, 9001 - консоль) - хранилище файлов
+- FastAPI приложение (порт 8000) - API сервер
+
+⏱️ Первый запуск может занять 1-2 минуты (загрузка образов, применение миграций)
+
+### 2. Проверка работы бэкенда
+
+Откройте в браузере:
+- API документация: http://localhost:8000/docs
+- Health check: http://localhost:8000/health
+- MinIO консоль: http://localhost:9001 (логин: minioadmin, пароль: minioadmin123)
+
+### 3. Запуск фронтенда
+
+Фронтенд - это статические файлы, которые можно открыть несколькими способами:
+
+#### Вариант A: Live Server (рекомендуется)
+
+Если у вас установлен VS Code с расширением Live Server:
+1. Откройте папку `frontend` в VS Code
+2. Правой кнопкой на `log.html` → "Open with Live Server"
+3. Приложение откроется на http://localhost:5500
+
+#### Вариант B: Python HTTP сервер
+
+```cmd
+cd frontend
+python -m http.server 5500
+```
+
+Откройте http://localhost:5500/log.html
+
+#### Вариант C: Простое открытие файла
+
+Можно открыть `frontend/log.html` напрямую в браузере, но могут быть проблемы с CORS.
 
 ## Структура проекта
 
@@ -20,190 +71,236 @@
 litera-back/
 ├── backend/
 │   ├── app/
-│   │   ├── auth/         # Аутентификация и управление профилем
-│   │   ├── books/        # Книги, прогресс, сессии чтения
-│   │   ├── shelves/      # Полки
-│   │   ├── notes/        # Заметки к книгам
-│   │   ├── stats/        # Статистика чтения
-│   │   ├── goals/        # Цели чтения
-│   │   ├── core/         # Конфиг, безопасность, MinIO-клиент
-│   │   ├── db.py         # Подключение к PostgreSQL
-│   │   ├── models.py     # SQLAlchemy-модели
-│   │   └── main.py       # Точка входа FastAPI
-│   ├── alembic/          # Миграции БД
-│   │   └── versions/
-│   │       ├── 0001_initial.py
-│   │       └── 0002_new_models.py
-│   ├── docker/
-│   │   └── Dockerfile.api
-│   ├── .env
+│   │   ├── auth/          # Аутентификация и авторизация
+│   │   ├── books/         # Управление книгами
+│   │   ├── shelves/       # Полки для книг
+│   │   ├── notes/         # Заметки к книгам
+│   │   ├── stats/         # Статистика чтения
+│   │   ├── goals/         # Цели чтения
+│   │   └── core/          # Конфигурация, безопасность, хранилище
+│   ├── alembic/           # Миграции БД
+│   ├── docker/            # Docker конфигурация
 │   ├── docker-compose.yml
 │   └── requirements.txt
-│
 └── frontend/
-    ├── css/
-    ├── js/
-    ├── index.html        # Дашборд
-    ├── log.html          # Вход
-    └── register.html     # Регистрация
+    ├── css/               # Стили
+    ├── js/                # JavaScript модули
+    ├── log_img/           # Изображения
+    ├── log.html           # Страница входа/регистрации
+    ├── index.html         # Главная страница (книги)
+    └── shelves.html       # Страница полок
 ```
 
-## Запуск через Docker Compose (рекомендуется)
+## API Endpoints
 
-```bash
-cd backend
-docker-compose up --build
-```
+### Аутентификация
+- `POST /auth/register` - Регистрация
+- `POST /auth/login` - Вход (OAuth2 form-data)
+- `GET /auth/me` - Текущий пользователь
 
-Сервисы после запуска:
+### Книги
+- `GET /books` - Список книг
+- `POST /books` - Загрузка книги
+- `GET /books/{id}` - Информация о книге
+- `PUT /books/{id}` - Обновление книги
+- `DELETE /books/{id}` - Удаление книги
+- `GET /books/{id}/content` - Получение presigned URL для скачивания
 
-| Сервис | URL |
-|---|---|
-| API | http://localhost:8000 |
-| Swagger UI | http://localhost:8000/docs |
-| MinIO Console | http://localhost:9001 |
+### Полки
+- `GET /shelves` - Список полок
+- `POST /shelves` - Создание полки
+- `POST /shelves/{id}/books/{book_id}` - Добавление книги на полку
 
-Учётные данные MinIO по умолчанию: `minioadmin` / `minioadmin123`
+### Заметки
+- `GET /notes` - Список заметок
+- `POST /notes` - Создание заметки
+- `PUT /notes/{id}` - Обновление заметки
+- `DELETE /notes/{id}` - Удаление заметки
 
-Миграции применяются автоматически при старте контейнера (`alembic upgrade head`).
+### Статистика
+- `GET /stats/reading` - Статистика чтения
 
-## Запуск локально (без Docker)
+### Цели
+- `GET /goals` - Список целей
+- `POST /goals` - Создание цели
+- `PUT /goals/{id}` - Обновление цели
 
-### 1. Запустите PostgreSQL и MinIO
+## Конфигурация
 
-Измените в `backend/.env`:
-```
-DATABASE_URL=postgresql+asyncpg://litera_user:litera_pass@localhost:5432/litera_db
-MINIO_ENDPOINT=http://localhost:9000
-```
+### Backend (.env)
 
-### 2. Установите зависимости
-
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
-### 3. Примените миграции
-
-```bash
-cd backend
-alembic upgrade head
-```
-
-### 4. Запустите API
-
-```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-## Запуск фронтенда
-
-Фронтенд — статические файлы. Открывайте через локальный сервер (не через `file://`):
-
-```bash
-cd frontend
-python -m http.server 3000
-```
-
-Затем откройте http://localhost:3000/log.html
-
-## API
-
-Полная интерактивная документация доступна по адресу http://localhost:8000/docs.
-
-### Аутентификация (`/auth`)
-
-| Метод | Путь | Описание |
-|---|---|---|
-| POST | `/auth/register` | Регистрация (лимит: 5/мин) |
-| POST | `/auth/login` | Вход, возвращает access + refresh токены (лимит: 10/мин) |
-| POST | `/auth/refresh` | Обновление пары токенов (rotation) |
-| POST | `/auth/logout` | Выход, инвалидация refresh-токена |
-| GET | `/auth/me` | Профиль текущего пользователя |
-| PATCH | `/auth/me` | Обновление username, email или пароля |
-| DELETE | `/auth/me` | Удаление аккаунта (каскадно, включая файлы в MinIO) |
-
-### Книги (`/books`)
-
-| Метод | Путь | Описание |
-|---|---|---|
-| POST | `/books/` | Загрузка книги (PDF/EPUB/FB2, ≤50 МБ, валидация magic bytes) |
-| GET | `/books/my` | Список книг с пагинацией, фильтром по жанру и сортировкой |
-| GET | `/books/search` | Поиск по названию и автору (ILIKE) |
-| GET | `/books/{id}` | Детальная карточка книги |
-| DELETE | `/books/{id}` | Удаление книги и файла из MinIO |
-| GET | `/books/{id}/read` | Presigned URL для чтения + текущий прогресс |
-| POST | `/books/{id}/cover` | Загрузка обложки (JPEG/PNG, ≤5 МБ) |
-| POST | `/books/{id}/progress` | Обновление прогресса чтения |
-| GET | `/books/{id}/progress` | Текущий прогресс чтения |
-| POST | `/books/{id}/sessions` | Запись сессии чтения (страницы + время) |
-
-### Полки (`/shelves`)
-
-| Метод | Путь | Описание |
-|---|---|---|
-| POST | `/shelves/` | Создание полки |
-| GET | `/shelves/` | Список полок с количеством книг |
-| GET | `/shelves/{id}` | Детали полки со списком книг |
-| PATCH | `/shelves/{id}` | Переименование полки |
-| DELETE | `/shelves/{id}` | Удаление полки (книги не удаляются) |
-| POST | `/shelves/{id}/books` | Добавление книги на полку |
-| DELETE | `/shelves/{id}/books/{book_id}` | Удаление книги с полки |
-
-### Заметки (`/books/{id}/notes`)
-
-| Метод | Путь | Описание |
-|---|---|---|
-| POST | `/books/{id}/notes` | Создание заметки (до 5000 символов) |
-| GET | `/books/{id}/notes` | Список заметок к книге |
-| PATCH | `/books/{id}/notes/{note_id}` | Редактирование заметки |
-| DELETE | `/books/{id}/notes/{note_id}` | Удаление заметки |
-
-### Статистика (`/stats`)
-
-| Метод | Путь | Описание |
-|---|---|---|
-| GET | `/stats/reading?period=week\|month\|year` | Статистика чтения за период (страницы, минуты, разбивка по дням) |
-
-### Цели чтения (`/goals`)
-
-| Метод | Путь | Описание |
-|---|---|---|
-| POST | `/goals/` | Создать или обновить цель (`pages_per_day` / `minutes_per_day`) |
-| GET | `/goals/` | Список целей с прогрессом за сегодня |
-
-## Модели данных
-
-```
-User ──< Book ──< ReadingProgress
-     ──< RefreshToken
-     ──< Shelf ──< ShelfBook >── Book
-     ──< BookNote >── Book
-     ──< ReadingSession >── Book
-     ──< ReadingGoal
-```
-
-## Переменные окружения
-
-Файл `backend/.env`:
+Файл `backend/.env` уже настроен для работы с Docker Compose. Основные параметры:
 
 ```env
-DATABASE_URL=postgresql+asyncpg://litera_user:litera_pass@db:5432/litera_db
-SECRET_KEY=your-very-long-random-secret-key-min-50-symbols-change-me-2026
+DATABASE_URL=postgresql+asyncpg://litera_user:litera_pass@postgres:5432/litera_db
 MINIO_ENDPOINT=http://minio:9000
-MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=minioadmin123
-MINIO_BUCKET=books
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5500,http://127.0.0.1:5500
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-REFRESH_TOKEN_EXPIRE_DAYS=30
+SECRET_KEY=your-very-long-random-secret-key-min-50-symbols-change-me-in-production-2026
 ```
 
-## Безопасность
+⚠️ **Важно**: Перед деплоем в продакшн обязательно смените `SECRET_KEY` на случайную строку!
 
-- Пароли хэшируются через bcrypt
-- Refresh-токены хранятся в БД в виде SHA-256 хэша, при обновлении старый токен удаляется (rotation)
-- CORS настраивается через `ALLOWED_ORIGINS` (не `*` в продакшене)
-- Rate limiting: 10 запросов/мин на `/auth/login`, 5 запросов/мин на `/auth/register`
-- Файлы книг валидируются по расширению и magic bytes перед загрузкой в MinIO
+### Frontend (api.js)
+
+Файл `frontend/js/api.js` настроен на подключение к локальному бэкенду:
+
+```javascript
+const API_BASE_URL = 'http://localhost:8000';
+```
+
+### CORS
+
+Бэкенд настроен на прием запросов от:
+- http://localhost:3000
+- http://localhost:5500
+- http://127.0.0.1:5500
+
+Если фронтенд запущен на другом порту, добавьте его в `ALLOWED_ORIGINS` в `docker-compose.yml`.
+
+## Управление Docker контейнерами
+
+### Просмотр логов
+
+```cmd
+cd backend
+docker-compose logs -f api
+docker-compose logs -f postgres
+docker-compose logs -f minio
+```
+
+### Остановка
+
+```cmd
+cd backend
+docker-compose down
+```
+
+### Остановка с удалением данных
+
+```cmd
+cd backend
+docker-compose down -v
+```
+
+### Перезапуск после изменений кода
+
+```cmd
+cd backend
+docker-compose restart api
+```
+
+### Пересборка образа
+
+```cmd
+cd backend
+docker-compose up -d --build
+```
+
+## Миграции базы данных
+
+Миграции применяются автоматически при запуске контейнера `api`. Для ручного управления:
+
+### Создание новой миграции
+
+```cmd
+cd backend
+docker-compose exec api alembic revision --autogenerate -m "описание изменений"
+```
+
+### Применение миграций
+
+```cmd
+cd backend
+docker-compose exec api alembic upgrade head
+```
+
+### Откат миграции
+
+```cmd
+cd backend
+docker-compose exec api alembic downgrade -1
+```
+
+## Разработка
+
+### Горячая перезагрузка
+
+Backend настроен на автоматическую перезагрузку при изменении файлов в папке `app/` благодаря volume mapping в docker-compose.yml:
+
+```yaml
+volumes:
+  - ./app:/app/app
+```
+
+### Отладка
+
+1. Просмотр логов API: `docker-compose logs -f api`
+2. Подключение к БД: используйте любой PostgreSQL клиент с параметрами из `.env`
+3. MinIO консоль: http://localhost:9001
+
+## Решение проблем
+
+### Порты заняты
+
+Если порты 5432, 8000, 9000 или 9001 заняты, измените их в `docker-compose.yml`:
+
+```yaml
+ports:
+  - "5433:5432"  # Изменить первое число
+```
+
+### Ошибка подключения к БД
+
+Убедитесь, что контейнер postgres запущен:
+
+```cmd
+docker-compose ps
+```
+
+### CORS ошибки
+
+Проверьте, что фронтенд запущен на одном из разрешенных портов (5500, 3000) или добавьте свой порт в `ALLOWED_ORIGINS`.
+
+### Контейнеры не запускаются
+
+```cmd
+docker-compose down -v
+docker-compose up -d --build
+```
+
+## Тестирование API
+
+### Через Swagger UI
+
+Откройте http://localhost:8000/docs и используйте интерактивную документацию.
+
+### Через curl
+
+```cmd
+# Регистрация
+curl -X POST http://localhost:8000/auth/register ^
+  -H "Content-Type: application/json" ^
+  -d "{\"username\":\"test\",\"email\":\"test@example.com\",\"password\":\"password123\"}"
+
+# Вход
+curl -X POST http://localhost:8000/auth/login ^
+  -H "Content-Type: application/x-www-form-urlencoded" ^
+  -d "username=test@example.com&password=password123"
+
+# Health check
+curl http://localhost:8000/health
+```
+
+## Производственный деплой
+
+Перед деплоем в продакшн:
+
+1. Смените `SECRET_KEY` в `.env` на случайную строку (минимум 50 символов)
+2. Используйте сильные пароли для PostgreSQL и MinIO
+3. Настройте HTTPS
+4. Обновите `ALLOWED_ORIGINS` на реальные домены
+5. Настройте резервное копирование БД
+6. Используйте внешнее S3 хранилище вместо MinIO (опционально)
+
+## Лицензия
+
+Проект создан в учебных целях.

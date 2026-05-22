@@ -12,7 +12,30 @@ from app.goals.schemas import GoalCreate, GoalOut
 router = APIRouter(prefix="/goals", tags=["goals"])
 
 
-@router.post("/", response_model=GoalOut, status_code=200)
+async def _today_totals(user_id: int, db: AsyncSession) -> tuple[int, int]:
+    """Сумма страниц и минут за сегодня (UTC)."""
+    today_utc = datetime.datetime.now(datetime.timezone.utc).date()
+    today_start = datetime.datetime.combine(
+        today_utc, datetime.time.min, tzinfo=datetime.timezone.utc
+    )
+    today_end = datetime.datetime.combine(
+        today_utc, datetime.time.max, tzinfo=datetime.timezone.utc
+    )
+    sessions_result = await db.execute(
+        select(ReadingSession).where(
+            ReadingSession.user_id == user_id,
+            ReadingSession.started_at >= today_start,
+            ReadingSession.started_at <= today_end,
+        )
+    )
+    sessions = sessions_result.scalars().all()
+    pages = sum(s.pages_read for s in sessions)
+    minutes = sum(s.duration_minutes for s in sessions)
+    return pages, minutes
+
+
+@router.post("", response_model=GoalOut, status_code=200)
+@router.post("/", response_model=GoalOut, status_code=200, include_in_schema=False)
 async def upsert_goal(
     goal_in: GoalCreate,
     current_user: User = Depends(get_current_user),
@@ -47,16 +70,23 @@ async def upsert_goal(
     await db.commit()
     await db.refresh(goal)
 
+    total_pages_today, total_minutes_today = await _today_totals(current_user.id, db)
+    if goal.goal_type == GoalType.pages_per_day:
+        current_value = total_pages_today
+    else:
+        current_value = total_minutes_today
+
     return GoalOut(
         id=goal.id,
         goal_type=goal.goal_type,
         target_value=goal.target_value,
-        current_value=0,
+        current_value=current_value,
         created_at=goal.created_at,
     )
 
 
-@router.get("/", response_model=list[GoalOut])
+@router.get("", response_model=list[GoalOut])
+@router.get("/", response_model=list[GoalOut], include_in_schema=False)
 async def list_goals(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -77,28 +107,7 @@ async def list_goals(
     if not goals:
         return []
 
-    # Определяем границы сегодняшнего дня в UTC
-    today_utc = datetime.datetime.now(datetime.timezone.utc).date()
-    today_start = datetime.datetime.combine(
-        today_utc, datetime.time.min, tzinfo=datetime.timezone.utc
-    )
-    today_end = datetime.datetime.combine(
-        today_utc, datetime.time.max, tzinfo=datetime.timezone.utc
-    )
-
-    # Получаем все сессии пользователя за сегодня
-    sessions_result = await db.execute(
-        select(ReadingSession).where(
-            ReadingSession.user_id == current_user.id,
-            ReadingSession.started_at >= today_start,
-            ReadingSession.started_at <= today_end,
-        )
-    )
-    sessions = sessions_result.scalars().all()
-
-    # Агрегируем значения
-    total_pages_today = sum(s.pages_read for s in sessions)
-    total_minutes_today = sum(s.duration_minutes for s in sessions)
+    total_pages_today, total_minutes_today = await _today_totals(current_user.id, db)
 
     output: list[GoalOut] = []
     for goal in goals:
