@@ -4,76 +4,123 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход • ЛитЭра</title>
-    <link rel="stylesheet" href="css/log.css">
+    <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
 
-<div class="header_container">
-    <div class="logo"><img src="log_img/Logo.svg" alt="ЛитЭра"></div>
-    <div class="nav">
-        <a href="#" class="tooltip-trigger" data-tooltip="about">О проекте</a>
-        <a href="#" class="tooltip-trigger" data-tooltip="contact">Контакты</a>
-    </div>
-</div>
-<hr>
-
-<div class="autorization">
-    <div class="left-part">
-        <div class="left-text">
-            <div class="your_ygolok">Твой уютный уголок для чтения</div>
-            <div class="sub_your_ygolok">Откройте мир любимых историй в самой теплой атмосфере.</div>
-        </div>
-    </div>
-
-    <div class="right-part">
-        <div class="welcome">Добро пожаловать</div>
-        <div class="account">Войдите в свой аккаунт</div>
-
-        <div class="email_password">Email адрес</div>
-        <div class="input-wrapper">
-            <img src="log_img/email_icon.svg" class="input-icon" alt="">
-            <input type="email" id="email" placeholder="your@email.com" required>
-        </div>
-
-        <div class="email_password">Пароль</div>
-        <div class="input-wrapper">
-            <img src="log_img/lock_icon.svg" class="input-icon" alt="">
-            <input type="password" id="password" placeholder="••••••••" required>
-            <img src="log_img/opened_eye_icon.svg" id="togglePassword" class="toggle-password" alt="">
-        </div>
-
-        <div class="me">
-            <input type="checkbox" id="remember">
-            <label for="remember">Запомнить меня</label>
-        </div>
-
-        <button id="loginBtn">Войти</button>
-
-        <div class="none_account">
-            Ещё нет аккаунта? <a href="register.html">Создать аккаунт</a>
-        </div>
-    </div>
+<!-- Декоративные спрайты фона -->
+<div class="bg-decor" aria-hidden="true">
+    <img src="log_img/book.svg"  class="decor decor--tl" alt="">
+    <img src="log_img/book2.svg" class="decor decor--tr" alt="">
+    <img src="log_img/book3.svg" class="decor decor--bl" alt="">
+    <img src="log_img/book4.svg" class="decor decor--br" alt="">
 </div>
 
-<!-- TOOLTIP О ПРОЕКТЕ -->
-<div class="tooltip" id="tooltip-about">
-    <div class="tooltip-content">
-        <p>«LitEra» - удобная платформа для чтения книг со встроенным трекером прогресса.</p>
-        <p>Наша задача - сделать чтение книг не только комфортным, но и мотивирующим, позволяющую отслеживать чтение, ставить цели и анализировать привычки.</p>
+<!-- Шапка -->
+<header class="auth-header">
+    <a href="#" class="auth-logo">
+        <img src="log_img/Logo.svg" alt="ЛитЭра">
+    </a>
+    <nav class="auth-nav">
+        <button class="auth-nav__link tooltip-trigger" data-tooltip="about">О проекте</button>
+        <span class="auth-nav__sep">|</span>
+        <button class="auth-nav__link tooltip-trigger" data-tooltip="contact">Контакты</button>
+    </nav>
+</header>
+
+<!-- Основной блок -->
+<main class="auth-wrap">
+    <div class="auth-card">
+
+        <!-- Левая часть — фото -->
+        <div class="auth-card__left">
+            <div class="auth-card__left-text">
+                <p class="auth-card__tagline">Твой уютный уголок для чтения</p>
+                <p class="auth-card__sub">Откройте мир любимых историй в самой теплой атмосфере.</p>
+            </div>
+        </div>
+
+        <!-- Правая часть — форма -->
+        <div class="auth-card__right">
+            <h1 class="auth-title">Добро пожаловать</h1>
+            <p class="auth-subtitle">Войдите в свой аккаунт</p>
+
+            <label class="auth-label" for="email">Email адрес</label>
+            <div class="auth-input-wrap">
+                <img src="log_img/email_icon.svg" class="auth-input-icon" alt="">
+                <input type="email" id="email" class="auth-input"
+                       placeholder="example@mail.ru" autocomplete="email" required>
+            </div>
+
+            <div class="auth-label-row">
+                <label class="auth-label" for="password">Пароль</label>
+                <a href="#" class="auth-forgot">Забыли пароль?</a>
+            </div>
+            <div class="auth-input-wrap">
+                <img src="log_img/lock_icon.svg" class="auth-input-icon" alt="">
+                <input type="password" id="password" class="auth-input"
+                       placeholder="••••••••" autocomplete="current-password" required>
+                <img src="log_img/opened_eye_icon.svg" id="togglePassword"
+                     class="auth-eye" alt="Показать пароль">
+            </div>
+
+            <label class="auth-remember">
+                <input type="checkbox" id="remember">
+                <span>Запомнить меня</span>
+            </label>
+
+            <button id="loginBtn" class="auth-btn">Войти в аккаунт</button>
+
+            <p class="auth-switch">
+                Еще нет аккаунта?
+                <a href="register.html" class="auth-switch__link">Создать аккаунт</a>
+            </p>
+        </div>
+
+    </div>
+</main>
+
+<!-- Тултип: О проекте -->
+<div class="auth-tooltip" id="tooltip-about" role="dialog" aria-label="О проекте">
+    <div class="auth-tooltip__deco" aria-hidden="true">
+        <img src="log_img/book.svg" alt="">
+    </div>
+    <p class="auth-tooltip__text">
+        «LitEra» — удобная платформа для чтения книг со встроенным трекером прогресса.
+        Наша задача — сделать чтение книг не только комфортным, но и мотивирующим,
+        позволяющую отслеживать чтение, ставить цели и анализировать привычки.
+    </p>
+    <div class="auth-tooltip__deco auth-tooltip__deco--br" aria-hidden="true">
+        <img src="log_img/book2.svg" alt="">
     </div>
 </div>
 
-<!-- TOOLTIP КОНТАКТЫ -->
-<div class="tooltip" id="tooltip-contact">
-    <div class="tooltip-content">
-        <p><strong>Есть вопросы или предложения?</strong></p>
-        <div class="email-container">
-            <span id="email-text">litera@gmail.com</span>
-            <button class="copy-btn" id="copy-email-btn">📋</button>
-        </div>
-        <p>Мы всегда рады помочь Вам и услышать Ваши идеи для развития «LitEra», а также открыты к диалогу и сотрудничеству.</p>
+<!-- Тултип: Контакты -->
+<div class="auth-tooltip" id="tooltip-contact" role="dialog" aria-label="Контакты">
+    <div class="auth-tooltip__deco" aria-hidden="true">
+        <img src="log_img/book3.svg" alt="">
+    </div>
+    <p class="auth-tooltip__heading">Есть вопросы или предложения?</p>
+    <div class="auth-tooltip__email-row">
+        <span id="email-text" class="auth-tooltip__email">litera@gmail.com</span>
+        <button class="auth-tooltip__copy" id="copy-email-btn" aria-label="Скопировать email">
+            <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+                <rect x="7" y="7" width="10" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+        </button>
+    </div>
+    <p class="auth-tooltip__text">
+        Мы всегда рады помочь Вам и услышать Ваши идеи для развития «LitEra»,
+        а также открыты к диалогу и сотрудничеству.
+    </p>
+    <div class="auth-tooltip__deco auth-tooltip__deco--br" aria-hidden="true">
+        <img src="log_img/book4.svg" alt="">
     </div>
 </div>
+
+<!-- Оверлей для закрытия тултипа -->
+<div class="tooltip-overlay" id="tooltip-overlay"></div>
 
 <script src="js/log.js"></script>
 <script src="js/api.js"></script>

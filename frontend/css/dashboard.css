@@ -383,16 +383,60 @@ body {
 }
 .widget--add-book__img { width:68px; height:68px; object-fit:contain; }
 
+/* ── ЦИТАТА — стиль по референсу ────────────────────────── */
 .quote-card {
-  background:rgba(0,0,0,.08); border:2px solid var(--quote-border);
-  border-radius:var(--r-lg); padding:16px;
-  display:flex; flex-direction:column; gap:10px; backdrop-filter:blur(6px);
+  position: relative;
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: var(--r-lg);
+  padding: 18px 18px 56px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+  min-height: 180px;
 }
-.quote-card__mark { font-size:26px; font-weight:bold; line-height:1; }
-.quote-card__text { font-size:14px; line-height:1.65; font-style:italic; }
-.quote-card__footer { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:2px; }
-.quote-card__author { font-size:12px; color:var(--text-muted); font-style:normal; }
-.quote-card__deco { width:34px; height:34px; object-fit:contain; opacity:.30; filter:brightness(0) invert(1); }
+.quote-card__mark {
+  font-size: 32px;
+  font-weight: bold;
+  line-height: 1;
+  color: var(--text);
+  opacity: .70;
+  font-family: Georgia, serif;
+  margin-bottom: -4px;
+}
+.quote-card__text {
+  font-size: 15px;
+  line-height: 1.7;
+  font-style: italic;
+  color: var(--text);
+  font-family: Georgia, serif;
+}
+.quote-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+.quote-card__author {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-style: normal;
+}
+/* Large feather in bottom-right */
+.quote-card__deco {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  opacity: .15;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+  transform: rotate(-15deg);
+}
 
 /* ── GOAL CARDS ──────────────────────────────────────────── */
 .goal-grid { display:flex; gap:14px; }
@@ -600,10 +644,8 @@ body {
   display: none;
 }
 
-/* ── BOOK CARD CHECK CIRCLE ──────────────────────────────── */
-.book-card__check-circle {
-  display: none;
-}
+/* ── BOOK CARD CHECK CIRCLE — скрыт везде ───────────────── */
+.book-card__check-circle { display: none !important; }
 
 /* ============================================================
    MOBILE ADAPTIVE (≤600px)
@@ -624,12 +666,15 @@ body {
   /* ── Dashboard grid → single column ── */
   .dashboard {
     grid-template-columns: 1fr;
-    grid-template-areas: "mobile-top" "books";
+    grid-template-areas: "books";
     padding: 0 0 16px 0;
     gap: 0;
     max-width: 100%;
   }
+  /* Скрываем десктопные элементы */
   .right-panel { display: none; }
+  /* Галочки скрыты везде */
+  .book-card__check-circle { display: none !important; }
 
   /* ── Continue reading banner ── */
   .mobile-continue {
@@ -763,18 +808,8 @@ body {
     overflow: visible;
   }
 
-  /* Check circle — shown on mobile */
-  .book-card__check-circle {
-    display: flex;
-    align-items: center; justify-content: center;
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--surface-mid);
-    border: 2px solid rgba(255,255,255,0.25);
-    color: var(--text); font-size: 13px;
-    flex-shrink: 0;
-    align-self: center;
-    margin-left: 8px; margin-right: 4px;
-  }
+  /* Check circle — скрыт везде */
+  /* .book-card__check-circle — уже display:none!important выше */
 
   .book-card__cover {
     width: 90px; height: 130px;
@@ -860,3 +895,118 @@ body {
   .bottom-nav { display: none; }
   .book-card__check-circle { display: none; }
 }
+
+/* ── Поля метаданных в модале добавления книги ───────────── */
+.add-book__meta-fields {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.add-book__meta-label {
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.add-book__meta-input {
+  width: 100%;
+  padding: 9px 12px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.add-book__meta-input::placeholder { color: var(--text-muted); }
+.add-book__meta-input:focus { border-color: var(--accent); }
+
+/* Превью обложки в зоне загрузки */
+.add-book__cover-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+}
+
+/* ── Logout button hover ─────────────────────────────────── */
+.icon-btn--logout:hover { background: rgba(224,112,112,.18) !important; border-color: rgba(224,112,112,.4) !important; }
+
+/* ── Mobile bottom sheets ────────────────────────────────── */
+.mobile-bottom-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  background: rgba(20,12,8,.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease;
+}
+.mobile-bottom-sheet--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.mobile-bottom-sheet__handle {
+  width: 40px; height: 4px;
+  background: rgba(255,255,255,.25);
+  border-radius: 2px;
+  margin: 12px auto 0;
+}
+.mobile-bottom-sheet__content {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 0 20px 32px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  transform: translateY(20px);
+  transition: transform .25s ease;
+}
+.mobile-bottom-sheet--open .mobile-bottom-sheet__content {
+  transform: translateY(0);
+}
+.mobile-bottom-sheet__title {
+  font-size: 17px;
+  font-weight: bold;
+  color: var(--text);
+  padding: 16px 0 12px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  margin-bottom: 16px;
+}
+.mobile-bottom-sheet__section-label {
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.mobile-sheet-goals {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.mobile-sheet-goals .goal-card { flex: 1; }
+.mobile-sheet-stats { margin-bottom: 8px; }
+.mobile-theme-grid { justify-content: flex-start; gap: 12px; margin-bottom: 20px; }
+.mobile-bottom-sheet__logout-wrap { padding-top: 16px; border-top: 1px solid rgba(255,255,255,.10); }
+.mobile-logout-btn {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 12px 16px;
+  border: 1px solid rgba(224,112,112,.3);
+  border-radius: var(--r-md);
+  background: rgba(224,112,112,.08);
+  color: #e07070;
+  font-family: inherit; font-size: 14px; cursor: pointer;
+  transition: background .2s;
+}
+.mobile-logout-btn:hover { background: rgba(224,112,112,.16); }

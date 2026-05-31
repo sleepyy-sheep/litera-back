@@ -18,7 +18,8 @@
 
 html, body {
     height: 100%;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     background: linear-gradient(135deg, #3F2D25 0%, #2C211B 100%);
     font-family: "Inter", system-ui, sans-serif;
     color: white;
@@ -325,4 +326,66 @@ hr {
 
 .copy-btn:hover {
     background: rgba(231, 217, 208, 0.2);
+}
+
+/* ==================== МОБИЛЬНЫЙ АДАПТИВ ==================== */
+@media (max-width: 480px) {
+    html, body { overflow-y: auto; }
+
+    .header_container {
+        padding: 16px 16px 0;
+        gap: 1rem;
+    }
+    .header_container .logo img { height: 34px; }
+    .header_container .nav { font-size: 0.9rem; gap: 1rem; }
+
+    hr { margin-bottom: 0.8rem; }
+
+    .autorization {
+        grid-template-columns: 1fr;
+        height: auto;
+        max-height: none;
+        min-height: unset;
+        margin: 10px 12px 24px;
+        border-radius: 20px;
+    }
+
+    .left-part {
+        height: 180px;
+        order: -1;
+    }
+
+    .your_ygolok { font-size: 1.4rem; }
+    .sub_your_ygolok { font-size: 0.9rem; }
+
+    .right-part {
+        padding: 24px 20px 28px;
+    }
+
+    .welcome { font-size: 1.7rem; }
+    .account { font-size: 0.95rem; margin-bottom: 1.6rem; }
+    .email_password { font-size: 0.85rem; }
+
+    .input-wrapper input {
+        height: 50px;
+        font-size: 0.95rem;
+        padding: 0 3.2rem 0 3.2rem;
+    }
+
+    #loginBtn {
+        height: 50px;
+        font-size: 1rem;
+        margin: 1.2rem 0 1.4rem;
+    }
+
+    .none_account { font-size: 0.95rem; }
+
+    .tooltip {
+        width: calc(100vw - 32px);
+        left: 16px !important;
+        right: 16px !important;
+        top: auto !important;
+        bottom: 16px !important;
+        position: fixed;
+    }
 }

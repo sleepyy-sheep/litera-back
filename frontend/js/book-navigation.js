@@ -51,6 +51,8 @@
     continueBlock.setAttribute('role', 'button');
     continueBlock.setAttribute('tabindex', '0');
     continueBlock.addEventListener('click', () => {
+      const bookId = continueBlock.dataset.bookId;
+      if (bookId) { window.location.href = `reader.html?id=${bookId}`; return; }
       const first = document.querySelector('#book-list .book-card');
       if (first) window.location.href = readerUrl(first);
     });

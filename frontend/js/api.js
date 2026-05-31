@@ -200,6 +200,30 @@ async function apiUploadBook(file, genre = null, notes = null) {
     return apiRequest('/books', { method: 'POST', body: formData });
 }
 
+// Загрузка книги с метаданными (название, автор из файла)
+async function apiUploadBookWithMeta(file, meta = {}) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Используем метаданные из файла или имя файла как fallback
+    const title = meta.title?.trim() || file.name.replace(/\.[^/.]+$/, '');
+    formData.append('title', title);
+
+    if (meta.author?.trim()) formData.append('author', meta.author.trim());
+
+    const fileExt = file.name.split('.').pop().toLowerCase();
+    let format = 'other';
+    if (fileExt === 'pdf') format = 'pdf';
+    else if (fileExt === 'epub') format = 'epub';
+    else if (fileExt === 'fb2') format = 'fb2';
+    formData.append('format', format);
+
+    if (meta.genre) formData.append('genre', meta.genre);
+    if (meta.notes) formData.append('description', meta.notes);
+
+    return apiRequest('/books', { method: 'POST', body: formData });
+}
+
 async function apiUpdateBook(bookId, updates) {
     return apiRequest(`/books/${bookId}`, { method: 'PATCH', body: updates });
 }

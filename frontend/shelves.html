@@ -119,6 +119,12 @@
           </div>
         </div>
       </div>
+      <!-- Выход -->
+      <button class="icon-btn icon-btn--logout" data-logout aria-label="Выйти из аккаунта" title="Выйти">
+        <svg viewBox="0 0 20 20" fill="none" width="19" height="19">
+          <path d="M13 3h4v14h-4M8 7l-4 3 4 3M4 10h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
   </div>
 </header>
@@ -190,8 +196,9 @@
     <div class="book-of-week">
       <p class="book-of-week__label">Книга недели</p>
       <div class="book-of-week__cover-wrap">
-        <img src="log_img/cover-kanashiburi.svg"
-             alt="КАНАШИБУРИ — книга недели" class="book-of-week__cover">
+        <img src="log_img/mykhaylo-kopyt-VGAQ5Vy35hk-unsplash.png"
+             alt="Книга недели" class="book-of-week__cover"
+             onerror="this.src='log_img/background_left_part.png'">
       </div>
     </div>
 
@@ -224,7 +231,8 @@
     <div class="shelves-mobile-widgets__row">
       <div class="book-of-week book-of-week--compact">
         <p class="book-of-week__label">Книга недели</p>
-        <img src="log_img/cover-kanashiburi.svg" alt="КАНАШИБУРИ" class="book-of-week__cover">
+        <img src="log_img/mykhaylo-kopyt-VGAQ5Vy35hk-unsplash.png" alt="Книга недели" class="book-of-week__cover"
+             onerror="this.src='log_img/background_left_part.png'">
       </div>
       <button class="add-shelf-btn add-shelf-btn--compact" type="button" aria-label="Добавить полку">
         <div class="add-shelf-btn__icon-wrap" aria-hidden="true">
@@ -253,31 +261,52 @@
 <div class="modal-overlay" id="modal-add-shelf" role="dialog" aria-modal="true" aria-labelledby="modal-shelf-title">
   <div class="modal modal--add-shelf">
     <button class="modal__close modal__close--outside" data-close="modal-add-shelf" aria-label="Закрыть">✕</button>
-    <h2 class="modal__shelf-title" id="modal-shelf-title">Новая полка</h2>
-    <p class="modal__shelf-sub">Создайте свою коллекцию или выберите умную полку</p>
 
+    <h2 class="modal__shelf-title" id="modal-shelf-title">Добавьте полку</h2>
+
+    <!-- Название -->
     <div class="modal__shelf-field">
-      <label for="shelf-name-input" class="modal__shelf-label">Название полки</label>
-      <input id="shelf-name-input" class="modal__shelf-input" type="text"
-             placeholder="Например: Летнее чтение..." maxlength="40">
+      <label for="shelf-name-input" class="modal__shelf-label">Введите название:</label>
+      <div class="modal__shelf-name-wrap">
+        <svg class="modal__shelf-name-icon" viewBox="0 0 20 20" fill="none" width="16" height="16">
+          <path d="M4 4h12v9H4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M7 8h6M7 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input id="shelf-name-input" class="modal__shelf-input" type="text"
+               placeholder="Название" maxlength="40">
+      </div>
     </div>
 
+    <!-- Пресеты -->
     <div class="modal__shelf-field">
-      <p class="modal__shelf-label">Умные полки</p>
       <div class="modal__shelf-presets">
-        <button class="shelf-preset-btn" data-name="Прочитанные" data-smart="true">📚 Прочитанные</button>
-        <button class="shelf-preset-btn" data-name="Избранные" data-smart="true">⭐ Избранные</button>
-        <button class="shelf-preset-btn" data-name="Хочу прочитать" data-smart="true">🔖 Хочу прочитать</button>
-        <button class="shelf-preset-btn" data-name="Читаю сейчас" data-smart="true">📖 Читаю сейчас</button>
+        <button class="shelf-preset-btn" data-name="Прочитанные">📚 Прочитанные</button>
+        <button class="shelf-preset-btn" data-name="Избранные">⭐ Избранные</button>
+        <button class="shelf-preset-btn" data-name="Хочу прочитать">🔖 Хочу прочитать</button>
+        <button class="shelf-preset-btn" data-name="Читаю сейчас">📖 Читаю сейчас</button>
         <button class="shelf-preset-btn" data-name="Подарить">🎁 Подарить</button>
         <button class="shelf-preset-btn" data-name="Классика">🏛 Классика</button>
       </div>
     </div>
 
+    <!-- Выбор книг -->
+    <div class="modal__shelf-field">
+      <p class="modal__shelf-label">Выберите книги:</p>
+      <div class="shelf-books-grid" id="shelf-books-grid">
+        <p style="color:var(--text-muted);font-size:13px;">Загрузка...</p>
+      </div>
+    </div>
+
+    <!-- Кнопки -->
     <div class="modal__shelf-footer">
-      <button class="modal__shelf-cancel" type="button" data-close="modal-add-shelf">Отмена</button>
       <button class="modal__shelf-submit" type="button" id="shelf-submit-btn">Создать полку</button>
     </div>
+    <div style="margin-top:10px;">
+      <button class="modal__shelf-add-books" type="button" id="shelf-add-books-btn" disabled>
+        Добавить книги
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -317,66 +346,33 @@
 </nav>
 
 <script>
+/* ── Header dropdowns — только click ── */
 const ddWraps = document.querySelectorAll('.hdr-dropdown-wrap');
-let pinnedDropdown = null;
 
-function openDD(w) { 
-  ddWraps.forEach(x => { if (x !== w) closeDD(x); }); 
-  w.classList.add('hdr-dropdown-wrap--open'); 
-  w.querySelector('.icon-btn')?.setAttribute('aria-expanded', 'true'); 
+function openDD(w) {
+  ddWraps.forEach(x => { if (x !== w) closeDD(x); });
+  w.classList.add('hdr-dropdown-wrap--open');
+  w.querySelector('.icon-btn')?.setAttribute('aria-expanded', 'true');
 }
-
-function closeDD(w) { 
-  w.classList.remove('hdr-dropdown-wrap--open'); 
-  w.querySelector('.icon-btn')?.setAttribute('aria-expanded', 'false'); 
-  if (pinnedDropdown === w) {
-    pinnedDropdown = null;
-  }
+function closeDD(w) {
+  w.classList.remove('hdr-dropdown-wrap--open');
+  w.querySelector('.icon-btn')?.setAttribute('aria-expanded', 'false');
 }
-
-function toggleDD(w) { 
-  if (w.classList.contains('hdr-dropdown-wrap--open')) {
-    closeDD(w);
-    pinnedDropdown = null;
-  } else {
-    openDD(w);
-    pinnedDropdown = w;
-  }
+function toggleDD(w) {
+  w.classList.contains('hdr-dropdown-wrap--open') ? closeDD(w) : openDD(w);
 }
 
 ddWraps.forEach(w => {
-  w.querySelector('.icon-btn')?.addEventListener('click', e => { 
-    e.stopPropagation(); 
-    toggleDD(w); 
+  w.querySelector('.icon-btn')?.addEventListener('click', e => {
+    e.stopPropagation();
+    toggleDD(w);
   });
-  
-  w.addEventListener('mouseenter', () => {
-    if (!pinnedDropdown) {
-      openDD(w);
-    }
-  });
-  
-  w.addEventListener('mouseleave', () => {
-    if (pinnedDropdown !== w) {
-      closeDD(w);
-    }
-  });
+  // Клик внутри дропдауна не закрывает его
+  w.querySelector('.hdr-dropdown')?.addEventListener('click', e => e.stopPropagation());
 });
 
-document.addEventListener('click', (e) => {
-  const clickedInside = Array.from(ddWraps).some(wrap => wrap.contains(e.target));
-  if (!clickedInside) {
-    ddWraps.forEach(closeDD);
-    pinnedDropdown = null;
-  }
-});
-
-document.addEventListener('keydown', e => { 
-  if (e.key === 'Escape') {
-    ddWraps.forEach(closeDD); 
-    pinnedDropdown = null;
-  }
-});
+document.addEventListener('click', () => ddWraps.forEach(closeDD));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') ddWraps.forEach(closeDD); });
 
 document.querySelectorAll('.stats-tab').forEach(t => {
   t.addEventListener('click', () => {
@@ -390,6 +386,7 @@ document.querySelectorAll('.theme-card').forEach(card => {
     document.querySelectorAll('.theme-card').forEach(c => { c.classList.remove('theme-card--active'); c.querySelector('.theme-card__check')?.remove(); });
     card.classList.add('theme-card--active');
     const chk = document.createElement('span'); chk.className = 'theme-card__check'; chk.setAttribute('aria-hidden', 'true'); chk.textContent = '✓'; card.appendChild(chk);
+    applyAppTheme(card.dataset.theme);
   });
 });
 
@@ -437,6 +434,44 @@ document.querySelectorAll('.shelf-preset-btn').forEach(btn => {
 });
 
 // Создание полки — в shelves.js
+
+/* ── applyAppTheme ── */
+const THEMES_SHELVES = {
+  brown: {
+    '--bg': '#9e8578', '--surface': '#3a2820', '--surface-mid': '#4a3228',
+    '--surface-light': '#5a3e32', '--card-bg': 'rgba(255,255,255,0.12)',
+    '--card-border': 'rgba(255,255,255,0.22)', '--text': '#f0e6de',
+    '--text-muted': 'rgba(240,230,222,0.60)', '--accent': '#d4b49a',
+  },
+  dark: {
+    '--bg': '#1a1210', '--surface': '#0d0a08', '--surface-mid': '#1e1612',
+    '--surface-light': '#2a1e18', '--card-bg': 'rgba(255,255,255,0.06)',
+    '--card-border': 'rgba(255,255,255,0.12)', '--text': '#e8ddd6',
+    '--text-muted': 'rgba(232,221,214,0.55)', '--accent': '#c4a48a',
+  },
+};
+
+function applyAppTheme(name) {
+  const theme = THEMES_SHELVES[name] || THEMES_SHELVES.brown;
+  const root = document.documentElement;
+  Object.entries(theme).forEach(([k, v]) => root.style.setProperty(k, v));
+  localStorage.setItem('app_theme', name);
+  document.querySelectorAll('.theme-card').forEach(c => {
+    c.classList.toggle('theme-card--active', c.dataset.theme === name);
+    const chk = c.querySelector('.theme-card__check');
+    if (c.dataset.theme === name && !chk) {
+      const s = document.createElement('span'); s.className='theme-card__check'; s.setAttribute('aria-hidden','true'); s.textContent='✓'; c.appendChild(s);
+    } else if (c.dataset.theme !== name && chk) { chk.remove(); }
+  });
+}
+
+const _savedThemeShelves = localStorage.getItem('app_theme');
+if (_savedThemeShelves) applyAppTheme(_savedThemeShelves);
+
+/* ── Logout ── */
+document.querySelectorAll('[data-logout]').forEach(btn => {
+  btn.addEventListener('click', () => logout());
+});
 </script>
 <!-- API и интеграция с бэкендом -->
 <script src="js/api.js"></script>

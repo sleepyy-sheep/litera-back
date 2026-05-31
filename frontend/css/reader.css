@@ -13,9 +13,11 @@
 /* ── Шапка чтения ─────────────────────────────────────────── */
 .reader-header {
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 200;
   background: var(--surface);
   box-shadow: 0 2px 12px rgba(0, 0, 0, .4);
-  z-index: 100;
 }
 
 .reader-header__inner {
@@ -140,6 +142,7 @@
   position: relative;
   overflow-y: auto;
   background: #f3ebe3;
+  padding-bottom: 80px;
 }
 
 .reader-back {
@@ -205,9 +208,13 @@
   text-indent: 0;
 }
 
-/* ── Подвал ───────────────────────────────────────────────── */
+/* ── Подвал — фиксированный ──────────────────────────────── */
 .reader-footer {
-  flex-shrink: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
   background: var(--surface);
   box-shadow: 0 -2px 12px rgba(0, 0, 0, .35);
 }
@@ -337,4 +344,364 @@
     width: 42px;
     height: 42px;
   }
+}
+
+/* ── Панели инструментов — фиксированные под хедером ─────── */
+.reader-tool-btn {
+  position: relative;
+}
+.reader-tool-btn--active {
+  background: rgba(255,255,255,.22) !important;
+  border-color: rgba(255,255,255,.4) !important;
+}
+.reader-tool-btn svg { color: var(--text); }
+
+/* Хедер уже определён выше со sticky positioning */
+
+.reader-panel {
+  position: fixed;
+  /* top вычисляется JS-ом при открытии, но по умолчанию — под хедером */
+  top: 62px;
+  right: 16px;
+  width: 300px;
+  background: #2a1810;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.6);
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px) scale(.97);
+  transform-origin: top right;
+  transition: opacity .2s ease, transform .2s ease;
+  overflow: hidden;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+.reader-panel--open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.reader-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+}
+.reader-panel__title {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+}
+.reader-panel__close {
+  width: 26px; height: 26px;
+  border-radius: 50%; border: none;
+  background: rgba(255,255,255,.10);
+  color: var(--text); font-size: 13px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.reader-panel__close:hover { background: rgba(255,255,255,.22); }
+
+.reader-panel__body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.reader-panel__label {
+  font-size: 12px;
+  color: rgba(240,230,222,.6);
+  font-family: system-ui, sans-serif;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Шрифт */
+.reader-font-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(255,255,255,.07);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+.reader-font-btn {
+  width: 36px; height: 36px;
+  border-radius: 8px; border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.08); color: var(--text);
+  font-family: system-ui, sans-serif; font-size: 14px; font-weight: bold;
+  cursor: pointer; transition: background .18s;
+}
+.reader-font-btn:hover { background: rgba(255,255,255,.18); }
+.reader-font-size {
+  font-size: 14px; font-weight: bold; color: var(--text);
+  font-family: system-ui, sans-serif; min-width: 40px; text-align: center;
+}
+
+.reader-font-family {
+  display: flex; gap: 6px;
+}
+.reader-font-family-btn {
+  flex: 1; padding: 7px 4px;
+  border-radius: 8px; border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.06); color: rgba(240,230,222,.7);
+  font-size: 13px; cursor: pointer; transition: background .18s, color .18s;
+  text-align: center;
+}
+.reader-font-family-btn:hover { background: rgba(255,255,255,.14); color: var(--text); }
+.reader-font-family-btn--active {
+  background: rgba(255,255,255,.18); color: var(--text);
+  border-color: var(--accent); font-weight: bold;
+}
+
+.reader-line-height { display: flex; flex-direction: column; gap: 6px; }
+
+/* Ползунок */
+.reader-range {
+  width: 100%; height: 4px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* Темы */
+.reader-themes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.reader-theme-btn {
+  padding: 10px 8px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: border-color .18s, transform .1s;
+  font-family: system-ui, sans-serif;
+}
+.reader-theme-btn:hover { transform: scale(.97); }
+.reader-theme-btn--active { border-color: var(--accent) !important; }
+
+/* Настройки */
+.reader-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(240,230,222,.8);
+  font-family: system-ui, sans-serif;
+}
+.reader-setting-row input[type="range"] { flex: 1; }
+.reader-setting-badge {
+  font-size: 11px; font-weight: bold;
+  background: #3cb371; color: #fff;
+  border-radius: 20px; padding: 2px 8px;
+}
+
+/* Заметки */
+.reader-notes-list {
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: thin;
+}
+.reader-note-item {
+  background: rgba(255,255,255,.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.reader-note-text {
+  flex: 1;
+  font-size: 13px;
+  color: rgba(240,230,222,.85);
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.reader-note-delete {
+  flex-shrink: 0;
+  width: 20px; height: 20px;
+  border-radius: 50%; border: none;
+  background: rgba(224,112,112,.2); color: #e07070;
+  font-size: 11px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.reader-note-delete:hover { background: rgba(224,112,112,.4); }
+
+.reader-notes-add {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.reader-notes-textarea {
+  width: 100%;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 10px;
+  padding: 8px 10px;
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  resize: none;
+  outline: none;
+  transition: border-color .2s;
+}
+.reader-notes-textarea::placeholder { color: rgba(240,230,222,.4); }
+.reader-notes-textarea:focus { border-color: var(--accent); }
+.reader-notes-save-btn {
+  align-self: flex-end;
+  padding: 7px 18px;
+  border-radius: 20px; border: none;
+  background: var(--accent); color: var(--surface);
+  font-family: system-ui, sans-serif; font-size: 13px; font-weight: bold;
+  cursor: pointer; transition: background .2s;
+}
+.reader-notes-save-btn:hover { background: #e8c8a8; }
+
+/* Адаптив панелей */
+@media (max-width: 600px) {
+  .reader-panel {
+    position: fixed;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(20px) scale(1);
+    transform-origin: bottom center;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .reader-panel--open {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── TOC панель — широкая, слева ─────────────────────────── */
+.reader-panel--toc {
+  width: 320px;
+  right: auto;
+  left: 0;
+  transform-origin: top left;
+}
+.reader-panel--toc.reader-panel--open {
+  transform: translateY(0) scale(1);
+}
+
+.reader-toc-body {
+  padding: 8px 0 12px !important;
+  gap: 0 !important;
+}
+
+.reader-toc-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.2) transparent;
+}
+.reader-toc-list::-webkit-scrollbar { width: 4px; }
+.reader-toc-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 2px; }
+
+.reader-toc-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 16px;
+  border: none;
+  background: transparent;
+  color: rgba(240,230,222,.80);
+  font-family: Georgia, serif;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s, color .15s;
+  line-height: 1.4;
+}
+.reader-toc-item:hover {
+  background: rgba(255,255,255,.10);
+  color: var(--text);
+}
+.reader-toc-item--active {
+  background: rgba(255,255,255,.14);
+  color: var(--text);
+  font-weight: bold;
+}
+.reader-toc-num {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.12);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.reader-toc-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Обложка и автор в начале книги ─────────────────────── */
+.reader-book-info {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  max-width: 720px;
+  margin: 0 auto 32px;
+  padding: 24px 48px 0;
+}
+.reader-cover-img {
+  width: 100px;
+  height: 145px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 4px 6px 20px rgba(0,0,0,.35);
+}
+.reader-book-meta {
+  flex: 1;
+  min-width: 0;
+}
+.reader-book-title-large {
+  font-size: 22px;
+  font-weight: bold;
+  color: #2a1a14;
+  margin-bottom: 6px;
+  line-height: 1.25;
+}
+.reader-book-author {
+  font-size: 15px;
+  color: #6b4a3e;
+  font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .reader-book-info {
+    padding: 16px 16px 0;
+    gap: 14px;
+  }
+  .reader-cover-img { width: 72px; height: 104px; }
+  .reader-book-title-large { font-size: 17px; }
+  .reader-panel--toc { width: calc(100vw - 24px); left: 12px; }
 }

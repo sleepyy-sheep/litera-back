@@ -152,27 +152,25 @@
   gap: 20px;
 }
 
-/* ── Карточка полки ────────────────────────────────────────── */
+/* ── Карточка полки — flex layout как на референсе ──────── */
 .shelf-card {
   position: relative;
-  background: rgba(255, 255, 255, .11);
-  border: 1px solid rgba(255, 255, 255, .24);
+  background: rgba(255,255,255,.11);
+  border: 1px solid rgba(255,255,255,.20);
   border-radius: var(--r-lg);
   backdrop-filter: blur(10px);
-  box-shadow: 0 6px 28px rgba(28, 16, 10, .22);
+  box-shadow: 0 4px 24px rgba(28,16,10,.20);
   overflow: hidden;
-  transition: background .2s, box-shadow .2s;
-  display: grid;
-  grid-template-columns: minmax(240px, 1fr) auto;
-  grid-template-areas:
-    "info covers"
-    "footer footer";
-  min-height: 188px;
+  transition: background .2s, box-shadow .2s, transform .15s;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 180px;
 }
-
 .shelf-card:hover {
-  background: rgba(255, 255, 255, .17);
-  box-shadow: 0 8px 28px rgba(30, 18, 12, .24);
+  background: rgba(255,255,255,.16);
+  box-shadow: 0 6px 28px rgba(28,16,10,.28);
+  transform: translateY(-1px);
 }
 
 .shelf-card--removing {
@@ -192,49 +190,65 @@
   transform: translateY(0);
 }
 
+/* Левая часть — текст */
 .shelf-card__head,
-.shelf-card__info {
-  grid-area: info;
+.shelf-card__info,
+.shelf-card__meta {
+  flex: 0 0 240px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding: 22px 12px 10px 22px;
+  justify-content: center;
+  padding: 22px 18px 22px 22px;
   min-width: 0;
 }
 
-.shelf-card__head-text {
-  flex: 1;
+.shelf-card__head-text,
+.shelf-card__meta-text {
   min-width: 0;
 }
 
-.shelf-card__title-row {
-  margin-bottom: 6px;
-}
+.shelf-card__title-row { margin-bottom: 4px; }
 
 .shelf-card__title {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: bold;
   color: var(--text);
-  line-height: 1.12;
+  line-height: 1.2;
   margin-bottom: 6px;
-}
-
-.shelf-card__badge {
-  display: none;
-}
-
-.shelf-card__authors {
-  font-size: 14px;
-  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.shelf-card__badge { display: none; }
+
+.shelf-card__authors {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 14px;
+}
+
+.shelf-card__last {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  border-top: none;
+  padding: 0;
+}
+
+.shelf-card__last-title {
+  color: var(--accent);
+  font-style: italic;
+}
+
+/* Кнопка ••• */
 .shelf-card__more-wrap {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 14px;
+  right: 14px;
   z-index: 5;
 }
 
@@ -321,42 +335,40 @@
   margin: 2px 0;
 }
 
-/* Лента обложек */
+/* Правая часть — обложки */
 .shelf-card__covers-wrap {
-  grid-area: covers;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 16px 16px 16px 0;
+  overflow: hidden;
   position: relative;
-  padding: 18px 20px 18px 0;
-  align-self: center;
+  min-width: 0;
 }
-
-.shelf-card__main {
-  display: contents;
-}
-
 .shelf-card__covers-wrap::after {
-  content: "";
+  content: '';
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 48px;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(62, 42, 32, .45));
+  top: 0; right: 0;
+  width: 36px; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(40,24,16,.45));
   pointer-events: none;
+  z-index: 1;
 }
+
+.shelf-card__main { display: contents; }
 
 .shelf-card__covers {
   display: flex;
-  align-items: stretch;
-  gap: 8px;
+  align-items: flex-end;
+  gap: 5px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 4px;
   scrollbar-width: none;
+  padding-bottom: 2px;
+  padding-right: 6px;
+  width: 100%;
 }
-
-.shelf-card__covers::-webkit-scrollbar {
-  display: none;
-}
+.shelf-card__covers::-webkit-scrollbar { display: none; }
 
 .shelf-cover {
   width: 76px;
@@ -426,15 +438,7 @@
   font-style: italic;
 }
 
-.shelf-card__last {
-  grid-area: footer;
-  padding: 12px 22px 18px;
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  border-top: 1px solid rgba(255, 255, 255, .1);
-  margin: 0;
-}
+/* shelf-card__last теперь внутри левой колонки — стили выше */
 
 .shelf-card__last-title {
   color: var(--accent);
@@ -603,120 +607,184 @@
   display: none;
 }
 
-/* ── Модал ───────────────────────────────────────────────── */
+/* ── Модал создания полки — обновлённый ─────────────────── */
 .modal--add-shelf {
-  width: min(500px, calc(100vw - 32px));
-  padding: 32px 32px 28px;
+  width: min(520px, calc(100vw - 32px));
+  padding: 28px 28px 24px;
   background: #3a2418;
   border-radius: 24px;
   position: relative;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
 }
 
 .modal__shelf-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   color: var(--text);
-  margin-bottom: 6px;
+  margin-bottom: 20px;
 }
 
 .modal__shelf-sub {
   font-size: 14px;
   color: var(--text-muted);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .modal__shelf-field {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .modal__shelf-label {
   display: block;
   font-size: 13px;
-  font-weight: bold;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: .05em;
   margin-bottom: 8px;
 }
 
+/* Поле ввода с иконкой */
+.modal__shelf-name-wrap {
+  position: relative;
+}
+.modal__shelf-name-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
 .modal__shelf-input {
   width: 100%;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, .08);
-  border: 1px solid rgba(255, 255, 255, .18);
+  padding: 11px 14px 11px 36px;
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.18);
   border-radius: var(--r-md);
   color: var(--text);
   font-family: inherit;
-  font-size: 16px;
+  font-size: 15px;
   outline: none;
   transition: border-color .2s;
 }
+.modal__shelf-input::placeholder { color: var(--text-muted); }
+.modal__shelf-input:focus { border-color: var(--accent); }
 
-.modal__shelf-input::placeholder {
-  color: var(--text-muted);
-}
-
-.modal__shelf-input:focus {
-  border-color: var(--accent);
-}
-
+/* Пресеты */
 .modal__shelf-presets {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 7px;
 }
-
 .shelf-preset-btn {
-  padding: 8px 14px;
+  padding: 7px 13px;
   border-radius: var(--r-pill);
-  border: 1.5px solid rgba(255, 255, 255, .22);
+  border: 1.5px solid rgba(255,255,255,.18);
   background: transparent;
   color: var(--text-muted);
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   transition: background .18s, border-color .18s, color .18s;
   white-space: nowrap;
 }
-
-.shelf-preset-btn:hover {
-  background: rgba(255, 255, 255, .10);
-  color: var(--text);
-}
-
+.shelf-preset-btn:hover { background: rgba(255,255,255,.10); color: var(--text); }
 .shelf-preset-btn--active {
-  background: rgba(255, 255, 255, .18);
+  background: rgba(255,255,255,.18);
   border-color: var(--accent);
   color: var(--text);
   font-weight: bold;
 }
 
+/* Сетка книг для выбора */
+.shelf-books-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.2) transparent;
+}
+.shelf-books-grid::-webkit-scrollbar { width: 4px; }
+.shelf-books-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 2px; }
+
+.shelf-book-pick {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  aspect-ratio: 2/3;
+  border: 2px solid transparent;
+  transition: border-color .18s, transform .15s;
+}
+.shelf-book-pick:hover { transform: scale(1.04); }
+.shelf-book-pick img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.shelf-book-pick--selected {
+  border-color: var(--accent);
+}
+.shelf-book-pick__check {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--surface);
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 6px rgba(0,0,0,.4);
+}
+.shelf-book-pick__num {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Кнопки модала */
 .modal__shelf-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: stretch;
   gap: 10px;
   margin-top: 8px;
 }
-
 .modal__shelf-cancel {
-  padding: 10px 22px;
+  flex: 1;
+  padding: 11px 16px;
   border-radius: var(--r-pill);
-  border: 1px solid rgba(255, 255, 255, .22);
+  border: 1px solid rgba(255,255,255,.22);
   background: transparent;
   color: var(--text-muted);
   font-family: inherit;
   font-size: 14px;
   cursor: pointer;
   transition: background .2s, color .2s;
+  text-align: center;
 }
-
-.modal__shelf-cancel:hover {
-  background: rgba(255, 255, 255, .08);
-  color: var(--text);
-}
+.modal__shelf-cancel:hover { background: rgba(255,255,255,.08); color: var(--text); }
 
 .modal__shelf-submit {
-  padding: 10px 28px;
+  flex: 2;
+  padding: 11px 20px;
   border-radius: var(--r-pill);
   border: none;
   background: var(--accent);
@@ -726,12 +794,27 @@
   font-weight: bold;
   cursor: pointer;
   transition: background .2s, transform .1s;
+  text-align: center;
 }
+.modal__shelf-submit:hover { background: #e8c8a8; transform: scale(.98); }
+.modal__shelf-submit:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
-.modal__shelf-submit:hover {
-  background: #e8c8a8;
-  transform: scale(.98);
+.modal__shelf-add-books {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--r-pill);
+  border: none;
+  background: var(--surface-mid);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background .2s;
+  text-align: center;
 }
+.modal__shelf-add-books:hover:not(:disabled) { background: #6b4a3e; }
+.modal__shelf-add-books:disabled { opacity: .4; cursor: not-allowed; }
 
 /* ── Адаптив ─────────────────────────────────────────────── */
 @media (max-width: 1300px) {
@@ -875,8 +958,8 @@
 
   .shelf-cover,
   .shelf-cover--count {
-    width: 72px;
-    height: 106px;
+    width: 68px;
+    height: 100px;
   }
 
   .shelf-cover--count {
@@ -887,6 +970,24 @@
     padding: 12px 14px 14px;
     font-size: 12px;
     margin-top: 10px;
+  }
+
+  .shelf-card {
+    flex-direction: column;
+    min-height: unset;
+  }
+  .shelf-card__meta {
+    flex: none;
+    padding: 16px 16px 10px;
+  }
+  .shelf-card__covers-wrap {
+    padding: 0 16px 16px;
+    overflow: hidden;
+  }
+  .shelf-card__covers {
+    overflow-x: hidden;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   /* Компактные виджеты под полками */

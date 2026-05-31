@@ -28,19 +28,149 @@
     </div>
     <h1 class="reader-header__title" id="reader-book-title">Загрузка...</h1>
     <div class="reader-header__tools">
-      <button class="reader-tool-btn" type="button" aria-label="Закладки и заметки" title="Заметки">
-        <img src="log_img/book2.svg" alt="">
+      <!-- Содержание -->
+      <button class="reader-tool-btn" id="tool-toc" type="button"
+              aria-label="Содержание" title="Содержание книги">
+        <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+          <line x1="3" y1="5"  x2="17" y2="5"  stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <line x1="3" y1="9"  x2="13" y2="9"  stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <line x1="3" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <line x1="3" y1="17" x2="11" y2="17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
       </button>
-      <button class="reader-tool-btn" type="button" aria-label="Персонажи" title="Персонажи">
-        <img src="log_img/user_icon.svg" alt="">
+      <!-- Заметки -->
+      <button class="reader-tool-btn" id="tool-notes" type="button"
+              aria-label="Заметки" title="Заметки к книге">
+        <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+          <path d="M4 4h12v9H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M7 8h6M7 11h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M13 13v4l-3-2-3 2v-4" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
       </button>
-      <button class="reader-tool-btn" type="button" aria-label="Шрифт" title="Шрифт">tT</button>
-      <button class="reader-tool-btn" type="button" aria-label="Тема" title="Тема">
-        <img src="log_img/theam_icon.png" alt="">
+      <!-- Размер шрифта -->
+      <button class="reader-tool-btn" id="tool-font" type="button"
+              aria-label="Размер шрифта" title="Размер шрифта">
+        <span style="font-weight:700;font-size:13px;letter-spacing:-1px;">tT</span>
       </button>
-      <button class="reader-tool-btn" type="button" aria-label="Настройки" title="Настройки">⚙</button>
+      <!-- Тема -->
+      <button class="reader-tool-btn" id="tool-theme" type="button"
+              aria-label="Тема оформления" title="Тема">
+        <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+          <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M10 3v14M3 10h14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>
+          <circle cx="10" cy="10" r="3" fill="currentColor" opacity=".7"/>
+        </svg>
+      </button>
+      <!-- Настройки -->
+      <button class="reader-tool-btn" id="tool-settings" type="button"
+              aria-label="Настройки" title="Настройки">
+        <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+          <circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
     </div>
   </div>
+
+  <!-- Панель содержания (TOC) -->
+  <div class="reader-panel reader-panel--toc" id="panel-toc" aria-label="Содержание книги">
+    <div class="reader-panel__header">
+      <span class="reader-panel__title">Содержание</span>
+      <button class="reader-panel__close" id="panel-toc-close" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="reader-panel__body reader-toc-body">
+      <div id="reader-toc-list" class="reader-toc-list">
+        <p style="color:rgba(255,255,255,.5);font-size:13px;">Загрузка содержания...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Панель заметок -->
+  <div class="reader-panel" id="panel-notes" aria-label="Заметки к книге">
+    <div class="reader-panel__header">
+      <span class="reader-panel__title">Заметки</span>
+      <button class="reader-panel__close" id="panel-notes-close" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="reader-panel__body">
+      <div id="reader-notes-list" class="reader-notes-list"></div>
+      <div class="reader-notes-add">
+        <textarea id="reader-note-input" class="reader-notes-textarea"
+                  placeholder="Добавьте заметку к этой странице..." rows="3"></textarea>
+        <button id="reader-note-save" class="reader-notes-save-btn">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Панель шрифта -->
+  <div class="reader-panel" id="panel-font" aria-label="Настройки шрифта">
+    <div class="reader-panel__header">
+      <span class="reader-panel__title">Размер шрифта</span>
+      <button class="reader-panel__close" id="panel-font-close" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="reader-panel__body">
+      <div class="reader-font-controls">
+        <button class="reader-font-btn" id="font-decrease" aria-label="Уменьшить шрифт">A−</button>
+        <span class="reader-font-size" id="font-size-label">18px</span>
+        <button class="reader-font-btn" id="font-increase" aria-label="Увеличить шрифт">A+</button>
+      </div>
+      <div class="reader-font-family">
+        <button class="reader-font-family-btn reader-font-family-btn--active" data-font="Georgia, serif">Serif</button>
+        <button class="reader-font-family-btn" data-font="system-ui, sans-serif">Sans</button>
+        <button class="reader-font-family-btn" data-font="'Courier New', monospace">Mono</button>
+      </div>
+      <div class="reader-line-height">
+        <label class="reader-panel__label">Межстрочный интервал</label>
+        <input type="range" id="line-height-range" min="1.3" max="2.2" step="0.1" value="1.75"
+               class="reader-range">
+      </div>
+    </div>
+  </div>
+
+  <!-- Панель темы -->
+  <div class="reader-panel" id="panel-theme" aria-label="Тема оформления">
+    <div class="reader-panel__header">
+      <span class="reader-panel__title">Тема</span>
+      <button class="reader-panel__close" id="panel-theme-close" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="reader-panel__body">
+      <div class="reader-themes">
+        <button class="reader-theme-btn reader-theme-btn--active" data-theme="light"
+                style="background:#f3ebe3;color:#2a1a14;" aria-label="Светлая тема">Светлая</button>
+        <button class="reader-theme-btn" data-theme="sepia"
+                style="background:#f4ecd8;color:#3b2a1a;" aria-label="Сепия">Сепия</button>
+        <button class="reader-theme-btn" data-theme="dark"
+                style="background:#1e1410;color:#d4c4b0;" aria-label="Тёмная тема">Тёмная</button>
+        <button class="reader-theme-btn" data-theme="night"
+                style="background:#0d0d0d;color:#c8c8c8;" aria-label="Ночная тема">Ночная</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Панель настроек -->
+  <div class="reader-panel" id="panel-settings" aria-label="Настройки читалки">
+    <div class="reader-panel__header">
+      <span class="reader-panel__title">Настройки</span>
+      <button class="reader-panel__close" id="panel-settings-close" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="reader-panel__body">
+      <label class="reader-setting-row">
+        <span>Ширина текста</span>
+        <input type="range" id="width-range" min="480" max="900" step="20" value="720"
+               class="reader-range">
+      </label>
+      <label class="reader-setting-row">
+        <span>Отступы</span>
+        <input type="range" id="padding-range" min="16" max="80" step="4" value="48"
+               class="reader-range">
+      </label>
+      <div class="reader-setting-row">
+        <span>Автосохранение</span>
+        <span class="reader-setting-badge" id="autosave-status">Вкл</span>
+      </div>
+    </div>
+  </div>
+
 </header>
 
 <main class="reader-main">
@@ -75,6 +205,77 @@
   let bookData = null;
   let savedProgress = null;
   let progressSaveTimer = null;
+
+  // ── Отслеживание сессии чтения ──────────────────────────────
+  let sessionStartedAt = null;
+  let sessionStartPage = 0;
+  let sessionSaveTimer = null;
+
+  function startReadingSession() {
+    sessionStartedAt = new Date();
+    sessionStartPage = currentPage;
+  }
+
+  async function saveReadingSession() {
+    if (!sessionStartedAt || !bookId) return;
+    const endedAt = new Date();
+    const diffMs = endedAt - sessionStartedAt;
+    // Минимум 10 секунд чтобы не спамить
+    if (diffMs < 10000) return;
+
+    const pagesRead = Math.max(0, currentPage - sessionStartPage);
+    try {
+      await apiRequest(`/books/${bookId}/sessions`, {
+        method: 'POST',
+        body: {
+          started_at: sessionStartedAt.toISOString(),
+          ended_at: endedAt.toISOString(),
+          pages_read: pagesRead,
+        },
+      });
+      console.log('✅ Сессия чтения сохранена:', pagesRead, 'стр,', Math.round(diffMs/60000), 'мин');
+    } catch (e) {
+      console.warn('⚠️ Не удалось сохранить сессию:', e);
+    }
+    // Начинаем новую сессию
+    sessionStartedAt = new Date();
+    sessionStartPage = currentPage;
+  }
+
+  // Сохраняем сессию каждые 2 минуты и при уходе со страницы
+  function scheduleSessionSave() {
+    clearTimeout(sessionSaveTimer);
+    sessionSaveTimer = setTimeout(saveReadingSession, 120000);
+  }
+
+  window.addEventListener('beforeunload', () => {
+    if (sessionStartedAt) {
+      // Синхронный beacon для надёжности
+      const endedAt = new Date();
+      const pagesRead = Math.max(0, currentPage - sessionStartPage);
+      const token = getAccessToken();
+      if (token && bookId) {
+        navigator.sendBeacon(
+          `${API_BASE_URL}/books/${bookId}/sessions`,
+          new Blob([JSON.stringify({
+            started_at: sessionStartedAt.toISOString(),
+            ended_at: endedAt.toISOString(),
+            pages_read: pagesRead,
+          })], { type: 'application/json' })
+        );
+      }
+    }
+  });
+
+  // Сохраняем при переключении вкладки
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      saveReadingSession();
+    } else {
+      sessionStartedAt = new Date();
+      sessionStartPage = currentPage;
+    }
+  });
 
   // Проверка авторизации
   if (!isAuthenticated()) {
@@ -113,6 +314,13 @@
       console.log('✅ Данные книги получены:', bookData);
       document.getElementById('reader-book-title').textContent = bookData.title || 'Без названия';
       document.title = `ЛитЭра — ${bookData.title || 'Чтение'}`;
+      // Показываем автора в подзаголовке если есть
+      if (bookData.author) {
+        const titleEl = document.getElementById('reader-book-title');
+        titleEl.title = `${bookData.title} — ${bookData.author}`;
+      }
+      // Показываем обложку и автора
+      showBookCoverAndAuthor();
 
       // Получаем содержимое книги
       console.log('📡 Запрос содержимого книги...');
@@ -142,7 +350,8 @@
 
       const blob = await response.blob();
       console.log('✅ Файл загружен, размер:', blob.size, 'байт');
-      
+      _currentBlob = blob; // сохраняем для возможного скачивания
+
       const fileType = bookData.format || 'pdf';
       console.log('📄 Формат файла:', fileType);
 
@@ -172,19 +381,308 @@
   }
 
   async function parsePDF(blob) {
-    const url = URL.createObjectURL(blob);
-    document.getElementById('reader-text').innerHTML =
-      `<iframe src="${url}" style="width:100%;min-height:75vh;border:none;border-radius:8px;" title="PDF"></iframe>`;
-    totalPages = bookData?.total_pages || 1;
-    currentPage = savedProgress?.current_page || 0;
-    updateProgressUI(savedProgress?.percent || 0);
+    const readerText = document.getElementById('reader-text');
+    readerText.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-muted);">Загрузка PDF...</p>';
+
+    try {
+      // Загружаем pdf.js из CDN
+      if (!window.pdfjsLib) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+
+      const arrayBuffer = await blob.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      totalPages = pdf.numPages;
+
+      // Рендерим страницы в canvas-элементы
+      bookContent = [];
+      for (let i = 1; i <= totalPages; i++) {
+        bookContent.push({ pdfPage: i, pdf });
+      }
+
+      const startPage = savedProgress?.current_page
+        ? Math.min(savedProgress.current_page, totalPages - 1)
+        : 0;
+      await displayPDFPage(Math.max(0, startPage), pdf);
+      startReadingSession();
+
+    } catch (err) {
+      console.error('PDF parse error:', err);
+      // Fallback: предложить скачать
+      const objUrl = URL.createObjectURL(blob);
+      readerText.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;">
+          <p style="margin-bottom:16px;color:var(--text-muted);">
+            Не удалось отобразить PDF в браузере.
+          </p>
+          <a href="${objUrl}" download="book.pdf"
+             style="padding:12px 24px;background:var(--accent);color:var(--surface);
+                    border-radius:var(--r-pill);text-decoration:none;font-weight:bold;">
+            Скачать PDF
+          </a>
+        </div>`;
+    }
+  }
+
+  // Хранилище для текущего PDF-документа
+  let _currentPdf = null;
+
+  async function displayPDFPage(pageIndex, pdf) {
+    _currentPdf = pdf;
+    currentPage = pageIndex;
+
+    const readerText = document.getElementById('reader-text');
+    readerText.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-muted);">Рендеринг страницы...</p>';
+
+    try {
+      const page = await pdf.getPage(pageIndex + 1);
+      const viewport = page.getViewport({ scale: Math.min(1.5, (readerText.clientWidth || 700) / page.getViewport({ scale: 1 }).width) });
+
+      const canvas = document.createElement('canvas');
+      canvas.width  = viewport.width;
+      canvas.height = viewport.height;
+      canvas.style.cssText = 'max-width:100%;height:auto;display:block;margin:0 auto;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.4);';
+
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+      readerText.innerHTML = '';
+      readerText.appendChild(canvas);
+
+      document.getElementById('reader-meta').innerHTML =
+        `<strong>Страница ${pageIndex + 1}</strong> из ${totalPages}`;
+
+      const progress = Math.round(((pageIndex + 1) / totalPages) * 100);
+      updateProgressUI(progress);
+
+      document.getElementById('reader-prev').disabled = pageIndex === 0;
+      document.getElementById('reader-next').disabled = pageIndex === totalPages - 1;
+
+      window.scrollTo(0, 0);
+      scheduleProgressSave();
+    } catch (err) {
+      console.error('PDF render error:', err);
+      readerText.innerHTML = `<p style="color:#e07070;text-align:center;">Ошибка рендеринга страницы: ${err.message}</p>`;
+    }
+  }
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src; s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
   }
 
   async function parseEPUB(blob) {
-    document.getElementById('reader-text').innerHTML = 
-      '<p style="text-align: center;">Для чтения EPUB файлов используйте специализированное приложение.</p>' +
-      '<p style="text-align: center; margin-top: 20px;"><a href="' + 
-      URL.createObjectURL(blob) + '" download style="color: #8B4513; text-decoration: underline;">Скачать EPUB</a></p>';
+    const readerText = document.getElementById('reader-text');
+    readerText.innerHTML = '<p style="text-align:center;padding:40px;color:#888;">Загрузка EPUB...</p>';
+
+    try {
+      // Загружаем JSZip для распаковки EPUB (EPUB = ZIP-архив)
+      if (!window.JSZip) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+      }
+
+      const arrayBuffer = await blob.arrayBuffer();
+      const zip = await JSZip.loadAsync(arrayBuffer);
+
+      // 1. Читаем container.xml → находим OPF-файл
+      const containerXml = await zip.file('META-INF/container.xml')?.async('text');
+      if (!containerXml) throw new Error('Не найден META-INF/container.xml');
+
+      const containerDoc = new DOMParser().parseFromString(containerXml, 'text/xml');
+      const opfPath = containerDoc.querySelector('rootfile')?.getAttribute('full-path');
+      if (!opfPath) throw new Error('Не найден путь к OPF');
+
+      const opfDir = opfPath.includes('/') ? opfPath.substring(0, opfPath.lastIndexOf('/') + 1) : '';
+
+      // 2. Читаем OPF → получаем spine (порядок глав) и manifest (файлы)
+      const opfXml = await zip.file(opfPath)?.async('text');
+      if (!opfXml) throw new Error('Не найден OPF файл');
+
+      const opfDoc = new DOMParser().parseFromString(opfXml, 'text/xml');
+
+      // Manifest: id → href
+      const manifest = {};
+      opfDoc.querySelectorAll('manifest item').forEach(item => {
+        manifest[item.getAttribute('id')] = {
+          href: item.getAttribute('href'),
+          mediaType: item.getAttribute('media-type'),
+        };
+      });
+
+      // Spine: порядок idref
+      const spineItems = [...opfDoc.querySelectorAll('spine itemref')]
+        .map(ref => ref.getAttribute('idref'))
+        .filter(id => manifest[id]);
+
+      if (!spineItems.length) throw new Error('Spine пустой');
+
+      // 3. Обложка из metadata или manifest
+      const coverMeta = opfDoc.querySelector('meta[name="cover"]');
+      const coverId   = coverMeta?.getAttribute('content');
+      const coverHref = coverId && manifest[coverId]?.href;
+      if (coverHref) {
+        const coverFile = zip.file(opfDir + coverHref) || zip.file(coverHref);
+        if (coverFile) {
+          const coverBlob = await coverFile.async('blob');
+          const coverUrl  = URL.createObjectURL(coverBlob);
+          const coverImg  = document.getElementById('reader-cover-img');
+          if (coverImg) {
+            coverImg.src = coverUrl;
+            document.getElementById('reader-book-info').style.display = 'flex';
+          }
+        }
+      }
+
+      // 4. Автор и название из metadata
+      const dcTitle  = opfDoc.querySelector('metadata > *|title, metadata title')?.textContent?.trim();
+      const dcAuthor = opfDoc.querySelector('metadata > *|creator, metadata creator')?.textContent?.trim();
+      if (dcTitle || dcAuthor) {
+        const titleLarge  = document.getElementById('reader-book-title-large');
+        const authorEl    = document.getElementById('reader-book-author');
+        if (titleLarge && dcTitle)  titleLarge.textContent = dcTitle;
+        if (authorEl   && dcAuthor) authorEl.textContent   = dcAuthor;
+        // Обновляем хедер
+        if (dcTitle) {
+          document.getElementById('reader-book-title').textContent = dcTitle;
+          document.title = `ЛитЭра — ${dcTitle}`;
+        }
+      }
+
+      // 5. NCX / NAV для оглавления
+      const tocItems = [];
+      // Ищем nav-документ (EPUB3)
+      const navId   = [...opfDoc.querySelectorAll('manifest item')]
+        .find(i => i.getAttribute('properties')?.includes('nav'))?.getAttribute('id');
+      const navHref = navId ? manifest[navId]?.href : null;
+
+      if (navHref) {
+        const navXml = await (zip.file(opfDir + navHref) || zip.file(navHref))?.async('text');
+        if (navXml) {
+          const navDoc = new DOMParser().parseFromString(navXml, 'text/html');
+          navDoc.querySelectorAll('nav[epub\\:type="toc"] a, nav a').forEach(a => {
+            const href  = a.getAttribute('href') || '';
+            const label = a.textContent.trim();
+            if (label) tocItems.push({ label, href: href.split('#')[0] });
+          });
+        }
+      }
+
+      // Fallback: NCX (EPUB2)
+      if (!tocItems.length) {
+        const ncxId   = opfDoc.querySelector('spine')?.getAttribute('toc');
+        const ncxHref = ncxId ? manifest[ncxId]?.href : null;
+        const ncxPath = ncxHref
+          ? (zip.file(opfDir + ncxHref) ? opfDir + ncxHref : ncxHref)
+          : Object.values(manifest).find(m => m.href?.endsWith('.ncx'))?.href;
+
+        if (ncxPath) {
+          const ncxXml = await zip.file(ncxPath)?.async('text');
+          if (ncxXml) {
+            const ncxDoc = new DOMParser().parseFromString(ncxXml, 'text/xml');
+            ncxDoc.querySelectorAll('navPoint').forEach(np => {
+              const label = np.querySelector('navLabel text')?.textContent?.trim();
+              const src   = np.querySelector('content')?.getAttribute('src') || '';
+              if (label) tocItems.push({ label, href: src.split('#')[0] });
+            });
+          }
+        }
+      }
+
+      // 6. Загружаем HTML-содержимое каждой главы
+      const chapters = [];
+      for (const idref of spineItems) {
+        const href     = manifest[idref].href;
+        const fullPath = zip.file(opfDir + href) ? opfDir + href : href;
+        const file     = zip.file(fullPath);
+        if (!file) continue;
+
+        const rawHtml = await file.async('text');
+        const doc     = new DOMParser().parseFromString(rawHtml, 'text/html');
+
+        // Заменяем src изображений на blob URL
+        for (const img of doc.querySelectorAll('img[src]')) {
+          const imgSrc  = img.getAttribute('src');
+          const imgPath = resolveEpubPath(opfDir + href, imgSrc);
+          const imgFile = zip.file(imgPath) || zip.file(imgSrc);
+          if (imgFile) {
+            const imgBlob = await imgFile.async('blob');
+            img.src = URL.createObjectURL(imgBlob);
+          }
+        }
+
+        // Извлекаем body
+        const bodyEl = doc.querySelector('body');
+        if (!bodyEl) continue;
+
+        // Заголовок главы
+        const chapterTitle = doc.querySelector('h1,h2,h3')?.textContent?.trim() || '';
+
+        chapters.push({
+          title: chapterTitle,
+          href,
+          html: bodyEl.innerHTML,
+        });
+      }
+
+      if (!chapters.length) throw new Error('Не удалось извлечь главы из EPUB');
+
+      // 7. Строим bookContent из глав
+      bookContent = chapters.map(ch => ch.html);
+      totalPages  = bookContent.length;
+
+      // 8. Строим TOC
+      buildTOC(tocItems.length ? tocItems : chapters.map((ch, i) => ({
+        label: ch.title || `Глава ${i + 1}`,
+        href:  ch.href,
+      })), chapters);
+
+      // 9. Отображаем с сохранённого прогресса
+      const startPage = savedProgress?.current_page
+        ? Math.min(savedProgress.current_page, totalPages - 1)
+        : 0;
+      displayPage(Math.max(0, startPage));
+      startReadingSession();
+
+    } catch (err) {
+      console.error('EPUB parse error:', err);
+      readerText.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;">
+          <p style="margin-bottom:8px;color:#e07070;font-size:15px;">Ошибка чтения EPUB</p>
+          <p style="margin-bottom:20px;color:#888;font-size:13px;">${err.message}</p>
+          <a href="#" onclick="downloadCurrentBook();return false;"
+             style="padding:12px 24px;background:var(--accent);color:var(--surface);
+                    border-radius:var(--r-pill);text-decoration:none;font-weight:bold;">
+            Скачать файл
+          </a>
+        </div>`;
+    }
+  }
+
+  // Вспомогательная: разрешить относительный путь внутри ZIP
+  function resolveEpubPath(basePath, relPath) {
+    if (relPath.startsWith('/')) return relPath.slice(1);
+    const base = basePath.substring(0, basePath.lastIndexOf('/') + 1);
+    const parts = (base + relPath).split('/');
+    const resolved = [];
+    for (const p of parts) {
+      if (p === '..') resolved.pop();
+      else if (p !== '.') resolved.push(p);
+    }
+    return resolved.join('/');
+  }
+
+  // Скачать текущую книгу (fallback)
+  let _currentBlob = null;
+  async function downloadCurrentBook() {
+    if (!_currentBlob || !bookData) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(_currentBlob);
+    a.download = `${bookData.title || 'book'}.${bookData.format || 'epub'}`;
+    a.click();
   }
 
   async function parseFB2(blob) {
@@ -226,6 +724,7 @@
         ? Math.min(savedProgress.current_page, totalPages - 1)
         : 0;
       displayPage(Math.max(0, startPage));
+      startReadingSession();
     } catch (error) {
       console.error('Ошибка парсинга FB2:', error);
       document.getElementById('reader-text').innerHTML = 
@@ -277,6 +776,8 @@
       const percent = Math.round(((currentPage + 1) / totalPages) * 100);
       await apiUpdateBookProgress(bookId, currentPage + 1, percent);
     }, 800);
+    // Также планируем сохранение сессии
+    scheduleSessionSave();
   }
 
   function displayPage(pageNum) {
@@ -302,13 +803,21 @@
 
   function prevPage() {
     if (currentPage > 0) {
-      displayPage(currentPage - 1);
+      if (_currentPdf) {
+        displayPDFPage(currentPage - 1, _currentPdf);
+      } else {
+        displayPage(currentPage - 1);
+      }
     }
   }
 
   function nextPage() {
     if (currentPage < totalPages - 1) {
-      displayPage(currentPage + 1);
+      if (_currentPdf) {
+        displayPDFPage(currentPage + 1, _currentPdf);
+      } else {
+        displayPage(currentPage + 1);
+      }
     }
   }
 
@@ -320,6 +829,298 @@
       nextPage();
     }
   });
+
+  // ============================================================
+  // ПАНЕЛИ ХЕДЕРА
+  // ============================================================
+
+  const panels = {
+    toc:      { btn: 'tool-toc',      panel: 'panel-toc',      close: 'panel-toc-close'      },
+    notes:    { btn: 'tool-notes',    panel: 'panel-notes',    close: 'panel-notes-close'    },
+    font:     { btn: 'tool-font',     panel: 'panel-font',     close: 'panel-font-close'     },
+    theme:    { btn: 'tool-theme',    panel: 'panel-theme',    close: 'panel-theme-close'    },
+    settings: { btn: 'tool-settings', panel: 'panel-settings', close: 'panel-settings-close' },
+  };
+
+  let activePanel = null;
+
+  function openPanel(name) {
+    // Закрываем все
+    Object.values(panels).forEach(p => {
+      document.getElementById(p.panel)?.classList.remove('reader-panel--open');
+      document.getElementById(p.btn)?.classList.remove('reader-tool-btn--active');
+    });
+    if (activePanel === name) { activePanel = null; return; }
+    activePanel = name;
+
+    const panelEl = document.getElementById(panels[name].panel);
+    const btnEl   = document.getElementById(panels[name].btn);
+
+    if (panelEl) {
+      // Позиционируем панель точно под хедером
+      const header = document.querySelector('.reader-header');
+      const headerBottom = header ? header.getBoundingClientRect().bottom : 62;
+      panelEl.style.top = (headerBottom + 6) + 'px';
+
+      // TOC — слева, остальные — справа
+      if (name === 'toc') {
+        panelEl.style.right = 'auto';
+        panelEl.style.left  = '16px';
+      } else {
+        panelEl.style.left  = 'auto';
+        panelEl.style.right = '16px';
+      }
+
+      panelEl.classList.add('reader-panel--open');
+    }
+    btnEl?.classList.add('reader-tool-btn--active');
+  }
+
+  Object.entries(panels).forEach(([name, cfg]) => {
+    document.getElementById(cfg.btn)?.addEventListener('click', e => {
+      e.stopPropagation();
+      openPanel(name);
+    });
+    document.getElementById(cfg.close)?.addEventListener('click', () => {
+      document.getElementById(cfg.panel)?.classList.remove('reader-panel--open');
+      document.getElementById(cfg.btn)?.classList.remove('reader-tool-btn--active');
+      activePanel = null;
+    });
+  });
+
+  // Закрытие по клику вне панели
+  document.addEventListener('click', e => {
+    if (!activePanel) return;
+    const panelEl = document.getElementById(panels[activePanel]?.panel);
+    const btnEl   = document.getElementById(panels[activePanel]?.btn);
+    if (panelEl && !panelEl.contains(e.target) && !btnEl?.contains(e.target)) {
+      panelEl.classList.remove('reader-panel--open');
+      btnEl?.classList.remove('reader-tool-btn--active');
+      activePanel = null;
+    }
+  });
+
+  // ── Шрифт ──────────────────────────────────────────────────
+  let fontSize = parseInt(localStorage.getItem('reader_font_size') || '18', 10);
+
+  function applyFontSize(size) {
+    fontSize = Math.min(28, Math.max(12, size));
+    document.getElementById('reader-text').style.fontSize = fontSize + 'px';
+    document.getElementById('font-size-label').textContent = fontSize + 'px';
+    localStorage.setItem('reader_font_size', fontSize);
+  }
+
+  document.getElementById('font-decrease')?.addEventListener('click', () => applyFontSize(fontSize - 2));
+  document.getElementById('font-increase')?.addEventListener('click', () => applyFontSize(fontSize + 2));
+
+  document.querySelectorAll('.reader-font-family-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.reader-font-family-btn').forEach(b => b.classList.remove('reader-font-family-btn--active'));
+      btn.classList.add('reader-font-family-btn--active');
+      document.getElementById('reader-text').style.fontFamily = btn.dataset.font;
+      localStorage.setItem('reader_font_family', btn.dataset.font);
+    });
+  });
+
+  document.getElementById('line-height-range')?.addEventListener('input', e => {
+    document.getElementById('reader-text').style.lineHeight = e.target.value;
+    localStorage.setItem('reader_line_height', e.target.value);
+  });
+
+  // ── Тема ───────────────────────────────────────────────────
+  const readerThemes = {
+    light: { bg: '#f3ebe3', text: '#2a1a14', headerBg: '#3a2820' },
+    sepia: { bg: '#f4ecd8', text: '#3b2a1a', headerBg: '#4a3020' },
+    dark:  { bg: '#1e1410', text: '#d4c4b0', headerBg: '#2a1810' },
+    night: { bg: '#0d0d0d', text: '#c8c8c8', headerBg: '#1a1a1a' },
+  };
+
+  function applyTheme(name) {
+    const t = readerThemes[name];
+    if (!t) return;
+    document.querySelector('.reader-main').style.background = t.bg;
+    document.getElementById('reader-text').style.color = t.text;
+    document.querySelectorAll('.reader-theme-btn').forEach(b => {
+      b.classList.toggle('reader-theme-btn--active', b.dataset.theme === name);
+    });
+    localStorage.setItem('reader_theme', name);
+  }
+
+  document.querySelectorAll('.reader-theme-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
+  });
+
+  // ── Настройки ──────────────────────────────────────────────
+  document.getElementById('width-range')?.addEventListener('input', e => {
+    document.querySelector('.reader-content').style.maxWidth = e.target.value + 'px';
+    localStorage.setItem('reader_max_width', e.target.value);
+  });
+
+  document.getElementById('padding-range')?.addEventListener('input', e => {
+    const v = e.target.value + 'px';
+    document.querySelector('.reader-content').style.paddingLeft  = v;
+    document.querySelector('.reader-content').style.paddingRight = v;
+    localStorage.setItem('reader_padding', e.target.value);
+  });
+
+  // ── Заметки ────────────────────────────────────────────────
+  async function loadReaderNotes() {
+    if (!bookId) return;
+    const result = await apiGetNotes(bookId);
+    const list = document.getElementById('reader-notes-list');
+    if (!list) return;
+    const notes = result.success ? result.data : [];
+    if (!notes.length) {
+      list.innerHTML = '<p style="color:rgba(255,255,255,.5);font-size:13px;padding:8px 0;">Заметок пока нет</p>';
+      return;
+    }
+    list.innerHTML = notes.map(n => `
+      <div class="reader-note-item">
+        <p class="reader-note-text">${escapeReaderHtml(n.text)}</p>
+        <button class="reader-note-delete" onclick="deleteReaderNote(${n.id})" aria-label="Удалить">✕</button>
+      </div>`).join('');
+  }
+
+  async function deleteReaderNote(noteId) {
+    if (!bookId) return;
+    await apiDeleteNote(bookId, noteId);
+    loadReaderNotes();
+  }
+
+  document.getElementById('reader-note-save')?.addEventListener('click', async () => {
+    const input = document.getElementById('reader-note-input');
+    const text = input?.value.trim();
+    if (!text || !bookId) return;
+    const result = await apiCreateNote(bookId, text);
+    if (result.success) {
+      input.value = '';
+      loadReaderNotes();
+    }
+  });
+
+  // Загружаем заметки при открытии панели
+  document.getElementById('tool-notes')?.addEventListener('click', () => {
+    setTimeout(loadReaderNotes, 50);
+  });
+
+  // ── Восстановление настроек из localStorage ─────────────────
+  function restoreReaderSettings() {
+    const savedFontSize   = localStorage.getItem('reader_font_size');
+    const savedFontFamily = localStorage.getItem('reader_font_family');
+    const savedLineHeight = localStorage.getItem('reader_line_height');
+    const savedTheme      = localStorage.getItem('reader_theme');
+    const savedMaxWidth   = localStorage.getItem('reader_max_width');
+    const savedPadding    = localStorage.getItem('reader_padding');
+
+    if (savedFontSize)   applyFontSize(parseInt(savedFontSize, 10));
+    if (savedFontFamily) {
+      document.getElementById('reader-text').style.fontFamily = savedFontFamily;
+      document.querySelectorAll('.reader-font-family-btn').forEach(b => {
+        b.classList.toggle('reader-font-family-btn--active', b.dataset.font === savedFontFamily);
+      });
+    }
+    if (savedLineHeight) {
+      document.getElementById('reader-text').style.lineHeight = savedLineHeight;
+      const r = document.getElementById('line-height-range');
+      if (r) r.value = savedLineHeight;
+    }
+    if (savedTheme)    applyTheme(savedTheme);
+    if (savedMaxWidth) {
+      document.querySelector('.reader-content').style.maxWidth = savedMaxWidth + 'px';
+      const r = document.getElementById('width-range');
+      if (r) r.value = savedMaxWidth;
+    }
+    if (savedPadding) {
+      const v = savedPadding + 'px';
+      document.querySelector('.reader-content').style.paddingLeft  = v;
+      document.querySelector('.reader-content').style.paddingRight = v;
+      const r = document.getElementById('padding-range');
+      if (r) r.value = savedPadding;
+    }
+  }
+
+  restoreReaderSettings();
+
+  // ── Содержание (TOC) ───────────────────────────────────────
+  function buildTOC(tocItems, chapters) {
+    const list = document.getElementById('reader-toc-list');
+    if (!list) return;
+
+    if (!tocItems.length) {
+      list.innerHTML = '<p style="color:rgba(255,255,255,.5);font-size:13px;">Содержание недоступно</p>';
+      return;
+    }
+
+    list.innerHTML = tocItems.map((item, idx) => {
+      // Находим индекс главы по href
+      const chapterIdx = chapters.findIndex(ch =>
+        ch.href === item.href ||
+        ch.href.endsWith('/' + item.href) ||
+        item.href.endsWith(ch.href)
+      );
+      const pageIdx = chapterIdx >= 0 ? chapterIdx : idx;
+
+      return `<button class="reader-toc-item" data-page="${pageIdx}"
+                      onclick="goToTocPage(${pageIdx})">
+                <span class="reader-toc-num">${idx + 1}</span>
+                <span class="reader-toc-label">${escapeReaderHtml(item.label)}</span>
+              </button>`;
+    }).join('');
+  }
+
+  function goToTocPage(pageIdx) {
+    displayPage(pageIdx);
+    // Закрываем панель TOC
+    document.getElementById('panel-toc')?.classList.remove('reader-panel--open');
+    document.getElementById('tool-toc')?.classList.remove('reader-tool-btn--active');
+    activePanel = null;
+  }
+
+  // Строим TOC для FB2 из заголовков
+  function buildTOCFromContent(pages) {
+    const list = document.getElementById('reader-toc-list');
+    if (!list) return;
+
+    const items = [];
+    pages.forEach((html, idx) => {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      const h = tmp.querySelector('h1,h2,h3,.reader-chapter');
+      if (h) items.push({ label: h.textContent.trim(), page: idx });
+    });
+
+    if (!items.length) {
+      list.innerHTML = '<p style="color:rgba(255,255,255,.5);font-size:13px;">Содержание недоступно</p>';
+      return;
+    }
+
+    list.innerHTML = items.map((item, i) => `
+      <button class="reader-toc-item" onclick="goToTocPage(${item.page})">
+        <span class="reader-toc-num">${i + 1}</span>
+        <span class="reader-toc-label">${escapeReaderHtml(item.label)}</span>
+      </button>`).join('');
+  }
+
+  // ── Обложка и автор ────────────────────────────────────────
+  function showBookCoverAndAuthor() {
+    if (!bookData) return;
+    const infoEl   = document.getElementById('reader-book-info');
+    const coverImg = document.getElementById('reader-cover-img');
+    const titleEl  = document.getElementById('reader-book-title-large');
+    const authorEl = document.getElementById('reader-book-author');
+
+    if (bookData.cover_url && coverImg) {
+      coverImg.src = bookData.cover_url;
+      coverImg.onerror = () => { infoEl.style.display = 'none'; };
+      if (infoEl) infoEl.style.display = 'flex';
+    }
+    if (titleEl)  titleEl.textContent  = bookData.title  || '';
+    if (authorEl) authorEl.textContent = bookData.author || '';
+  }
+
+  function escapeReaderHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
 </script>
 </body>
 </html>

@@ -129,6 +129,13 @@
         </div>
       </div>
 
+      <!-- Выход -->
+      <button class="icon-btn icon-btn--logout" data-logout aria-label="Выйти из аккаунта" title="Выйти">
+        <svg viewBox="0 0 20 20" fill="none" width="19" height="19">
+          <path d="M13 3h4v14h-4M8 7l-4 3 4 3M4 10h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
     </div><!-- /header-actions -->
   </div><!-- /header-inner -->
 </header>
@@ -324,6 +331,17 @@
       <div class="add-book__fields">
         <h2 class="add-book__heading" id="modal-add-book-title">Выберите файл с книгой</h2>
         <p class="add-book__formats">доступные форматы: fb2, epub, pdf</p>
+
+        <!-- Автозаполняемые поля из метаданных файла -->
+        <div class="add-book__meta-fields" id="add-book-meta-fields" style="display:none;">
+          <label class="add-book__meta-label">Название</label>
+          <input type="text" id="add-book-title-input" class="add-book__meta-input"
+                 placeholder="Название книги">
+          <label class="add-book__meta-label">Автор</label>
+          <input type="text" id="add-book-author-input" class="add-book__meta-input"
+                 placeholder="Автор книги">
+        </div>
+
         <h3 class="add-book__subheading">Добавьте заметки к книге</h3>
         <textarea class="add-book__textarea" placeholder="Введите текст..."
                   rows="3" aria-label="Заметки к книге"></textarea>
@@ -358,7 +376,7 @@
 
 <script>
 /* ============================================================
-   HEADER DROPDOWNS
+   HEADER DROPDOWNS — только click, без hover
    ============================================================ */
 const ddWraps = document.querySelectorAll('.hdr-dropdown-wrap');
 let pinnedDropdown = null;
@@ -368,60 +386,38 @@ function openDropdown(wrap) {
   wrap.classList.add('hdr-dropdown-wrap--open');
   const btn = wrap.querySelector('.icon-btn');
   if (btn) btn.setAttribute('aria-expanded', 'true');
+  pinnedDropdown = wrap;
 }
 
 function closeDropdown(wrap) {
   wrap.classList.remove('hdr-dropdown-wrap--open');
   const btn = wrap.querySelector('.icon-btn');
   if (btn) btn.setAttribute('aria-expanded', 'false');
-  if (pinnedDropdown === wrap) {
-    pinnedDropdown = null;
-  }
+  if (pinnedDropdown === wrap) pinnedDropdown = null;
 }
 
 function toggleDropdown(wrap) {
-  if (wrap.classList.contains('hdr-dropdown-wrap--open')) {
-    closeDropdown(wrap);
-    pinnedDropdown = null;
-  } else {
-    openDropdown(wrap);
-    pinnedDropdown = wrap;
-  }
+  wrap.classList.contains('hdr-dropdown-wrap--open')
+    ? closeDropdown(wrap)
+    : openDropdown(wrap);
 }
 
 ddWraps.forEach(wrap => {
   const btn = wrap.querySelector('.icon-btn');
-  
-  // Клик по кнопке - фиксирует/отменяет фиксацию
-  btn.addEventListener('click', e => { 
-    e.stopPropagation(); 
-    toggleDropdown(wrap); 
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    toggleDropdown(wrap);
   });
-
-  // Hover открывает только если не зафиксирован другой
-  wrap.addEventListener('mouseenter', () => {
-    if (!pinnedDropdown) {
-      openDropdown(wrap);
-    }
-  });
-  
-  wrap.addEventListener('mouseleave', () => {
-    if (pinnedDropdown !== wrap) {
-      closeDropdown(wrap);
-    }
-  });
+  // Клик внутри дропдауна не закрывает его
+  const dd = wrap.querySelector('.hdr-dropdown');
+  if (dd) dd.addEventListener('click', e => e.stopPropagation());
 });
 
-// Клик вне дропдауна закрывает все
-document.addEventListener('click', (e) => {
-  const clickedInside = Array.from(ddWraps).some(wrap => wrap.contains(e.target));
-  if (!clickedInside) {
-    ddWraps.forEach(closeDropdown);
-    pinnedDropdown = null;
-  }
+document.addEventListener('click', () => {
+  ddWraps.forEach(closeDropdown);
+  pinnedDropdown = null;
 });
 
-// Escape закрывает все
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     ddWraps.forEach(closeDropdown);
@@ -432,21 +428,54 @@ document.addEventListener('keydown', e => {
 /* ============================================================
    THEME CARDS (inside dropdown)
    ============================================================ */
+const THEMES = {
+  brown: {
+    '--bg': '#9e8578',
+    '--surface': '#3a2820',
+    '--surface-mid': '#4a3228',
+    '--surface-light': '#5a3e32',
+    '--card-bg': 'rgba(255,255,255,0.12)',
+    '--card-border': 'rgba(255,255,255,0.22)',
+    '--text': '#f0e6de',
+    '--text-muted': 'rgba(240,230,222,0.60)',
+    '--accent': '#d4b49a',
+  },
+  dark: {
+    '--bg': '#1a1210',
+    '--surface': '#0d0a08',
+    '--surface-mid': '#1e1612',
+    '--surface-light': '#2a1e18',
+    '--card-bg': 'rgba(255,255,255,0.06)',
+    '--card-border': 'rgba(255,255,255,0.12)',
+    '--text': '#e8ddd6',
+    '--text-muted': 'rgba(232,221,214,0.55)',
+    '--accent': '#c4a48a',
+  },
+};
+
+function applyAppTheme(name) {
+  const theme = THEMES[name] || THEMES.brown;
+  const root = document.documentElement;
+  Object.entries(theme).forEach(([k, v]) => root.style.setProperty(k, v));
+  localStorage.setItem('app_theme', name);
+  document.querySelectorAll('.theme-card').forEach(c => {
+    c.classList.toggle('theme-card--active', c.dataset.theme === name);
+    const chk = c.querySelector('.theme-card__check');
+    if (c.dataset.theme === name && !chk) {
+      const s = document.createElement('span'); s.className='theme-card__check'; s.setAttribute('aria-hidden','true'); s.textContent='✓'; c.appendChild(s);
+    } else if (c.dataset.theme !== name && chk) {
+      chk.remove();
+    }
+  });
+}
+
+// Restore theme on load
+const savedTheme = localStorage.getItem('app_theme');
+if (savedTheme) applyAppTheme(savedTheme);
+
 document.querySelectorAll('.theme-card').forEach(card => {
   card.addEventListener('click', () => {
-    document.querySelectorAll('.theme-card').forEach(c => {
-      c.classList.remove('theme-card--active');
-      const chk = c.querySelector('.theme-card__check');
-      if (chk) chk.remove();
-    });
-    card.classList.add('theme-card--active');
-    if (!card.querySelector('.theme-card__check')) {
-      const chk = document.createElement('span');
-      chk.className = 'theme-card__check';
-      chk.setAttribute('aria-hidden', 'true');
-      chk.textContent = '✓';
-      card.appendChild(chk);
-    }
+    applyAppTheme(card.dataset.theme);
   });
 });
 
@@ -550,27 +579,8 @@ document.querySelectorAll('.genre-tag').forEach(tag => {
   });
 });
 
-// Drag-and-drop зона файла
-const dropZone = document.getElementById('add-book-drop');
-const fileInput = document.getElementById('add-book-file');
-if (dropZone && fileInput) {
-  dropZone.addEventListener('click', () => fileInput.click());
-  dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('add-book__file-zone--drag'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('add-book__file-zone--drag'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('add-book__file-zone--drag');
-    const file = e.dataTransfer.files[0];
-    if (file) showFileName(file.name);
-  });
-  fileInput.addEventListener('change', () => { if (fileInput.files[0]) showFileName(fileInput.files[0].name); });
-  function showFileName(name) {
-    let label = dropZone.querySelector('.add-book__file-name');
-    if (!label) { label = document.createElement('p'); label.className = 'add-book__file-name'; dropZone.appendChild(label); }
-    label.textContent = name;
-  }
-}
+// Drag-and-drop зона файла — управляется dashboard.js
+// (обработчики здесь убраны чтобы не дублировать)
 
 /* ── MOBILE BOTTOM NAV ── */
 const bottomAddBtn = document.getElementById('bottom-add-btn');
@@ -619,6 +629,208 @@ document.querySelectorAll('.mobile-subnav__tab').forEach(tab => {
     tab.classList.add('mobile-subnav__tab--active');
   });
 });
+
+/* ── Mobile Stats button → opens stats+goals panel ── */
+document.getElementById('mobile-stats-btn')?.addEventListener('click', e => {
+  e.stopPropagation();
+  openMobileStatsSheet();
+});
+
+/* ── Mobile Settings button → opens theme panel ── */
+document.getElementById('mobile-settings-btn')?.addEventListener('click', e => {
+  e.stopPropagation();
+  openMobileSettingsSheet();
+});
+
+function openMobileStatsSheet() {
+  let sheet = document.getElementById('mobile-stats-sheet');
+  if (!sheet) {
+    sheet = document.createElement('div');
+    sheet.id = 'mobile-stats-sheet';
+    sheet.className = 'mobile-bottom-sheet';
+    sheet.innerHTML = `
+      <div class="mobile-bottom-sheet__handle"></div>
+      <div class="mobile-bottom-sheet__content">
+        <h3 class="mobile-bottom-sheet__title">Активность и цели</h3>
+        <div class="mobile-sheet-goals" id="mobile-sheet-goals">
+          <div class="goal-card" data-goal-type="pages_per_day" data-target-value="30">
+            <button type="button" class="goal-card__edit" aria-label="Редактировать">✏</button>
+            <p class="goal-card__label">Страниц за день</p>
+            <p class="goal-card__value">0 / 30</p>
+            <div class="goal-card__bar"><div class="goal-card__bar-fill" style="width:0%"></div></div>
+          </div>
+          <div class="goal-card" data-goal-type="minutes_per_day" data-target-value="30">
+            <button type="button" class="goal-card__edit" aria-label="Редактировать">✏</button>
+            <p class="goal-card__label">Время чтения</p>
+            <p class="goal-card__value">0 м / 30 м</p>
+            <div class="goal-card__bar"><div class="goal-card__bar-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="mobile-sheet-stats">
+          <div class="stats-header">
+            <span class="stats-header__label">Активность</span>
+            <span class="stats-header__value" id="mobile-stats-value">— стр</span>
+            <div class="stats-tabs" role="group">
+              <button class="stats-tab stats-tab--active" data-period="week">7 дней</button>
+              <button class="stats-tab" data-period="month">Месяц</button>
+              <button class="stats-tab" data-period="year">Год</button>
+            </div>
+          </div>
+          <div class="stats-chart">
+            <svg viewBox="0 0 480 140" class="stats-chart__svg" id="mobile-stats-svg" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="mobileChartGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(246,237,231,0.25)"/>
+                  <stop offset="100%" stop-color="rgba(246,237,231,0)"/>
+                </linearGradient>
+              </defs>
+              <path fill="url(#mobileChartGrad)"/>
+              <path fill="none" stroke="#f6ede7" stroke-width="2.5"/>
+            </svg>
+            <div class="stats-chart__labels" id="mobile-stats-labels"></div>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(sheet);
+
+    sheet.addEventListener('click', e => { if (e.target === sheet) closeMobileSheet(sheet); });
+
+    sheet.querySelectorAll('.stats-tab').forEach(tab => {
+      tab.addEventListener('click', async () => {
+        sheet.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('stats-tab--active'));
+        tab.classList.add('stats-tab--active');
+        await loadMobileStats(tab.dataset.period, sheet);
+      });
+    });
+
+    sheet.querySelectorAll('.goal-card__edit').forEach((btn, i) => {
+      btn.type = 'button';
+      btn.addEventListener('click', async e => {
+        e.preventDefault(); e.stopPropagation();
+        const card = btn.closest('.goal-card');
+        const goalType = card?.dataset.goalType || (i === 0 ? 'pages_per_day' : 'minutes_per_day');
+        const current = card?.dataset.targetValue || '30';
+        const input = prompt('Введите целевое значение:', current);
+        if (!input) return;
+        const target = parseInt(input, 10);
+        if (isNaN(target) || target <= 0) return;
+        const result = await apiCreateGoal(goalType, target);
+        if (result.success) { showToast('Цель обновлена', 'success'); await loadGoals(); await loadMobileGoals(sheet); }
+      });
+    });
+  }
+
+  sheet.classList.add('mobile-bottom-sheet--open');
+  document.body.style.overflow = 'hidden';
+  loadMobileGoals(sheet);
+  loadMobileStats('week', sheet);
+}
+
+async function loadMobileGoals(sheet) {
+  const result = await apiGetGoals();
+  const goals = mergeGoalsWithDefaults(result.success ? result.data : []);
+  const cards = sheet.querySelectorAll('.goal-card');
+  const meta = { pages_per_day: { label: 'Страниц за день', unit: '' }, minutes_per_day: { label: 'Время чтения', unit: ' м' } };
+  goals.forEach((goal, i) => {
+    const card = cards[i]; if (!card) return;
+    const m = meta[goal.goal_type] || { label: goal.goal_type, unit: '' };
+    const pct = goal.target_value > 0 ? Math.min(100, Math.round((goal.current_value / goal.target_value) * 100)) : 0;
+    card.querySelector('.goal-card__label') && (card.querySelector('.goal-card__label').textContent = m.label);
+    card.querySelector('.goal-card__value') && (card.querySelector('.goal-card__value').textContent = `${goal.current_value}${m.unit} / ${goal.target_value}${m.unit}`);
+    const fill = card.querySelector('.goal-card__bar-fill'); if (fill) fill.style.width = `${pct}%`;
+    card.dataset.goalType = goal.goal_type; card.dataset.targetValue = goal.target_value;
+  });
+}
+
+async function loadMobileStats(period, sheet) {
+  const result = await apiGetStats(period);
+  if (!result.success) return;
+  const stats = result.data;
+  const valEl = sheet.querySelector('#mobile-stats-value');
+  if (valEl) valEl.textContent = `${stats.total_pages ?? 0} стр`;
+  const svg = sheet.querySelector('#mobile-stats-svg');
+  if (svg && stats.daily_breakdown?.length) {
+    const daily = stats.daily_breakdown;
+    const maxP = Math.max(...daily.map(d => d.pages), 1);
+    const W = 480, H = 140, step = W / Math.max(daily.length - 1, 1);
+    const pts = daily.map((d, i) => `${i * step},${H - 20 - (d.pages / maxP) * (H - 40)}`);
+    const line = `M${pts.join(' L')}`;
+    svg.querySelector('path[stroke]')?.setAttribute('d', line);
+    svg.querySelector('path[fill^="url"]')?.setAttribute('d', `${line} L${W},${H} L0,${H} Z`);
+    const labels = sheet.querySelector('#mobile-stats-labels');
+    if (labels) {
+      const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+      labels.innerHTML = daily.slice(-7).map(d => { const dt = new Date(d.date); return `<span>${days[dt.getDay()===0?6:dt.getDay()-1]}</span>`; }).join('');
+    }
+  }
+}
+
+function openMobileSettingsSheet() {
+  let sheet = document.getElementById('mobile-settings-sheet');
+  if (!sheet) {
+    sheet = document.createElement('div');
+    sheet.id = 'mobile-settings-sheet';
+    sheet.className = 'mobile-bottom-sheet';
+    sheet.innerHTML = `
+      <div class="mobile-bottom-sheet__handle"></div>
+      <div class="mobile-bottom-sheet__content">
+        <h3 class="mobile-bottom-sheet__title">Настройки</h3>
+        <p class="mobile-bottom-sheet__section-label">Тема оформления</p>
+        <div class="theme-grid mobile-theme-grid">
+          <button class="theme-card" data-theme="dark" aria-label="Тёмная тема">
+            <div class="theme-card__preview theme-card__preview--dark">
+              <img src="log_img/book2.svg" alt="" aria-hidden="true">
+              <span class="theme-card__name">ЛитЭра</span>
+            </div>
+          </button>
+          <button class="theme-card theme-card--active" data-theme="brown" aria-label="Коричневая тема">
+            <div class="theme-card__preview theme-card__preview--brown">
+              <img src="log_img/book2.svg" alt="" aria-hidden="true">
+              <span class="theme-card__name">ЛитЭра</span>
+            </div>
+            <span class="theme-card__check" aria-hidden="true">✓</span>
+          </button>
+        </div>
+        <div class="mobile-bottom-sheet__logout-wrap">
+          <button class="mobile-logout-btn" data-logout aria-label="Выйти из аккаунта">
+            <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+              <path d="M13 3h4v14h-4M8 7l-4 3 4 3M4 10h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Выйти из аккаунта
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(sheet);
+    sheet.addEventListener('click', e => { if (e.target === sheet) closeMobileSheet(sheet); });
+
+    sheet.querySelectorAll('.theme-card').forEach(card => {
+      card.addEventListener('click', () => {
+        applyAppTheme(card.dataset.theme);
+        document.querySelectorAll('.theme-card').forEach(c => {
+          c.classList.remove('theme-card--active');
+          c.querySelector('.theme-card__check')?.remove();
+        });
+        card.classList.add('theme-card--active');
+        const chk = document.createElement('span'); chk.className='theme-card__check'; chk.setAttribute('aria-hidden','true'); chk.textContent='✓'; card.appendChild(chk);
+      });
+    });
+
+    sheet.querySelector('[data-logout]')?.addEventListener('click', () => logout());
+  }
+  sheet.classList.add('mobile-bottom-sheet--open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMobileSheet(sheet) {
+  sheet?.classList.remove('mobile-bottom-sheet--open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.mobile-bottom-sheet--open').forEach(s => closeMobileSheet(s));
+  }
+});
 </script>
 <!-- API и интеграция с бэкендом -->
 <script src="js/api.js"></script>
@@ -646,14 +858,14 @@ document.querySelectorAll('.mobile-subnav__tab').forEach(tab => {
     </svg>
     <span>Добавить</span>
   </button>
-  <button class="bottom-nav__item" aria-label="Статистика">
+  <button class="bottom-nav__item" id="mobile-stats-btn" aria-label="Статистика">
     <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none">
       <polyline points="3,17 8,12 13,15 21,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       <polyline points="17,7 21,7 21,11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <span>Статистика</span>
   </button>
-  <button class="bottom-nav__item" aria-label="Настройки">
+  <button class="bottom-nav__item" id="mobile-settings-btn" aria-label="Настройки">
     <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
       <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
