@@ -345,3 +345,221 @@ async function apiUpdateGoal(goalType, targetValue) {
 // Глобальный доступ для inline-скриптов в HTML
 window.formatApiError = formatApiError;
 window.apiCheckHealth = apiCheckHealth;
+
+// ============================================================================
+// CONFIRM MODAL — единое окно подтверждения для необратимых действий
+// ============================================================================
+
+/**
+ * Показывает красивое окно подтверждения вместо browser confirm().
+ * @param {object} opts
+ * @param {string} opts.title       — заголовок
+ * @param {string} opts.message     — текст
+ * @param {string} opts.confirmText — текст кнопки подтверждения (default: "Подтвердить")
+ * @param {string} opts.cancelText  — текст кнопки отмены (default: "Отмена")
+ * @param {boolean} opts.danger     — красная кнопка подтверждения (default: true)
+ * @returns {Promise<boolean>}
+ */
+function confirmModal({ title = 'Вы уверены?', message = '', confirmText = 'Подтвердить', cancelText = 'Отмена', danger = true } = {}) {
+    return new Promise(resolve => {
+        const existing = document.getElementById('global-confirm-modal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'global-confirm-modal';
+        modal.className = 'modal-overlay modal-overlay--visible';
+        modal.style.cssText = 'z-index:700;';
+
+        const confirmBtnStyle = danger
+            ? 'background:#e07070;color:#fff;border:none;'
+            : 'background:var(--accent);color:var(--surface);border:none;';
+
+        modal.innerHTML = `
+            <div class="modal modal--add-book" style="max-width:360px;text-align:center;padding:32px 24px 28px;">
+                <img src="log_img/sad_star.svg" alt="" aria-hidden="true"
+                     style="width:64px;height:64px;margin:0 auto 16px;display:block;">
+                <h2 style="font-size:18px;font-weight:bold;margin-bottom:10px;color:var(--text);line-height:1.3;">
+                    ${title}
+                </h2>
+                ${message ? `<p style="font-size:14px;color:var(--text-muted);margin-bottom:24px;line-height:1.55;">${message}</p>` : '<div style="margin-bottom:24px;"></div>'}
+                <div style="display:flex;gap:10px;">
+                    <button id="gcm-cancel"
+                            style="flex:1;padding:12px 16px;border-radius:var(--r-pill);
+                                   border:1px solid rgba(255,255,255,.22);background:transparent;
+                                   color:var(--text-muted);font-family:inherit;font-size:14px;cursor:pointer;
+                                   transition:background .2s;">
+                        ${cancelText}
+                    </button>
+                    <button id="gcm-confirm"
+                            style="flex:1;padding:12px 16px;border-radius:var(--r-pill);
+                                   ${confirmBtnStyle}
+                                   font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;
+                                   transition:opacity .2s;">
+                        ${confirmText}
+                    </button>
+                </div>
+            </div>`;
+
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+
+        const cleanup = (result) => {
+            modal.remove();
+            document.body.style.overflow = '';
+            resolve(result);
+        };
+
+        modal.querySelector('#gcm-cancel').addEventListener('click', () => cleanup(false));
+        modal.querySelector('#gcm-confirm').addEventListener('click', () => cleanup(true));
+        modal.addEventListener('click', e => { if (e.target === modal) cleanup(false); });
+        document.addEventListener('keydown', function handler(e) {
+            if (e.key === 'Escape') { cleanup(false); document.removeEventListener('keydown', handler); }
+            if (e.key === 'Enter')  { cleanup(true);  document.removeEventListener('keydown', handler); }
+        });
+    });
+}
+
+window.confirmModal = confirmModal;
+
+// ============================================================================
+// EDIT GOAL MODAL — красивое окно редактирования цели
+// ============================================================================
+
+/**
+ * @param {object} opts
+ * @param {string} opts.goalType    — 'pages_per_day' | 'minutes_per_day'
+ * @param {number} opts.current     — текущее целевое значение
+ * @returns {Promise<number|null>}  — новое значение или null если отменили
+ */
+function editGoalModal({ goalType = 'pages_per_day', current = 30 } = {}) {
+    return new Promise(resolve => {
+        const existing = document.getElementById('edit-goal-modal');
+        if (existing) existing.remove();
+
+        const isPages   = goalType === 'pages_per_day';
+        const label     = isPages ? 'Страниц за день' : 'Минут чтения в день';
+        const icon      = isPages ? '📖' : '⏱';
+        const min       = isPages ? 5  : 5;
+        const max       = isPages ? 200 : 240;
+        const step      = isPages ? 5  : 5;
+        const unit      = isPages ? 'стр' : 'мин';
+
+        const modal = document.createElement('div');
+        modal.id = 'edit-goal-modal';
+        modal.className = 'modal-overlay modal-overlay--visible';
+        modal.style.cssText = 'z-index:700;';
+        modal.innerHTML = `
+            <div class="modal modal--add-book" style="max-width:360px;padding:28px 24px 24px;">
+                <div style="text-align:center;margin-bottom:20px;">
+                    <span style="font-size:36px;">${icon}</span>
+                    <h2 style="font-size:17px;font-weight:bold;color:var(--text);margin-top:10px;">
+                        ${label}
+                    </h2>
+                </div>
+
+                <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px;">
+                    <button id="egm-minus"
+                            style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.22);
+                                   background:rgba(255,255,255,.08);color:var(--text);font-size:20px;
+                                   cursor:pointer;display:flex;align-items:center;justify-content:center;
+                                   flex-shrink:0;transition:background .15s;">−</button>
+                    <div style="text-align:center;min-width:80px;">
+                        <input id="egm-input" type="number"
+                               value="${current}" min="${min}" max="${max}" step="${step}"
+                               style="width:80px;text-align:center;font-size:28px;font-weight:bold;
+                                      background:transparent;border:none;border-bottom:2px solid var(--accent);
+                                      color:var(--text);font-family:inherit;outline:none;padding:4px 0;">
+                        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">${unit}</div>
+                    </div>
+                    <button id="egm-plus"
+                            style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.22);
+                                   background:rgba(255,255,255,.08);color:var(--text);font-size:20px;
+                                   cursor:pointer;display:flex;align-items:center;justify-content:center;
+                                   flex-shrink:0;transition:background .15s;">+</button>
+                </div>
+
+                <input id="egm-range" type="range"
+                       min="${min}" max="${max}" step="${step}" value="${current}"
+                       style="width:100%;accent-color:var(--accent);cursor:pointer;margin-bottom:8px;">
+
+                <div style="display:flex;justify-content:space-between;font-size:11px;
+                            color:var(--text-muted);margin-bottom:24px;">
+                    <span>${min} ${unit}</span>
+                    <span>${max} ${unit}</span>
+                </div>
+
+                <div style="display:flex;gap:10px;">
+                    <button id="egm-cancel"
+                            style="flex:1;padding:12px;border-radius:var(--r-pill);
+                                   border:1px solid rgba(255,255,255,.22);background:transparent;
+                                   color:var(--text-muted);font-family:inherit;font-size:14px;cursor:pointer;">
+                        Отмена
+                    </button>
+                    <button id="egm-save"
+                            style="flex:1;padding:12px;border-radius:var(--r-pill);border:none;
+                                   background:var(--accent);color:var(--surface);
+                                   font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;">
+                        Сохранить
+                    </button>
+                </div>
+            </div>`;
+
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+
+        const input = modal.querySelector('#egm-input');
+        const range = modal.querySelector('#egm-range');
+
+        // Sync input ↔ range
+        input.addEventListener('input', () => {
+            let v = parseInt(input.value, 10);
+            if (!isNaN(v)) range.value = Math.min(max, Math.max(min, v));
+        });
+        range.addEventListener('input', () => { input.value = range.value; });
+
+        modal.querySelector('#egm-minus').addEventListener('click', () => {
+            let v = Math.max(min, (parseInt(input.value, 10) || min) - step);
+            input.value = v; range.value = v;
+        });
+        modal.querySelector('#egm-plus').addEventListener('click', () => {
+            let v = Math.min(max, (parseInt(input.value, 10) || min) + step);
+            input.value = v; range.value = v;
+        });
+
+        const cleanup = (val) => {
+            modal.remove();
+            document.body.style.overflow = '';
+            resolve(val);
+        };
+
+        modal.querySelector('#egm-cancel').addEventListener('click', () => cleanup(null));
+        modal.querySelector('#egm-save').addEventListener('click', () => {
+            const v = parseInt(input.value, 10);
+            if (isNaN(v) || v < min) { input.style.borderBottomColor = '#e07070'; return; }
+            cleanup(v);
+        });
+        modal.addEventListener('click', e => { if (e.target === modal) cleanup(null); });
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') modal.querySelector('#egm-save').click();
+            if (e.key === 'Escape') cleanup(null);
+        });
+
+        // Focus input
+        setTimeout(() => { input.focus(); input.select(); }, 50);
+    });
+}
+
+window.editGoalModal = editGoalModal;
+
+// ── Перехватываем logout чтобы показать подтверждение ────────
+const _originalLogout = logout;
+window.logout = async function() {
+    const ok = await confirmModal({
+        title: 'Выйти из аккаунта?',
+        message: 'Вы уверены, что хотите выйти? Несохранённый прогресс будет потерян.',
+        confirmText: 'Выйти',
+        cancelText: 'Остаться',
+        danger: true,
+    });
+    if (ok) _originalLogout();
+};

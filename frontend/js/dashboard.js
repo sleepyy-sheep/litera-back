@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupSortPanel();
     setupStatsTabs();
     setupGoalEditors();
+    // Mobile bottom nav handled by mobile-sheets.js
     // Дропдауны шапки управляются инлайн-скриптом в index.html
 });
 
@@ -184,14 +185,20 @@ function openBook(bookId) {
 }
 
 async function deleteBook(bookId) {
-    if (!confirm('Вы уверены, что хотите удалить эту книгу?')) return;
+    const ok = await confirmModal({
+        title: 'Удалить книгу?',
+        message: 'Это действие нельзя отменить. Книга и весь прогресс чтения будут удалены навсегда.',
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+        danger: true,
+    });
+    if (!ok) return;
 
     showToast('Удаление книги...', 'info');
     const result = await apiDeleteBook(bookId);
 
     if (result.success) {
         showToast('Книга удалена', 'success');
-        // Анимируем удаление карточки
         const card = document.querySelector(`[data-book-id="${bookId}"]`);
         if (card) {
             card.style.transition = 'opacity .3s, transform .3s';
@@ -206,6 +213,68 @@ async function deleteBook(bookId) {
         showToast(msg || 'Ошибка удаления книги', 'error');
         console.error('Delete error:', result);
     }
+}
+
+// ── Mobile book action sheet ──────────────────────────────────
+function openBookActionSheet(bookId, bookTitle) {
+    // Remove any existing sheet
+    document.getElementById('mobile-book-action-sheet')?.remove();
+
+    const sheet = document.createElement('div');
+    sheet.id = 'mobile-book-action-sheet';
+    sheet.className = 'mobile-bottom-sheet';
+    sheet.innerHTML = `
+        <div class="mobile-bottom-sheet__backdrop"></div>
+        <div class="mobile-bottom-sheet__content">
+            <div class="mobile-bottom-sheet__handle"></div>
+            <h3 class="mobile-bottom-sheet__title" style="font-size:15px;padding:14px 0 10px;">
+                ${escapeHtml(bookTitle)}
+            </h3>
+            <div style="display:flex;flex-direction:column;gap:8px;padding-bottom:8px;">
+                <button class="book-action-sheet-btn" id="sheet-btn-read">
+                    <span style="font-size:18px;">▶</span> Читать
+                </button>
+                <button class="book-action-sheet-btn" id="sheet-btn-edit">
+                    <span style="font-size:18px;">✏</span> Изменить
+                </button>
+                <button class="book-action-sheet-btn" id="sheet-btn-shelf">
+                    <span style="font-size:18px;">📚</span> На полку
+                </button>
+                <button class="book-action-sheet-btn book-action-sheet-btn--danger" id="sheet-btn-delete">
+                    <span style="font-size:18px;">🗑</span> Удалить
+                </button>
+            </div>
+        </div>`;
+    document.body.appendChild(sheet);
+
+    const close = () => {
+        sheet.classList.remove('mobile-bottom-sheet--open');
+        document.body.style.overflow = '';
+        setTimeout(() => sheet.remove(), 320);
+    };
+
+    sheet.addEventListener('click', e => {
+        if (e.target === sheet || e.target.classList.contains('mobile-bottom-sheet__backdrop')) close();
+    });
+
+    sheet.querySelector('#sheet-btn-read').addEventListener('click', () => {
+        close(); openBook(bookId);
+    });
+    sheet.querySelector('#sheet-btn-edit').addEventListener('click', () => {
+        close(); editBook(bookId);
+    });
+    sheet.querySelector('#sheet-btn-shelf').addEventListener('click', () => {
+        close(); addToShelf(bookId);
+    });
+    sheet.querySelector('#sheet-btn-delete').addEventListener('click', () => {
+        close(); deleteBook(bookId);
+    });
+
+    // Trigger open animation
+    requestAnimationFrame(() => {
+        sheet.classList.add('mobile-bottom-sheet--open');
+        document.body.style.overflow = 'hidden';
+    });
 }
 
 async function editBook(bookId) {
@@ -822,6 +891,14 @@ async function saveNewNote(bookId) {
 }
 
 async function deleteNoteConfirm(bookId, noteId) {
+    const ok = await confirmModal({
+        title: 'Удалить заметку?',
+        message: 'Заметка будет удалена без возможности восстановления.',
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+        danger: true,
+    });
+    if (!ok) return;
     const result = await apiDeleteNote(bookId, noteId);
     if (result.success) {
         const r = await apiGetNotes(bookId);
@@ -924,6 +1001,34 @@ async function loadGoals() {
         card.dataset.goalType    = goal.goal_type;
         card.dataset.targetValue = goal.target_value;
     });
+
+    // Update "Прогресс за день" ring — average of all goals progress
+    updateDayProgressRing(goals);
+}
+
+function updateDayProgressRing(goals) {
+    if (!goals || !goals.length) return;
+
+    // Average percent across all goals
+    const totalPct = goals.reduce((sum, g) => {
+        const pct = g.target_value > 0
+            ? Math.min(100, (g.current_value / g.target_value) * 100) : 0;
+        return sum + pct;
+    }, 0);
+    const avgPct = Math.round(totalPct / goals.length);
+
+    // Update text
+    const valueEl = document.querySelector('.day-progress__value');
+    if (valueEl) valueEl.textContent = avgPct + '%';
+
+    // Update SVG ring: circumference = 2π×32 ≈ 201
+    const circumference = 2 * Math.PI * 32; // ≈ 201
+    const offset = circumference - (avgPct / 100) * circumference;
+    const ringEl = document.querySelector('.day-progress__fill-ring');
+    if (ringEl) {
+        ringEl.style.strokeDasharray  = circumference.toFixed(1);
+        ringEl.style.strokeDashoffset = offset.toFixed(1);
+    }
 }
 
 function setupStatsTabs() {
@@ -946,11 +1051,12 @@ function setupGoalEditors() {
             e.preventDefault(); e.stopPropagation();
             const card     = btn.closest('.goal-card');
             const goalType = card?.dataset.goalType || (i === 0 ? 'pages_per_day' : 'minutes_per_day');
-            const current  = card?.dataset.targetValue || '30';
-            const input    = prompt('Введите целевое значение:', current);
-            if (input === null) return;
-            const target = parseInt(input, 10);
+            const current  = parseInt(card?.dataset.targetValue || '30', 10);
+
+            const target = await editGoalModal({ goalType, current });
+            if (target === null) return;
             if (isNaN(target) || target <= 0) { showToast('Введите положительное число', 'error'); return; }
+
             const result = await apiCreateGoal(goalType, target);
             if (result.success) { showToast('Цель обновлена', 'success'); await loadGoals(); }
             else showToast(formatApiError(result.error) || 'Ошибка обновления цели', 'error');
@@ -1060,3 +1166,4 @@ function escapeHtml(str) {
         .replace(/&/g,'&amp;').replace(/</g,'&lt;')
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+

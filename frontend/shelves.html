@@ -45,7 +45,7 @@
     <div class="header-actions">
       <div class="hdr-dropdown-wrap" id="wrap-profile">
         <button class="icon-btn" id="btn-profile" aria-label="Профиль" aria-expanded="false" aria-haspopup="true">
-          <img src="log_img/user_icon.svg" alt="" aria-hidden="true">
+          <img src="log_img/add_target_desk.svg" alt="" aria-hidden="true">
         </button>
         <div class="hdr-dropdown hdr-dropdown--profile" id="dd-profile" role="dialog" aria-label="Цель для просмотра">
           <p class="hdr-dropdown__title">Выберите цель для просмотра</p>
@@ -67,7 +67,7 @@
       </div>
       <div class="hdr-dropdown-wrap" id="wrap-theme">
         <button class="icon-btn" id="btn-theme" aria-label="Выбор темы" aria-expanded="false" aria-haspopup="true">
-          <img src="log_img/theam_icon.png" alt="" aria-hidden="true">
+          <img src="log_img/add_theme_desk.svg" alt="" aria-hidden="true">
         </button>
         <div class="hdr-dropdown hdr-dropdown--theme" id="dd-theme" role="dialog" aria-label="Выбор темы">
           <p class="hdr-dropdown__title">Выбор темы</p>
@@ -75,13 +75,13 @@
             <button class="theme-card" data-theme="dark" aria-label="Тёмная тема">
               <div class="theme-card__preview theme-card__preview--dark">
                 <img src="log_img/book2.svg" alt="" aria-hidden="true">
-                <span class="theme-card__name">ЛитЭра</span>
+                <img src="log_img/Logo.svg" alt="ЛитЭра" class="theme-card__logo">
               </div>
             </button>
             <button class="theme-card theme-card--active" data-theme="brown" aria-label="Коричневая тема">
               <div class="theme-card__preview theme-card__preview--brown">
                 <img src="log_img/book2.svg" alt="" aria-hidden="true">
-                <span class="theme-card__name">ЛитЭра</span>
+                <img src="log_img/Logo.svg" alt="ЛитЭра" class="theme-card__logo">
               </div>
               <span class="theme-card__check" aria-hidden="true">✓</span>
             </button>
@@ -90,7 +90,7 @@
       </div>
       <div class="hdr-dropdown-wrap" id="wrap-stats">
         <button class="icon-btn" id="btn-stats" aria-label="Статистика" aria-expanded="false" aria-haspopup="true">
-          <img src="log_img/statics_icon.svg" alt="" aria-hidden="true">
+          <img src="log_img/add_statics_desk.svg" alt="" aria-hidden="true">
         </button>
         <div class="hdr-dropdown hdr-dropdown--stats" id="dd-stats" role="dialog" aria-label="Активность">
           <div class="stats-header">
@@ -187,8 +187,7 @@
 
   <!-- СПИСОК ПОЛОК -->
   <section class="shelves-list" id="shelves-list" aria-label="Мои полки">
-
-  
+  </section>
 
   <!-- ПРАВАЯ ПАНЕЛЬ -->
   <aside class="shelves-right" aria-label="Виджеты полок">
@@ -312,35 +311,19 @@
 
 <nav class="bottom-nav" aria-label="Навигация">
   <a href="index.html" class="bottom-nav__item" aria-label="Мои книги">
-    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="3" y="3" width="7" height="9" rx="1" stroke="currentColor" stroke-width="2"/>
-      <rect x="14" y="3" width="7" height="9" rx="1" stroke="currentColor" stroke-width="2"/>
-      <rect x="3" y="15" width="7" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
-      <rect x="14" y="15" width="7" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
-    </svg>
+    <img src="log_img/my_book_mob.svg" alt="" class="bottom-nav__icon" aria-hidden="true">
     <span>Мои книги</span>
   </a>
-  <a href="shelves.html" class="bottom-nav__item bottom-nav__item--active" aria-label="Полки">
-    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="2" y="18" width="20" height="3" rx="1" stroke="currentColor" stroke-width="2"/>
-      <rect x="4" y="10" width="16" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
-      <rect x="6" y="4"  width="12" height="5" rx="1" stroke="currentColor" stroke-width="2"/>
-    </svg>
-    <span>Полки</span>
-  </a>
-  <button class="bottom-nav__item" id="bottom-add-shelf-btn" type="button" aria-label="Добавить полку">
-    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-      <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <line x1="8"  y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
+  <button class="bottom-nav__item bottom-nav__item--active" id="bottom-add-shelf-btn" type="button" aria-label="Добавить полку">
+    <img src="log_img/Add_book_mob.svg" alt="" class="bottom-nav__icon" aria-hidden="true">
     <span>Добавить</span>
   </button>
-  <button class="bottom-nav__item" type="button" aria-label="Настройки">
-    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-      <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
+  <button class="bottom-nav__item" id="mobile-stats-btn" type="button" aria-label="Статистика">
+    <img src="log_img/add_statics_mob.svg" alt="" class="bottom-nav__icon" aria-hidden="true">
+    <span>Статистика</span>
+  </button>
+  <button class="bottom-nav__item" id="mobile-settings-btn" type="button" aria-label="Настройки">
+    <img src="log_img/add_settings_mob.svg" alt="" class="bottom-nav__icon" aria-hidden="true">
     <span>Настройки</span>
   </button>
 </nav>
@@ -439,13 +422,15 @@ document.querySelectorAll('.shelf-preset-btn').forEach(btn => {
 const THEMES_SHELVES = {
   brown: {
     '--bg': '#9e8578', '--surface': '#3a2820', '--surface-mid': '#4a3228',
-    '--surface-light': '#5a3e32', '--card-bg': 'rgba(255,255,255,0.12)',
+    '--surface-light': '#5a3e32', '--surface-popup': '#3a2418',
+    '--card-bg': 'rgba(255,255,255,0.12)',
     '--card-border': 'rgba(255,255,255,0.22)', '--text': '#f0e6de',
     '--text-muted': 'rgba(240,230,222,0.60)', '--accent': '#d4b49a',
   },
   dark: {
     '--bg': '#1a1210', '--surface': '#0d0a08', '--surface-mid': '#1e1612',
-    '--surface-light': '#2a1e18', '--card-bg': 'rgba(255,255,255,0.06)',
+    '--surface-light': '#2a1e18', '--surface-popup': '#1a1210',
+    '--card-bg': 'rgba(255,255,255,0.06)',
     '--card-border': 'rgba(255,255,255,0.12)', '--text': '#e8ddd6',
     '--text-muted': 'rgba(232,221,214,0.55)', '--accent': '#c4a48a',
   },
@@ -477,6 +462,7 @@ document.querySelectorAll('[data-logout]').forEach(btn => {
 <script src="js/api.js"></script>
 <script src="js/shelves.js"></script>
 <!-- Дополнительные скрипты -->
+<script src="js/mobile-sheets.js"></script>
 <script src="js/sort-drawer.js"></script>
 <script src="js/shelves-sort.js"></script>
 </body>

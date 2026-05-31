@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = 'log.html';
         return;
     }
-    await Promise.all([loadShelves(), loadShelvesGoals(), loadShelvesStats()]);
+    await Promise.all([loadShelves(), loadShelvesGoals(), loadShelvesStats(), loadBookOfWeek()]);
     bindShelfButtons();
     setupShelvesStatsTabs();
     setupShelvesGoalEditors();
@@ -56,11 +56,12 @@ function setupShelvesGoalEditors() {
             e.preventDefault(); e.stopPropagation();
             const card     = btn.closest('.goal-card');
             const goalType = card?.dataset.goalType || (i === 0 ? 'pages_per_day' : 'minutes_per_day');
-            const current  = card?.dataset.targetValue || '30';
-            const input    = prompt('Введите целевое значение:', current);
-            if (input === null) return;
-            const target = parseInt(input, 10);
+            const current  = parseInt(card?.dataset.targetValue || '30', 10);
+
+            const target = await editGoalModal({ goalType, current });
+            if (target === null) return;
             if (isNaN(target) || target <= 0) { showToast('Введите положительное число', 'error'); return; }
+
             const result = await apiCreateGoal(goalType, target);
             if (result.success) { showToast('Цель обновлена', 'success'); await loadShelvesGoals(); }
             else showToast('Ошибка обновления цели', 'error');
@@ -123,7 +124,62 @@ function setupShelvesStatsTabs() {
     });
 }
 
-// ── Загрузка и отображение полок ─────────────────────────────
+// ── Книга недели — книга с наибольшим временем чтения за 7 дней ──
+
+async function loadBookOfWeek() {
+    try {
+        // Получаем статистику за неделю — она содержит total_minutes и разбивку по дням
+        const statsResult = await apiGetStats('week');
+        // Получаем все книги пользователя
+        const booksResult = await apiGetBooks({ page_size: 100 });
+        if (!booksResult.success) return;
+
+        const books = booksResult.data;
+        if (!books.length) return;
+
+        // Пытаемся найти книгу с наибольшим прогрессом (current_page) —
+        // это лучший доступный прокси для «больше всего читали»
+        // Сортируем по current_page убыванию
+        const sorted = [...books].sort((a, b) => {
+            const pa = a.progress?.current_page ?? 0;
+            const pb = b.progress?.current_page ?? 0;
+            return pb - pa;
+        });
+
+        const topBook = sorted[0];
+        if (!topBook) return;
+
+        // Обновляем все элементы .book-of-week на странице
+        updateBookOfWeekUI(topBook);
+    } catch (e) {
+        console.warn('Не удалось загрузить книгу недели:', e);
+    }
+}
+
+function updateBookOfWeekUI(book) {
+    const coverUrl = book.cover_url || 'log_img/background_left_part.png';
+    const title    = book.title || 'Без названия';
+
+    // Десктопный виджет
+    const desktopCover = document.querySelector('.shelves-right .book-of-week__cover');
+    if (desktopCover) {
+        desktopCover.src   = coverUrl;
+        desktopCover.alt   = title;
+        desktopCover.onerror = () => { desktopCover.src = 'log_img/background_left_part.png'; };
+        desktopCover.title = title;
+        desktopCover.style.cursor = 'pointer';
+        desktopCover.onclick = () => { window.location.href = `reader.html?id=${book.id}`; };
+    }
+
+    // Мобильный виджет (если есть)
+    const mobileCover = document.querySelector('.book-of-week--compact .book-of-week__cover');
+    if (mobileCover) {
+        mobileCover.src   = coverUrl;
+        mobileCover.alt   = title;
+        mobileCover.onerror = () => { mobileCover.src = 'log_img/background_left_part.png'; };
+        mobileCover.title = title;
+    }
+}
 
 async function enrichShelvesWithCovers(shelves) {
     const booksResult = await apiGetBooks({ page_size: 100 });
@@ -426,6 +482,14 @@ async function addToShelfFromShelves(shelfId) {
 }
 
 async function removeBookFromShelfUi(shelfId, bookId) {
+    const ok = await confirmModal({
+        title: 'Убрать книгу с полки?',
+        message: 'Книга будет убрана с этой полки. Вы сможете добавить её снова.',
+        confirmText: 'Убрать',
+        cancelText: 'Отмена',
+        danger: false,
+    });
+    if (!ok) return;
     const result = await apiRemoveBookFromShelf(shelfId, bookId);
     if (result.success) {
         showToast('Книга убрана с полки', 'success');
@@ -438,7 +502,14 @@ async function removeBookFromShelfUi(shelfId, bookId) {
 }
 
 async function deleteShelf(shelfId) {
-    if (!confirm('Удалить эту полку?')) return;
+    const ok = await confirmModal({
+        title: 'Удалить полку?',
+        message: 'Полка будет удалена навсегда. Книги останутся в вашей библиотеке.',
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+        danger: true,
+    });
+    if (!ok) return;
     const result = await apiDeleteShelf(shelfId);
     if (result.success) {
         showToast('Полка удалена', 'success');

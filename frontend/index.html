@@ -47,7 +47,7 @@
       <!-- Профиль -->
       <div class="hdr-dropdown-wrap" id="wrap-profile">
         <button class="icon-btn" id="btn-profile" aria-label="Профиль" aria-expanded="false" aria-haspopup="true">
-          <img src="log_img/user_icon.svg" alt="" aria-hidden="true">
+          <img src="log_img/add_target_desk.svg" alt="" aria-hidden="true">
         </button>
         <div class="hdr-dropdown hdr-dropdown--profile" id="dd-profile" role="dialog" aria-label="Цель для просмотра">
           <p class="hdr-dropdown__title">Выберите цель для просмотра</p>
@@ -71,7 +71,7 @@
       <!-- Тема -->
       <div class="hdr-dropdown-wrap" id="wrap-theme">
         <button class="icon-btn" id="btn-theme" aria-label="Выбор темы" aria-expanded="false" aria-haspopup="true">
-          <img src="log_img/theam_icon.png" alt="" aria-hidden="true">
+          <img src="log_img/add_theme_desk.svg" alt="" aria-hidden="true">
         </button>
         <div class="hdr-dropdown hdr-dropdown--theme" id="dd-theme" role="dialog" aria-label="Выбор темы">
           <p class="hdr-dropdown__title">Выбор темы</p>
@@ -79,13 +79,13 @@
             <button class="theme-card" data-theme="dark" aria-label="Тёмная тема">
               <div class="theme-card__preview theme-card__preview--dark">
                 <img src="log_img/book2.svg" alt="" aria-hidden="true">
-                <span class="theme-card__name">ЛитЭра</span>
+                <img src="log_img/Logo.svg" alt="ЛитЭра" class="theme-card__logo">
               </div>
             </button>
             <button class="theme-card theme-card--active" data-theme="brown" aria-label="Коричневая тема (выбрана)">
               <div class="theme-card__preview theme-card__preview--brown">
                 <img src="log_img/book2.svg" alt="" aria-hidden="true">
-                <span class="theme-card__name">ЛитЭра</span>
+                <img src="log_img/Logo.svg" alt="ЛитЭра" class="theme-card__logo">
               </div>
               <span class="theme-card__check" aria-hidden="true">✓</span>
             </button>
@@ -96,7 +96,7 @@
       <!-- Статистика -->
       <div class="hdr-dropdown-wrap" id="wrap-stats">
         <button class="icon-btn" id="btn-stats" aria-label="Статистика" aria-expanded="false" aria-haspopup="true">
-          <img src="log_img/statics_icon.svg" alt="" aria-hidden="true">
+          <img src="log_img/add_statics_desk.svg" alt="" aria-hidden="true">
         </button>
         <div class="hdr-dropdown hdr-dropdown--stats" id="dd-stats" role="dialog" aria-label="Активность">
           <div class="stats-header">
@@ -145,7 +145,10 @@
 
   <div class="mobile-continue" aria-label="Продолжите чтение">
     <div class="mobile-continue__text">
-      <h2 class="mobile-continue__title">Продолжите чтение</h2>
+      <h2 class="mobile-continue__title">
+        Продолжите чтение
+        <img src="log_img/smile_star.svg" alt="" class="mobile-continue__star-icon" aria-hidden="true">
+      </h2>
       <p class="mobile-continue__book">Потерянные девушки Рима</p>
       <div class="mobile-continue__progress">
         <div class="mobile-continue__bar">
@@ -155,7 +158,6 @@
       </div>
     </div>
     <div class="mobile-continue__cover-wrap">
-      <span class="mobile-continue__star" aria-hidden="true">⭐</span>
       <img src="log_img/background_left_part.png" alt="Обложка" class="mobile-continue__cover">
     </div>
   </div>
@@ -272,9 +274,9 @@
           <svg viewBox="0 0 80 80" class="day-progress__svg" aria-hidden="true">
             <circle class="day-progress__track" cx="40" cy="40" r="32"/>
             <circle class="day-progress__fill-ring" cx="40" cy="40" r="32"
-              stroke-dasharray="201" stroke-dashoffset="60"/>
+              stroke-dasharray="201" stroke-dashoffset="201"/>
           </svg>
-          <span class="day-progress__value">70%</span>
+          <span class="day-progress__value">0%</span>
         </div>
         <p class="widget__label">Прогресс<br>за день</p>
       </div>
@@ -434,6 +436,7 @@ const THEMES = {
     '--surface': '#3a2820',
     '--surface-mid': '#4a3228',
     '--surface-light': '#5a3e32',
+    '--surface-popup': '#3a2418',
     '--card-bg': 'rgba(255,255,255,0.12)',
     '--card-border': 'rgba(255,255,255,0.22)',
     '--text': '#f0e6de',
@@ -445,6 +448,7 @@ const THEMES = {
     '--surface': '#0d0a08',
     '--surface-mid': '#1e1612',
     '--surface-light': '#2a1e18',
+    '--surface-popup': '#1a1210',
     '--card-bg': 'rgba(255,255,255,0.06)',
     '--card-border': 'rgba(255,255,255,0.12)',
     '--text': '#e8ddd6',
@@ -524,11 +528,30 @@ document.getElementById('book-list').addEventListener('click', e => {
   const moreBtn = e.target.closest('.more-btn');
   if (moreBtn) {
     e.stopPropagation();
+    // On mobile — show bottom action sheet
+    if (window.matchMedia('(max-width: 600px)').matches) {
+      const card = moreBtn.closest('.book-card');
+      const bookId = card?.dataset.bookId;
+      const title  = card?.dataset.title || 'Книга';
+      if (bookId) openBookActionSheet(Number(bookId), title);
+      return;
+    }
+    // Desktop — dropdown menu
     const menu = moreBtn.closest('.more-wrap')?.querySelector('.ctx-menu');
     if (!menu) return;
     const isOpen = menu.classList.contains('ctx-menu--open');
     closeAllCtxMenus();
     if (!isOpen) menu.classList.add('ctx-menu--open');
+    return;
+  }
+
+  // On mobile: tap on card (not on •••) → open book
+  if (window.matchMedia('(max-width: 600px)').matches) {
+    const card = e.target.closest('.book-card');
+    if (card && !e.target.closest('.more-wrap') && !e.target.closest('.book-card__note-link')) {
+      const bookId = card.dataset.bookId;
+      if (bookId) openBook(Number(bookId));
+    }
   }
 });
 
@@ -630,246 +653,32 @@ document.querySelectorAll('.mobile-subnav__tab').forEach(tab => {
   });
 });
 
-/* ── Mobile Stats button → opens stats+goals panel ── */
-document.getElementById('mobile-stats-btn')?.addEventListener('click', e => {
-  e.stopPropagation();
-  openMobileStatsSheet();
-});
-
-/* ── Mobile Settings button → opens theme panel ── */
-document.getElementById('mobile-settings-btn')?.addEventListener('click', e => {
-  e.stopPropagation();
-  openMobileSettingsSheet();
-});
-
-function openMobileStatsSheet() {
-  let sheet = document.getElementById('mobile-stats-sheet');
-  if (!sheet) {
-    sheet = document.createElement('div');
-    sheet.id = 'mobile-stats-sheet';
-    sheet.className = 'mobile-bottom-sheet';
-    sheet.innerHTML = `
-      <div class="mobile-bottom-sheet__handle"></div>
-      <div class="mobile-bottom-sheet__content">
-        <h3 class="mobile-bottom-sheet__title">Активность и цели</h3>
-        <div class="mobile-sheet-goals" id="mobile-sheet-goals">
-          <div class="goal-card" data-goal-type="pages_per_day" data-target-value="30">
-            <button type="button" class="goal-card__edit" aria-label="Редактировать">✏</button>
-            <p class="goal-card__label">Страниц за день</p>
-            <p class="goal-card__value">0 / 30</p>
-            <div class="goal-card__bar"><div class="goal-card__bar-fill" style="width:0%"></div></div>
-          </div>
-          <div class="goal-card" data-goal-type="minutes_per_day" data-target-value="30">
-            <button type="button" class="goal-card__edit" aria-label="Редактировать">✏</button>
-            <p class="goal-card__label">Время чтения</p>
-            <p class="goal-card__value">0 м / 30 м</p>
-            <div class="goal-card__bar"><div class="goal-card__bar-fill" style="width:0%"></div></div>
-          </div>
-        </div>
-        <div class="mobile-sheet-stats">
-          <div class="stats-header">
-            <span class="stats-header__label">Активность</span>
-            <span class="stats-header__value" id="mobile-stats-value">— стр</span>
-            <div class="stats-tabs" role="group">
-              <button class="stats-tab stats-tab--active" data-period="week">7 дней</button>
-              <button class="stats-tab" data-period="month">Месяц</button>
-              <button class="stats-tab" data-period="year">Год</button>
-            </div>
-          </div>
-          <div class="stats-chart">
-            <svg viewBox="0 0 480 140" class="stats-chart__svg" id="mobile-stats-svg" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="mobileChartGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="rgba(246,237,231,0.25)"/>
-                  <stop offset="100%" stop-color="rgba(246,237,231,0)"/>
-                </linearGradient>
-              </defs>
-              <path fill="url(#mobileChartGrad)"/>
-              <path fill="none" stroke="#f6ede7" stroke-width="2.5"/>
-            </svg>
-            <div class="stats-chart__labels" id="mobile-stats-labels"></div>
-          </div>
-        </div>
-      </div>`;
-    document.body.appendChild(sheet);
-
-    sheet.addEventListener('click', e => { if (e.target === sheet) closeMobileSheet(sheet); });
-
-    sheet.querySelectorAll('.stats-tab').forEach(tab => {
-      tab.addEventListener('click', async () => {
-        sheet.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('stats-tab--active'));
-        tab.classList.add('stats-tab--active');
-        await loadMobileStats(tab.dataset.period, sheet);
-      });
-    });
-
-    sheet.querySelectorAll('.goal-card__edit').forEach((btn, i) => {
-      btn.type = 'button';
-      btn.addEventListener('click', async e => {
-        e.preventDefault(); e.stopPropagation();
-        const card = btn.closest('.goal-card');
-        const goalType = card?.dataset.goalType || (i === 0 ? 'pages_per_day' : 'minutes_per_day');
-        const current = card?.dataset.targetValue || '30';
-        const input = prompt('Введите целевое значение:', current);
-        if (!input) return;
-        const target = parseInt(input, 10);
-        if (isNaN(target) || target <= 0) return;
-        const result = await apiCreateGoal(goalType, target);
-        if (result.success) { showToast('Цель обновлена', 'success'); await loadGoals(); await loadMobileGoals(sheet); }
-      });
-    });
-  }
-
-  sheet.classList.add('mobile-bottom-sheet--open');
-  document.body.style.overflow = 'hidden';
-  loadMobileGoals(sheet);
-  loadMobileStats('week', sheet);
-}
-
-async function loadMobileGoals(sheet) {
-  const result = await apiGetGoals();
-  const goals = mergeGoalsWithDefaults(result.success ? result.data : []);
-  const cards = sheet.querySelectorAll('.goal-card');
-  const meta = { pages_per_day: { label: 'Страниц за день', unit: '' }, minutes_per_day: { label: 'Время чтения', unit: ' м' } };
-  goals.forEach((goal, i) => {
-    const card = cards[i]; if (!card) return;
-    const m = meta[goal.goal_type] || { label: goal.goal_type, unit: '' };
-    const pct = goal.target_value > 0 ? Math.min(100, Math.round((goal.current_value / goal.target_value) * 100)) : 0;
-    card.querySelector('.goal-card__label') && (card.querySelector('.goal-card__label').textContent = m.label);
-    card.querySelector('.goal-card__value') && (card.querySelector('.goal-card__value').textContent = `${goal.current_value}${m.unit} / ${goal.target_value}${m.unit}`);
-    const fill = card.querySelector('.goal-card__bar-fill'); if (fill) fill.style.width = `${pct}%`;
-    card.dataset.goalType = goal.goal_type; card.dataset.targetValue = goal.target_value;
-  });
-}
-
-async function loadMobileStats(period, sheet) {
-  const result = await apiGetStats(period);
-  if (!result.success) return;
-  const stats = result.data;
-  const valEl = sheet.querySelector('#mobile-stats-value');
-  if (valEl) valEl.textContent = `${stats.total_pages ?? 0} стр`;
-  const svg = sheet.querySelector('#mobile-stats-svg');
-  if (svg && stats.daily_breakdown?.length) {
-    const daily = stats.daily_breakdown;
-    const maxP = Math.max(...daily.map(d => d.pages), 1);
-    const W = 480, H = 140, step = W / Math.max(daily.length - 1, 1);
-    const pts = daily.map((d, i) => `${i * step},${H - 20 - (d.pages / maxP) * (H - 40)}`);
-    const line = `M${pts.join(' L')}`;
-    svg.querySelector('path[stroke]')?.setAttribute('d', line);
-    svg.querySelector('path[fill^="url"]')?.setAttribute('d', `${line} L${W},${H} L0,${H} Z`);
-    const labels = sheet.querySelector('#mobile-stats-labels');
-    if (labels) {
-      const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-      labels.innerHTML = daily.slice(-7).map(d => { const dt = new Date(d.date); return `<span>${days[dt.getDay()===0?6:dt.getDay()-1]}</span>`; }).join('');
-    }
-  }
-}
-
-function openMobileSettingsSheet() {
-  let sheet = document.getElementById('mobile-settings-sheet');
-  if (!sheet) {
-    sheet = document.createElement('div');
-    sheet.id = 'mobile-settings-sheet';
-    sheet.className = 'mobile-bottom-sheet';
-    sheet.innerHTML = `
-      <div class="mobile-bottom-sheet__handle"></div>
-      <div class="mobile-bottom-sheet__content">
-        <h3 class="mobile-bottom-sheet__title">Настройки</h3>
-        <p class="mobile-bottom-sheet__section-label">Тема оформления</p>
-        <div class="theme-grid mobile-theme-grid">
-          <button class="theme-card" data-theme="dark" aria-label="Тёмная тема">
-            <div class="theme-card__preview theme-card__preview--dark">
-              <img src="log_img/book2.svg" alt="" aria-hidden="true">
-              <span class="theme-card__name">ЛитЭра</span>
-            </div>
-          </button>
-          <button class="theme-card theme-card--active" data-theme="brown" aria-label="Коричневая тема">
-            <div class="theme-card__preview theme-card__preview--brown">
-              <img src="log_img/book2.svg" alt="" aria-hidden="true">
-              <span class="theme-card__name">ЛитЭра</span>
-            </div>
-            <span class="theme-card__check" aria-hidden="true">✓</span>
-          </button>
-        </div>
-        <div class="mobile-bottom-sheet__logout-wrap">
-          <button class="mobile-logout-btn" data-logout aria-label="Выйти из аккаунта">
-            <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
-              <path d="M13 3h4v14h-4M8 7l-4 3 4 3M4 10h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Выйти из аккаунта
-          </button>
-        </div>
-      </div>`;
-    document.body.appendChild(sheet);
-    sheet.addEventListener('click', e => { if (e.target === sheet) closeMobileSheet(sheet); });
-
-    sheet.querySelectorAll('.theme-card').forEach(card => {
-      card.addEventListener('click', () => {
-        applyAppTheme(card.dataset.theme);
-        document.querySelectorAll('.theme-card').forEach(c => {
-          c.classList.remove('theme-card--active');
-          c.querySelector('.theme-card__check')?.remove();
-        });
-        card.classList.add('theme-card--active');
-        const chk = document.createElement('span'); chk.className='theme-card__check'; chk.setAttribute('aria-hidden','true'); chk.textContent='✓'; card.appendChild(chk);
-      });
-    });
-
-    sheet.querySelector('[data-logout]')?.addEventListener('click', () => logout());
-  }
-  sheet.classList.add('mobile-bottom-sheet--open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeMobileSheet(sheet) {
-  sheet?.classList.remove('mobile-bottom-sheet--open');
-  document.body.style.overflow = '';
-}
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.mobile-bottom-sheet--open').forEach(s => closeMobileSheet(s));
-  }
-});
+/* ── Mobile Stats / Settings buttons — handled in dashboard.js after api.js loads ── */
 </script>
 <!-- API и интеграция с бэкендом -->
 <script src="js/api.js"></script>
 <script src="js/dashboard.js"></script>
 <!-- Дополнительные скрипты -->
+<script src="js/mobile-sheets.js"></script>
 <script src="js/sort-drawer.js"></script>
 <script src="js/book-navigation.js"></script>
 
 <!-- BOTTOM NAVIGATION -->
 <nav class="bottom-nav" aria-label="Навигация">
   <button class="bottom-nav__item bottom-nav__item--active" aria-label="Мои книги">
-    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none">
-      <rect x="3" y="3" width="7" height="9" rx="1" stroke="currentColor" stroke-width="2"/>
-      <rect x="14" y="3" width="7" height="9" rx="1" stroke="currentColor" stroke-width="2"/>
-      <rect x="3" y="15" width="7" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
-      <rect x="14" y="15" width="7" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
-    </svg>
+    <img src="log_img/my_book_mob.svg" alt="" class="bottom-nav__icon" aria-hidden="true">
     <span>Мои книги</span>
   </button>
   <button class="bottom-nav__item" id="bottom-add-btn" aria-label="Добавить">
-    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none">
-      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-      <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
+    <img src="log_img/Add_book_mob.svg" alt="" class="bottom-nav__icon" aria-hidden="true">
     <span>Добавить</span>
   </button>
   <button class="bottom-nav__item" id="mobile-stats-btn" aria-label="Статистика">
-    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none">
-      <polyline points="3,17 8,12 13,15 21,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <polyline points="17,7 21,7 21,11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+    <img src="log_img/add_statics_mob.svg" alt="" class="bottom-nav__icon" aria-hidden="true">
     <span>Статистика</span>
   </button>
   <button class="bottom-nav__item" id="mobile-settings-btn" aria-label="Настройки">
-    <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-      <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
+    <img src="log_img/add_settings_mob.svg" alt="" class="bottom-nav__icon" aria-hidden="true">
     <span>Настройки</span>
   </button>
 </nav>
