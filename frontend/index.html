@@ -372,6 +372,7 @@
     <div class="add-book__footer">
       <button class="add-book__submit" type="button">Добавить книгу</button>
     </div>
+    <div id="add-book-status" style="display:none;" class="modal-status"></div>
   </div>
 </div>
 
@@ -559,13 +560,17 @@ document.addEventListener('click', closeAllCtxMenus);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllCtxMenus(); });
 
 /* ============================================================
-   TOAST
+   TOAST — определена в dashboard.js (поддерживает тип)
+   Эта заглушка нужна только до загрузки dashboard.js
    ============================================================ */
-function showToast(msg) {
+function showToast(msg, type) {
+  // будет переопределена dashboard.js — здесь просто базовый fallback
   const toast = document.getElementById('toast');
+  if (!toast) return;
   toast.textContent = msg;
-  toast.classList.add('toast--visible');
-  setTimeout(() => toast.classList.remove('toast--visible'), 2800);
+  toast.className = 'toast toast--' + (type || 'info') + ' toast--visible';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove('toast--visible'), 3200);
 }
 
 /* ============================================================

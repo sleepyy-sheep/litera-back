@@ -305,6 +305,7 @@
         Добавить книги
       </button>
     </div>
+    <div id="add-shelf-status" style="display:none;margin-top:10px;" class="modal-status"></div>
 
   </div>
 </div>
@@ -388,11 +389,14 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllShel
 
 // Удаление полок обрабатывается в shelves.js (onclick)
 
-function showToast(msg) {
+function showToast(msg, type) {
+  // fallback до загрузки shelves.js
   const t = document.getElementById('toast');
+  if (!t) return;
   t.textContent = msg;
-  t.classList.add('toast--visible');
-  setTimeout(() => t.classList.remove('toast--visible'), 2800);
+  t.className = 'toast toast--' + (type || 'info') + ' toast--visible';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('toast--visible'), 3000);
 }
 
 function openModal(id) { document.getElementById(id).classList.add('modal-overlay--visible'); document.body.style.overflow = 'hidden'; }
@@ -453,10 +457,8 @@ function applyAppTheme(name) {
 const _savedThemeShelves = localStorage.getItem('app_theme');
 if (_savedThemeShelves) applyAppTheme(_savedThemeShelves);
 
-/* ── Logout ── */
-document.querySelectorAll('[data-logout]').forEach(btn => {
-  btn.addEventListener('click', () => logout());
-});
+/* ── Logout — привязывается после загрузки api.js ── */
+// (обработчик добавляется через document.addEventListener ниже)
 </script>
 <!-- API и интеграция с бэкендом -->
 <script src="js/api.js"></script>
@@ -465,5 +467,11 @@ document.querySelectorAll('[data-logout]').forEach(btn => {
 <script src="js/mobile-sheets.js"></script>
 <script src="js/sort-drawer.js"></script>
 <script src="js/shelves-sort.js"></script>
+<script>
+/* Logout — вызывается после загрузки api.js */
+document.querySelectorAll('[data-logout]').forEach(btn => {
+  btn.addEventListener('click', () => window.logout());
+});
+</script>
 </body>
 </html>

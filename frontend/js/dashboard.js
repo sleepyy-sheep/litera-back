@@ -92,12 +92,14 @@ function displayBooks(books) {
                 <p style="color:var(--text-muted);margin-bottom:24px;">
                     Добавьте первую книгу, чтобы начать отслеживать прогресс чтения
                 </p>
-                <button onclick="document.getElementById('btn-add-book').click()"
+                <button id="btn-empty-add-book"
                         style="padding:12px 24px;background:var(--accent);color:var(--surface);
                                border:none;border-radius:var(--r-pill);cursor:pointer;font-size:15px;font-weight:bold;">
                     Добавить книгу
                 </button>
             </div>`;
+        document.getElementById('btn-empty-add-book')
+            ?.addEventListener('click', () => document.getElementById('btn-add-book')?.click());
         return;
     }
 
@@ -185,6 +187,7 @@ function openBook(bookId) {
 }
 
 async function deleteBook(bookId) {
+    bookId = Number(bookId);
     const ok = await confirmModal({
         title: 'Удалить книгу?',
         message: 'Это действие нельзя отменить. Книга и весь прогресс чтения будут удалены навсегда.',
@@ -204,7 +207,7 @@ async function deleteBook(bookId) {
             card.style.transition = 'opacity .3s, transform .3s';
             card.style.opacity = '0';
             card.style.transform = 'translateX(-20px)';
-            setTimeout(() => card.remove(), 320);
+            setTimeout(() => { card.remove(); }, 320);
         } else {
             await loadBooks();
         }
@@ -278,6 +281,7 @@ function openBookActionSheet(bookId, bookTitle) {
 }
 
 async function editBook(bookId) {
+    bookId = Number(bookId);
     const result = await apiGetBook(bookId);
     if (!result.success) { showToast('Ошибка загрузки данных книги', 'error'); return; }
 
@@ -287,8 +291,7 @@ async function editBook(bookId) {
     modal.id = 'modal-edit-book';
     modal.innerHTML = `
         <div class="modal modal--add-book" style="max-width:480px;">
-            <button class="modal__close modal__close--outside"
-                    onclick="document.getElementById('modal-edit-book').remove();document.body.style.overflow='';"
+            <button class="modal__close modal__close--outside" id="close-edit-book-modal"
                     aria-label="Закрыть">✕</button>
             <h2 class="add-book__heading" style="margin-bottom:20px;">Редактировать книгу</h2>
             <div class="add-book__fields">
@@ -302,33 +305,47 @@ async function editBook(bookId) {
                 <input type="text" id="edit-book-genre" value="${escapeHtml(book.genre || '')}"
                        class="modal__shelf-input" style="margin-bottom:20px;">
                 <div style="display:flex;gap:10px;justify-content:flex-end;">
-                    <button onclick="document.getElementById('modal-edit-book').remove();document.body.style.overflow='';"
-                            class="modal__shelf-cancel">Отмена</button>
-                    <button onclick="saveBookEdit(${bookId})" class="modal__shelf-submit">Сохранить</button>
+                    <button id="edit-book-cancel" class="modal__shelf-cancel">Отмена</button>
+                    <button id="edit-book-save"   class="modal__shelf-submit">Сохранить</button>
                 </div>
             </div>
         </div>`;
+
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
-    modal.addEventListener('click', e => {
-        if (e.target === modal) { modal.remove(); document.body.style.overflow = ''; }
+
+    const closeEditModal = () => { modal.remove(); document.body.style.overflow = ''; };
+
+    modal.querySelector('#close-edit-book-modal').addEventListener('click', closeEditModal);
+    modal.querySelector('#edit-book-cancel').addEventListener('click', closeEditModal);
+    modal.querySelector('#edit-book-save').addEventListener('click', () => saveBookEdit(bookId, modal));
+    modal.addEventListener('click', e => { if (e.target === modal) closeEditModal(); });
+
+    // Enter to save
+    modal.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') saveBookEdit(bookId, modal); });
     });
 }
 
-async function saveBookEdit(bookId) {
+async function saveBookEdit(bookId, modal) {
     const title  = document.getElementById('edit-book-title')?.value.trim();
     const author = document.getElementById('edit-book-author')?.value.trim();
     const genre  = document.getElementById('edit-book-genre')?.value.trim();
 
     if (!title) { showToast('Название не может быть пустым', 'error'); return; }
 
+    const saveBtn = modal?.querySelector('#edit-book-save');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Сохранение...'; }
+
     const result = await apiUpdateBook(bookId, { title, author, genre });
+
     if (result.success) {
         showToast('Книга обновлена', 'success');
-        document.getElementById('modal-edit-book')?.remove();
+        modal?.remove();
         document.body.style.overflow = '';
         await loadBooks();
     } else {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Сохранить'; }
         showToast(formatApiError(result.error) || 'Ошибка обновления', 'error');
     }
 }
@@ -338,7 +355,7 @@ async function saveBookEdit(bookId) {
 // ============================================================================
 
 async function addToShelf(bookId) {
-    showToast('Загрузка полок...', 'info');
+    bookId = Number(bookId);
     const result = await apiGetShelves();
 
     if (!result.success) {
@@ -357,19 +374,17 @@ async function addToShelf(bookId) {
     if (!shelves.length) {
         shelvesHtml = `
             <p style="color:var(--text-muted);margin-bottom:16px;">У вас пока нет полок.</p>
-            <button onclick="createShelfAndAdd(${bookId})" class="modal__shelf-submit" style="width:100%;">
+            <button id="btn-create-shelf-add" class="modal__shelf-submit" style="width:100%;">
                 + Создать полку и добавить
             </button>`;
     } else {
         shelvesHtml = shelves.map(shelf => `
-            <button onclick="addBookToShelfConfirm(${bookId}, ${shelf.id})"
+            <button data-shelf-id="${shelf.id}"
                     style="display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;
                            margin-bottom:8px;background:rgba(255,255,255,.08);
                            border:1px solid var(--card-border);border-radius:var(--r-md);
                            cursor:pointer;text-align:left;color:var(--text);font-family:inherit;
-                           font-size:14px;transition:background .15s;"
-                    onmouseover="this.style.background='rgba(255,255,255,.16)'"
-                    onmouseout="this.style.background='rgba(255,255,255,.08)'">
+                           font-size:14px;transition:background .15s;">
                 <span style="font-size:18px;">📚</span>
                 <span>${escapeHtml(shelf.name)}</span>
                 <span style="margin-left:auto;color:var(--text-muted);font-size:12px;">
@@ -377,7 +392,7 @@ async function addToShelf(bookId) {
                 </span>
             </button>`).join('');
         shelvesHtml += `
-            <button onclick="createShelfAndAdd(${bookId})"
+            <button id="btn-create-shelf-add"
                     style="display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;
                            background:transparent;border:1px dashed rgba(255,255,255,.25);
                            border-radius:var(--r-md);cursor:pointer;color:var(--text-muted);
@@ -388,8 +403,7 @@ async function addToShelf(bookId) {
 
     modal.innerHTML = `
         <div class="modal modal--add-book" style="max-width:420px;">
-            <button class="modal__close modal__close--outside"
-                    onclick="document.getElementById('modal-select-shelf').remove();document.body.style.overflow='';"
+            <button class="modal__close modal__close--outside" id="close-select-shelf-modal"
                     aria-label="Закрыть">✕</button>
             <h2 class="add-book__heading" style="margin-bottom:20px;">Выберите полку</h2>
             <div style="max-height:360px;overflow-y:auto;">${shelvesHtml}</div>
@@ -397,15 +411,29 @@ async function addToShelf(bookId) {
 
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
-    modal.addEventListener('click', e => {
-        if (e.target === modal) { modal.remove(); document.body.style.overflow = ''; }
+
+    const closeModal = () => { modal.remove(); document.body.style.overflow = ''; };
+
+    modal.querySelector('#close-select-shelf-modal').addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+    // Клик по полке
+    modal.querySelectorAll('[data-shelf-id]').forEach(btn => {
+        btn.addEventListener('mouseover', () => { btn.style.background = 'rgba(255,255,255,.16)'; });
+        btn.addEventListener('mouseout',  () => { btn.style.background = 'rgba(255,255,255,.08)'; });
+        btn.addEventListener('click', () => addBookToShelfConfirm(bookId, Number(btn.dataset.shelfId)));
     });
+
+    // Создать новую полку
+    modal.querySelector('#btn-create-shelf-add')?.addEventListener('click', () => createShelfAndAdd(bookId));
 }
 
 async function addBookToShelfConfirm(bookId, shelfId) {
+    // Закрываем модал выбора полки
+    const sel = document.getElementById('modal-select-shelf');
+    if (sel) { sel.remove(); document.body.style.overflow = ''; }
+
     const result = await apiAddBookToShelf(shelfId, bookId);
-    document.getElementById('modal-select-shelf')?.remove();
-    document.body.style.overflow = '';
 
     if (result.success) {
         showToast('Книга добавлена на полку', 'success');
@@ -419,7 +447,14 @@ async function createShelfAndAdd(bookId) {
     document.getElementById('modal-select-shelf')?.remove();
     document.body.style.overflow = '';
 
-    const name = prompt('Название новой полки:');
+    // Красивый модал вместо prompt()
+    const name = await inputModal({
+        title: 'Создать новую полку',
+        placeholder: 'Название полки',
+        confirmText: 'Создать',
+        cancelText: 'Отмена',
+        maxLength: 40,
+    });
     if (!name?.trim()) return;
 
     const createResult = await apiCreateShelf(name.trim());
@@ -435,6 +470,24 @@ async function createShelfAndAdd(bookId) {
 // ============================================================================
 // ДОБАВЛЕНИЕ КНИГИ — парсинг метаданных + одно диалоговое окно
 // ============================================================================
+
+// Показывает статус внутри модала добавления книги вместо toast
+function showModalStatus(msg, type = 'info') {
+    const el = document.getElementById('add-book-status');
+    if (!el) { showToast(msg, type); return; }
+    el.textContent = msg;
+    el.className = `modal-status modal-status--${type}`;
+    el.style.display = 'block';
+    if (type !== 'error') {
+        clearTimeout(el._timer);
+        el._timer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+}
+
+function hideModalStatus() {
+    const el = document.getElementById('add-book-status');
+    if (el) { el.style.display = 'none'; el.textContent = ''; }
+}
 
 function setupAddBookButton() {
     const addBookBtn = document.getElementById('btn-add-book');
@@ -503,7 +556,7 @@ function setupAddBookButton() {
         submitBtn.addEventListener('click', async () => {
             const file = fileInput?.files[0];
             if (!file) {
-                showToast('Сначала выберите файл книги', 'error');
+                showModalStatus('Сначала выберите файл книги', 'error');
                 return;
             }
             await handleBookUpload(file);
@@ -516,7 +569,7 @@ async function onFileSelected(file) {
     const ext = '.' + file.name.split('.').pop().toLowerCase();
     const allowed = ['.pdf', '.epub', '.fb2'];
     if (!allowed.includes(ext)) {
-        showToast(`Неподдерживаемый формат. Разрешены: ${allowed.join(', ')}`, 'error');
+        showModalStatus(`Неподдерживаемый формат. Разрешены: ${allowed.join(', ')}`, 'error');
         return;
     }
 
@@ -537,7 +590,7 @@ async function onFileSelected(file) {
     if (metaFields) metaFields.style.display = 'flex';
 
     // Парсим метаданные из файла
-    showToast('Читаем метаданные...', 'info');
+    showModalStatus('Читаем метаданные файла...', 'info');
     try {
         const meta = await extractBookMetadata(file);
 
@@ -558,9 +611,9 @@ async function onFileSelected(file) {
         }
 
         if (meta.title || meta.author) {
-            showToast(`Метаданные загружены: ${meta.title || file.name}`, 'success');
+            showModalStatus(`Метаданные загружены: ${meta.title || file.name}`, 'success');
         } else {
-            showToast(`Файл выбран: ${file.name}`, 'success');
+            showModalStatus(`Файл выбран: ${file.name}`, 'success');
         }
     } catch (e) {
         console.warn('Не удалось прочитать метаданные:', e);
@@ -568,7 +621,7 @@ async function onFileSelected(file) {
         if (titleInput && !titleInput.value) {
             titleInput.value = file.name.replace(/\.[^/.]+$/, '');
         }
-        showToast(`Файл выбран: ${file.name}`, 'success');
+        showModalStatus(`Файл выбран: ${file.name}`, 'success');
     }
 }
 
@@ -712,12 +765,12 @@ function setSelectedFile(file) { onFileSelected(file); }
 async function handleBookUpload(file) {
     const ext = '.' + file.name.split('.').pop().toLowerCase();
     if (!['.pdf', '.epub', '.fb2'].includes(ext)) {
-        showToast('Неподдерживаемый формат файла', 'error');
+        showModalStatus('Неподдерживаемый формат файла', 'error');
         return;
     }
 
     if (!(await apiCheckHealth())) {
-        showToast('Сервер недоступен. Запустите start.bat', 'error');
+        showModalStatus('Сервер недоступен. Запустите start.bat', 'error');
         return;
     }
 
@@ -732,7 +785,7 @@ async function handleBookUpload(file) {
     const submitBtn = document.querySelector('.add-book__submit');
 
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Загрузка...'; }
-    showToast('Загрузка книги, подождите...', 'info');
+    showModalStatus('Загрузка книги, подождите...', 'info');
 
     // Загружаем книгу с метаданными
     const result = await apiUploadBookWithMeta(file, { title: customTitle, author: customAuthor, genre, notes });
@@ -741,7 +794,6 @@ async function handleBookUpload(file) {
 
     if (result.success) {
         const bookTitle = result.data.title || customTitle || file.name;
-        showToast(`✅ Книга «${bookTitle}» успешно добавлена!`, 'success');
 
         // Загружаем обложку если есть превью — ЖДЁМ завершения перед обновлением списка
         const coverPreview = document.querySelector('.add-book__cover-preview');
@@ -751,10 +803,11 @@ async function handleBookUpload(file) {
 
         closeAddBookModal();
         resetAddBookForm();
+        showToast(`✅ Книга «${bookTitle}» успешно добавлена!`, 'success');
         await loadBooks();
     } else {
         const msg = formatApiError(result.error);
-        showToast(msg || 'Ошибка загрузки книги', 'error');
+        showModalStatus(msg || 'Ошибка загрузки книги', 'error');
         console.error('Upload error:', result);
     }
 }
@@ -815,6 +868,7 @@ function closeAddBookModal() {
     const modal = document.getElementById('modal-add-book');
     if (modal) modal.classList.remove('modal-overlay--visible');
     document.body.style.overflow = '';
+    hideModalStatus();
 }
 
 // Выбор жанра в модале
@@ -830,6 +884,7 @@ document.addEventListener('click', e => {
 // ============================================================================
 
 async function openNotes(bookId) {
+    bookId = Number(bookId);
     const bookResult  = await apiGetBook(bookId);
     const title       = bookResult.success ? bookResult.data.title : 'Книга';
     const notesResult = await apiGetNotes(bookId);
@@ -840,8 +895,8 @@ async function openNotes(bookId) {
     modal.id = 'modal-notes';
     modal.innerHTML = `
         <div class="modal modal--add-book" style="max-width:520px;">
-            <button class="modal__close modal__close--outside"
-                    onclick="closeNotesModal()" aria-label="Закрыть">✕</button>
+            <button class="modal__close modal__close--outside" id="close-notes-modal"
+                    aria-label="Закрыть">✕</button>
             <h2 class="add-book__heading" style="margin-bottom:16px;">
                 Заметки: ${escapeHtml(title)}
             </h2>
@@ -849,13 +904,22 @@ async function openNotes(bookId) {
             <textarea id="note-new-text" class="add-book__textarea" rows="3"
                       placeholder="Новая заметка..."></textarea>
             <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
-                <button onclick="closeNotesModal()" class="modal__shelf-cancel">Закрыть</button>
-                <button onclick="saveNewNote(${bookId})" class="modal__shelf-submit">Добавить</button>
+                <button id="btn-notes-close" class="modal__shelf-cancel">Закрыть</button>
+                <button id="btn-notes-add"   class="modal__shelf-submit">Добавить</button>
             </div>
         </div>`;
+
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
+
+    modal.querySelector('#close-notes-modal').addEventListener('click', closeNotesModal);
+    modal.querySelector('#btn-notes-close').addEventListener('click', closeNotesModal);
+    modal.querySelector('#btn-notes-add').addEventListener('click', () => saveNewNote(bookId));
+    modal.querySelector('#note-new-text').addEventListener('keydown', e => {
+        if (e.key === 'Enter' && e.ctrlKey) saveNewNote(bookId);
+    });
     modal.addEventListener('click', e => { if (e.target === modal) closeNotesModal(); });
+
     renderNotesList(bookId, notes);
 }
 
@@ -867,13 +931,19 @@ function renderNotesList(bookId, notes) {
         return;
     }
     list.innerHTML = notes.map(note => `
-        <div style="padding:10px;margin-bottom:8px;background:rgba(255,255,255,.08);border-radius:var(--r-sm);">
+        <div data-note-id="${note.id}"
+             style="padding:10px;margin-bottom:8px;background:rgba(255,255,255,.08);border-radius:var(--r-sm);">
             <p style="margin:0 0 8px;white-space:pre-wrap;">${escapeHtml(note.text)}</p>
-            <button onclick="deleteNoteConfirm(${bookId},${note.id})"
+            <button data-delete-note="${note.id}"
                     style="font-size:12px;color:#e07070;background:none;border:none;cursor:pointer;">
                 Удалить
             </button>
         </div>`).join('');
+
+    // Event delegation для удаления заметок
+    list.querySelectorAll('[data-delete-note]').forEach(btn => {
+        btn.addEventListener('click', () => deleteNoteConfirm(bookId, Number(btn.dataset.deleteNote)));
+    });
 }
 
 async function saveNewNote(bookId) {

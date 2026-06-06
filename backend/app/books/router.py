@@ -550,6 +550,18 @@ async def delete_book(
         print(f"⚠️ Не удалось удалить файл из MinIO: {e}")
         # Продолжаем удаление из БД даже если файл не удалился
 
+    # 1b. Удаляем обложку из MinIO (если есть)
+    if book.cover_key:
+        try:
+            await asyncio.to_thread(
+                storage.s3_client.delete_object,
+                Bucket=storage.bucket,
+                Key=book.cover_key,
+            )
+            print(f"✅ Обложка удалена из MinIO: {book.cover_key}")
+        except Exception as e:
+            print(f"⚠️ Не удалось удалить обложку из MinIO: {e}")
+
     # 2. Удаляем запись из базы данных
     try:
         await db.delete(book)

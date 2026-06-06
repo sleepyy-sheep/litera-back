@@ -347,9 +347,21 @@ body {
   background:var(--surface-popup); color:var(--text); border-radius:var(--r-pill);
   padding:10px 24px; font-size:14px; box-shadow:0 4px 20px rgba(0,0,0,.45);
   opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;
-  z-index:500; white-space:nowrap;
+  z-index:800; white-space:nowrap; max-width:calc(100vw - 32px); text-align:center;
 }
 .toast--visible { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast--success { background:#2a4a32; color:#7dd8a0; }
+.toast--error   { background:#4a2a2a; color:#e07070; }
+.toast--info    { background:var(--surface-popup); color:var(--text); }
+
+/* ── inline modal status message ────────────────────────── */
+.modal-status {
+  margin-top:10px; padding:10px 14px; border-radius:var(--r-md);
+  font-size:13px; text-align:center; line-height:1.4;
+}
+.modal-status--info    { background:rgba(255,255,255,.08); color:var(--text-muted); }
+.modal-status--success { background:rgba(60,179,113,.15); color:#7dd8a0; border:1px solid rgba(60,179,113,.25); }
+.modal-status--error   { background:rgba(224,112,112,.15); color:#e07070; border:1px solid rgba(224,112,112,.25); }
 
 /* ── ПРАВАЯ ПАНЕЛЬ ───────────────────────────────────────── */
 .right-panel { grid-area:right; display:flex; flex-direction:column; gap:12px; }
@@ -988,7 +1000,14 @@ body {
 .book-action-sheet-btn:active { background: rgba(255,255,255,.15); }
 .book-action-sheet-btn--danger { color: #e07070; border-color: rgba(224,112,112,.25); background: rgba(224,112,112,.07); }
 .book-action-sheet-btn--danger:hover { background: rgba(224,112,112,.15); }
-.icon-btn--logout:hover { background: rgba(224,112,112,.18) !important; border-color: rgba(224,112,112,.4) !important; }
+
+/* Кнопка выхода — выделена цветом для узнаваемости */
+.icon-btn--logout {
+  border-color: rgba(224,112,112,.35) !important;
+  color: #e07070;
+}
+.icon-btn--logout svg { color: #e07070; }
+.icon-btn--logout:hover { background: rgba(224,112,112,.18) !important; border-color: rgba(224,112,112,.6) !important; }
 
 /* ── Mobile bottom sheets ────────────────────────────────── */
 .mobile-bottom-sheet {

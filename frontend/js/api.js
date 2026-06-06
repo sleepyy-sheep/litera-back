@@ -551,6 +551,97 @@ function editGoalModal({ goalType = 'pages_per_day', current = 30 } = {}) {
 
 window.editGoalModal = editGoalModal;
 
+// ============================================================================
+// INPUT MODAL — красивое окно ввода текста (замена window.prompt)
+// ============================================================================
+
+/**
+ * @param {object} opts
+ * @param {string} opts.title        — заголовок
+ * @param {string} opts.placeholder  — плейсхолдер поля
+ * @param {string} opts.confirmText  — текст кнопки подтверждения (default: "ОК")
+ * @param {string} opts.cancelText   — текст кнопки отмены (default: "Отмена")
+ * @param {number} opts.maxLength    — максимальная длина (default: 100)
+ * @returns {Promise<string|null>}   — введённое значение или null если отменили
+ */
+function inputModal({ title = 'Введите значение', placeholder = '', confirmText = 'ОК', cancelText = 'Отмена', maxLength = 100 } = {}) {
+    return new Promise(resolve => {
+        const existing = document.getElementById('global-input-modal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'global-input-modal';
+        modal.className = 'modal-overlay modal-overlay--visible';
+        modal.style.cssText = 'z-index:700;';
+
+        modal.innerHTML = `
+            <div class="modal modal--add-book" style="max-width:380px;padding:28px 24px 24px;">
+                <h2 style="font-size:17px;font-weight:bold;color:var(--text);margin-bottom:18px;text-align:center;">
+                    ${title}
+                </h2>
+                <input id="gim-input" type="text"
+                       maxlength="${maxLength}"
+                       placeholder="${placeholder}"
+                       style="width:100%;padding:12px 16px;border-radius:var(--r-pill);
+                              border:1.5px solid rgba(255,255,255,.22);
+                              background:rgba(255,255,255,.08);color:var(--text);
+                              font-family:inherit;font-size:15px;outline:none;
+                              transition:border-color .2s;margin-bottom:20px;
+                              box-sizing:border-box;">
+                <div style="display:flex;gap:10px;">
+                    <button id="gim-cancel"
+                            style="flex:1;padding:12px 16px;border-radius:var(--r-pill);
+                                   border:1px solid rgba(255,255,255,.22);background:transparent;
+                                   color:var(--text-muted);font-family:inherit;font-size:14px;cursor:pointer;">
+                        ${cancelText}
+                    </button>
+                    <button id="gim-confirm"
+                            style="flex:1;padding:12px 16px;border-radius:var(--r-pill);border:none;
+                                   background:var(--accent);color:var(--surface);
+                                   font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;">
+                        ${confirmText}
+                    </button>
+                </div>
+            </div>`;
+
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+
+        const input = modal.querySelector('#gim-input');
+
+        // Focus + highlight on open
+        setTimeout(() => { input.focus(); }, 50);
+
+        // Style focus
+        input.addEventListener('focus', () => { input.style.borderColor = 'var(--accent)'; });
+        input.addEventListener('blur',  () => { input.style.borderColor = 'rgba(255,255,255,.22)'; });
+
+        const cleanup = (val) => {
+            modal.remove();
+            document.body.style.overflow = '';
+            resolve(val);
+        };
+
+        modal.querySelector('#gim-cancel').addEventListener('click', () => cleanup(null));
+        modal.querySelector('#gim-confirm').addEventListener('click', () => {
+            const v = input.value.trim();
+            if (!v) { input.style.borderColor = '#e07070'; input.focus(); return; }
+            cleanup(v);
+        });
+        modal.addEventListener('click', e => { if (e.target === modal) cleanup(null); });
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                const v = input.value.trim();
+                if (!v) { input.style.borderColor = '#e07070'; return; }
+                cleanup(v);
+            }
+            if (e.key === 'Escape') cleanup(null);
+        });
+    });
+}
+
+window.inputModal = inputModal;
+
 // ── Перехватываем logout чтобы показать подтверждение ────────
 const _originalLogout = logout;
 window.logout = async function() {

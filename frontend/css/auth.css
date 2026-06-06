@@ -169,16 +169,21 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
-    background: rgba(255,255,255,.12);
-    border: 1px solid rgba(255,255,255,.18);
-    transition: background .2s;
+    background: transparent;
+    border: none;
+    transition: opacity .2s;
     flex-shrink: 0;
+    cursor: pointer;
 }
-.auth-back:hover { background: rgba(255,255,255,.22); }
-.auth-back img { width: 18px; height: 18px; object-fit: contain; }
+.auth-back:hover { opacity: .7; }
+.auth-back img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+}
 
 .auth-title {
     font-size: clamp(1.7rem, 3.5vw, 2.4rem);

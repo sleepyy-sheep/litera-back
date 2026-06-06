@@ -227,13 +227,15 @@ function displayShelves(shelves) {
                 <p style="color:var(--text-muted);margin-bottom:24px;">
                     Создайте первую полку для организации книг
                 </p>
-                <button onclick="openAddShelfModal()"
+                <button id="btn-empty-create-shelf"
                         style="padding:12px 28px;background:var(--accent);color:var(--surface);
                                border:none;border-radius:var(--r-pill);cursor:pointer;
                                font-size:15px;font-weight:bold;">
                     Создать полку
                 </button>
             </div>`;
+        document.getElementById('btn-empty-create-shelf')
+            ?.addEventListener('click', openAddShelfModal);
         return;
     }
 
@@ -359,11 +361,11 @@ async function openShelf(shelfId) {
                      style="width:40px;height:58px;border-radius:4px;object-fit:cover;flex-shrink:0;"
                      onerror="this.src='log_img/background_left_part.png'">
                 <span style="flex:1;font-size:14px;">${escSh(b.title)}</span>
-                <button onclick="window.location.href='reader.html?id=${b.id}'"
+                <button data-read-book="${b.id}"
                         style="padding:6px 14px;background:var(--accent);color:var(--surface);
                                border:none;border-radius:var(--r-pill);cursor:pointer;font-size:13px;
                                font-weight:bold;white-space:nowrap;">Читать</button>
-                <button onclick="removeBookFromShelfUi(${shelfId},${b.id})"
+                <button data-remove-book="${b.id}"
                         style="padding:6px 12px;background:rgba(255,255,255,.10);color:var(--text);
                                border:1px solid var(--card-border);border-radius:var(--r-pill);
                                cursor:pointer;font-size:13px;white-space:nowrap;">Убрать</button>
@@ -372,15 +374,14 @@ async function openShelf(shelfId) {
 
     modal.innerHTML = `
         <div class="modal modal--add-book" style="max-width:560px;">
-            <button class="modal__close modal__close--outside"
-                    onclick="document.getElementById('modal-shelf-books').remove();document.body.style.overflow='';"
+            <button class="modal__close modal__close--outside" id="close-shelf-books-modal"
                     aria-label="Закрыть">✕</button>
             <h2 class="add-book__heading" style="margin-bottom:12px;">
                 ${escSh(shelf.name)}
                 <span style="font-size:16px;color:var(--text-muted);">(${books.length})</span>
             </h2>
             <div style="margin-bottom:14px;">
-                <button onclick="addToShelfFromShelves(${shelfId})"
+                <button id="btn-add-to-this-shelf"
                         style="padding:9px 20px;background:var(--accent);color:var(--surface);
                                border:none;border-radius:var(--r-pill);cursor:pointer;font-size:13px;
                                font-weight:bold;">+ Добавить книгу на полку</button>
@@ -390,12 +391,25 @@ async function openShelf(shelfId) {
 
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
+
+    modal.querySelector('#close-shelf-books-modal').addEventListener('click', () => {
+        modal.remove(); document.body.style.overflow = '';
+    });
+    modal.querySelector('#btn-add-to-this-shelf').addEventListener('click', () => {
+        addToShelfFromShelves(shelfId, books.map(b => b.id));
+    });
     modal.addEventListener('click', e => {
-        if (e.target === modal) { modal.remove(); document.body.style.overflow = ''; }
+        if (e.target === modal) { modal.remove(); document.body.style.overflow = ''; return; }
+
+        const readId = e.target.dataset.readBook;
+        if (readId) { window.location.href = `reader.html?id=${readId}`; return; }
+
+        const removeId = e.target.dataset.removeBook;
+        if (removeId) { removeBookFromShelfUi(shelfId, Number(removeId)); return; }
     });
 }
 
-async function addToShelfFromShelves(shelfId) {
+async function addToShelfFromShelves(shelfId, existingBookIds = []) {
     // Close the shelf modal first
     document.getElementById('modal-shelf-books')?.remove();
     document.body.style.overflow = '';
@@ -404,6 +418,8 @@ async function addToShelfFromShelves(shelfId) {
     if (!booksResult.success) { showToast('Ошибка загрузки книг', 'error'); return; }
 
     const allBooks = booksResult.data;
+    // Нормализуем existing IDs в Set чисел
+    const existingSet = new Set((existingBookIds || []).map(Number));
 
     const modal = document.createElement('div');
     modal.className = 'modal-overlay modal-overlay--visible';
@@ -413,10 +429,12 @@ async function addToShelfFromShelves(shelfId) {
 
     modal.innerHTML = `
         <div class="modal modal--add-book" style="max-width:520px;">
-            <button class="modal__close modal__close--outside"
-                    onclick="document.getElementById('modal-add-to-shelf').remove();document.body.style.overflow='';"
+            <button class="modal__close modal__close--outside" id="close-add-to-shelf-modal"
                     aria-label="Закрыть">✕</button>
-            <h2 class="add-book__heading" style="margin-bottom:16px;">Добавить книгу на полку</h2>
+            <h2 class="add-book__heading" style="margin-bottom:8px;">Добавить книгу на полку</h2>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">
+                Книги с зелёной галочкой уже находятся на этой полке
+            </p>
             <div class="shelf-books-grid" id="add-to-shelf-grid" style="max-height:300px;overflow-y:auto;
                  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:2px;margin-bottom:16px;">
             </div>
@@ -429,6 +447,10 @@ async function addToShelfFromShelves(shelfId) {
 
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
+
+    modal.querySelector('#close-add-to-shelf-modal').addEventListener('click', () => {
+        modal.remove(); document.body.style.overflow = '';
+    });
     modal.addEventListener('click', e => {
         if (e.target === modal) { modal.remove(); document.body.style.overflow = ''; }
     });
@@ -438,22 +460,48 @@ async function addToShelfFromShelves(shelfId) {
 
     function renderGrid() {
         grid.innerHTML = allBooks.map(book => {
+            const alreadyOnShelf = existingSet.has(book.id);
             const sel = selectedIds.has(book.id);
             const src = book.cover_url || 'log_img/background_left_part.png';
+
+            // Цвет рамки: уже на полке — зелёная полупрозрачная, выбран — акцентная, нет — прозрачная
+            const borderColor = alreadyOnShelf
+                ? 'rgba(60,179,113,.7)'
+                : (sel ? 'var(--accent)' : 'transparent');
+
+            const checkBadge = alreadyOnShelf
+                ? `<span title="Уже на полке" style="position:absolute;top:4px;right:4px;width:22px;height:22px;
+                      border-radius:50%;background:rgba(60,179,113,.9);color:#fff;font-size:12px;font-weight:bold;
+                      display:flex;align-items:center;justify-content:center;">✓</span>`
+                : (sel
+                    ? `<span style="position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;
+                          background:var(--accent);color:var(--surface);font-size:11px;font-weight:bold;
+                          display:flex;align-items:center;justify-content:center;">✓</span>`
+                    : '');
+
+            // Уже на полке — не кликабельна для добавления повторно
+            const cursor = alreadyOnShelf ? 'default' : 'pointer';
+            const opacity = alreadyOnShelf ? '0.6' : '1';
+
             return `
                 <div class="shelf-book-pick${sel ? ' shelf-book-pick--selected' : ''}"
-                     data-book-id="${book.id}" title="${escSh(book.title)}"
-                     style="position:relative;border-radius:8px;overflow:hidden;cursor:pointer;
-                            aspect-ratio:2/3;border:2px solid ${sel ? 'var(--accent)' : 'transparent'};
-                            transition:border-color .18s,transform .15s;">
+                     data-book-id="${book.id}"
+                     data-already="${alreadyOnShelf ? '1' : '0'}"
+                     title="${escSh(book.title)}${alreadyOnShelf ? ' (уже на полке)' : ''}"
+                     style="position:relative;border-radius:8px;overflow:hidden;cursor:${cursor};
+                            aspect-ratio:2/3;border:2px solid ${borderColor};
+                            transition:border-color .18s,transform .15s;opacity:${opacity};">
                     <img src="${src}" alt="${escSh(book.title)}"
                          style="width:100%;height:100%;object-fit:cover;display:block;"
                          onerror="this.src='log_img/background_left_part.png'">
-                    ${sel ? '<span style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--surface);font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center;">✓</span>' : ''}
+                    ${checkBadge}
                 </div>`;
         }).join('');
 
         grid.querySelectorAll('.shelf-book-pick').forEach(el => {
+            // Не позволяем выбирать книги, которые уже на полке
+            if (el.dataset.already === '1') return;
+
             el.addEventListener('click', () => {
                 const id = parseInt(el.dataset.bookId, 10);
                 if (selectedIds.has(id)) selectedIds.delete(id);
@@ -473,8 +521,20 @@ async function addToShelfFromShelves(shelfId) {
         if (!selectedIds.size) return;
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Добавление...';
-        await Promise.all([...selectedIds].map(bookId => apiAddBookToShelf(shelfId, bookId)));
-        showToast(`Добавлено ${selectedIds.size} книг на полку`, 'success');
+
+        const results = await Promise.all(
+            [...selectedIds].map(bookId => apiAddBookToShelf(shelfId, bookId))
+        );
+
+        // Считаем успешно добавленные (409 — уже на полке, игнорируем)
+        const added = results.filter(r => r.success).length;
+        const alreadyThere = results.filter(r => !r.success && r.status === 409).length;
+
+        let msg = '';
+        if (added > 0) msg += `Добавлено ${added} ${pluralBooks(added)} на полку`;
+        if (alreadyThere > 0) msg += (msg ? ', ' : '') + `${alreadyThere} уже были на полке`;
+        showToast(msg || 'Готово', added > 0 ? 'success' : 'info');
+
         modal.remove();
         document.body.style.overflow = '';
         await loadShelves();
@@ -520,7 +580,13 @@ async function deleteShelf(shelfId) {
 }
 
 async function renameShelf(shelfId) {
-    const name = prompt('Новое название полки:');
+    const name = await inputModal({
+        title: 'Переименовать полку',
+        placeholder: 'Новое название',
+        confirmText: 'Сохранить',
+        cancelText: 'Отмена',
+        maxLength: 40,
+    });
     if (!name?.trim()) return;
     const result = await apiRenameShelf(shelfId, name.trim());
     if (result.success) {
@@ -560,6 +626,7 @@ function closeAddShelfModal() {
     modal.classList.remove('modal-overlay--visible');
     document.body.style.overflow = '';
     _selectedBookIds.clear();
+    hideShelfModalStatus();
 }
 
 async function loadBooksForShelfModal() {
@@ -675,17 +742,19 @@ async function handleCreateShelf() {
     const nameInput = document.getElementById('shelf-name-input');
     const name = nameInput?.value.trim();
 
-    if (!name) { nameInput?.focus(); showToast('Введите название полки', 'error'); return; }
+    if (!name) { nameInput?.focus(); showShelfModalStatus('Введите название полки', 'error'); return; }
 
     const submitBtn = document.getElementById('shelf-submit-btn');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Создание...'; }
+
+    showShelfModalStatus('Создаём полку...', 'info');
 
     const result = await apiCreateShelf(name);
 
     if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Создать полку'; }
 
     if (!result.success) {
-        showToast(formatApiError(result.error) || 'Ошибка создания полки', 'error');
+        showShelfModalStatus(formatApiError(result.error) || 'Ошибка создания полки', 'error');
         return;
     }
 
@@ -693,6 +762,7 @@ async function handleCreateShelf() {
 
     // Добавляем выбранные книги
     if (_selectedBookIds.size > 0) {
+        showShelfModalStatus('Добавляем книги...', 'info');
         await Promise.all(
             [..._selectedBookIds].map(bookId => apiAddBookToShelf(shelfId, bookId))
         );
@@ -718,6 +788,24 @@ function showToast(msg, type = 'info') {
     toast._t = setTimeout(() => toast.classList.remove('toast--visible'), 3000);
 }
 
+// Статус внутри модала создания полки
+function showShelfModalStatus(msg, type = 'info') {
+    const el = document.getElementById('add-shelf-status');
+    if (!el) { showToast(msg, type); return; }
+    el.textContent = msg;
+    el.className = `modal-status modal-status--${type}`;
+    el.style.display = 'block';
+    if (type !== 'error') {
+        clearTimeout(el._timer);
+        el._timer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+}
+
+function hideShelfModalStatus() {
+    const el = document.getElementById('add-shelf-status');
+    if (el) { el.style.display = 'none'; el.textContent = ''; }
+}
+
 // ── Вспомогательные ──────────────────────────────────────────
 
 function escSh(str) {
@@ -737,6 +825,10 @@ function formatApiError(err) {
 window.openShelf             = openShelf;
 window.deleteShelf           = deleteShelf;
 window.renameShelf           = renameShelf;
+window.removeBookFromShelfUi = removeBookFromShelfUi;
+window.openAddShelfModal     = openAddShelfModal;
+window.closeAddShelfModal    = closeAddShelfModal;
+window.addToShelfFromShelves = addToShelfFromShelves;
 window.removeBookFromShelfUi = removeBookFromShelfUi;
 window.openAddShelfModal     = openAddShelfModal;
 window.closeAddShelfModal    = closeAddShelfModal;
